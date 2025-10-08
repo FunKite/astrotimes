@@ -3,6 +3,7 @@
 use super::app::App;
 use crate::astro::*;
 use crate::time_sync;
+use chrono::{Datelike, Timelike};
 use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
@@ -10,7 +11,6 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph, Wrap},
     Frame,
 };
-use chrono::{Datelike, Timelike};
 
 pub fn render(f: &mut Frame, app: &App) {
     match app.mode {
@@ -68,10 +68,14 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
     let solar_noon = sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::SolarNoon);
     let civil_dawn = sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::CivilDawn);
     let civil_dusk = sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::CivilDusk);
-    let nautical_dawn = sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::NauticalDawn);
-    let nautical_dusk = sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::NauticalDusk);
-    let astro_dawn = sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::AstronomicalDawn);
-    let astro_dusk = sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::AstronomicalDusk);
+    let nautical_dawn =
+        sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::NauticalDawn);
+    let nautical_dusk =
+        sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::NauticalDusk);
+    let astro_dawn =
+        sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::AstronomicalDawn);
+    let astro_dusk =
+        sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::AstronomicalDusk);
 
     // Lunar events
     let moonrise = moon::lunar_event_time(&app.location, &now_tz, moon::LunarEvent::Moonrise);
@@ -84,30 +88,45 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
     let mut lines = Vec::new();
 
     // Location & Date section
+    lines.push(Line::from(vec![Span::styled(
+        "— Location & Date —",
+        Style::default()
+            .fg(get_color(app, Color::Yellow))
+            .add_modifier(Modifier::BOLD),
+    )]));
     lines.push(Line::from(vec![
-        Span::styled("— Location & Date —", Style::default().fg(get_color(app, Color::Yellow)).add_modifier(Modifier::BOLD)),
-    ]));
-    lines.push(Line::from(vec![
-        Span::raw(format!("📍 Lat, Lon (WGS84): {:.5}, {:.5}  ", app.location.latitude, app.location.longitude)),
-        Span::raw(format!("⛰️ Elevation (MSL): {:.0} m", app.location.elevation)),
+        Span::raw(format!(
+            "📍 Lat, Lon (WGS84): {:.5}, {:.5}  ",
+            app.location.latitude, app.location.longitude
+        )),
+        Span::raw(format!(
+            "⛰️ Elevation (MSL): {:.0} m",
+            app.location.elevation
+        )),
     ]));
     if let Some(ref city) = app.city_name {
         lines.push(Line::from(vec![Span::raw(format!("🏙️ Place: {}", city))]));
     }
     lines.push(Line::from(vec![
-        Span::raw(format!("📅 Date: {} {:02}:{:02}:{:02} {}  ",
+        Span::raw(format!(
+            "📅 Date: {} {:02}:{:02}:{:02} {}  ",
             now_tz.format("%b %d"),
             now_tz.hour(),
             now_tz.minute(),
             now_tz.second(),
             now_tz.format("%Z")
         )),
-        Span::raw(format!("⏰ Timezone: {} ({})",
+        Span::raw(format!(
+            "⏰ Timezone: {} ({})",
             app.timezone.name(),
             now_tz.format("UTC%:z")
         )),
     ]));
-    let time_sync_text = match (app.time_sync.delta, app.time_sync.direction(), app.time_sync.error_summary()) {
+    let time_sync_text = match (
+        app.time_sync.delta,
+        app.time_sync.direction(),
+        app.time_sync.error_summary(),
+    ) {
         (Some(delta), Some(direction), _) => format!(
             "🕒 Time sync: {} ({})",
             time_sync::format_offset(delta),
@@ -121,9 +140,12 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
     lines.push(Line::from(""));
 
     // Events section
-    lines.push(Line::from(vec![
-        Span::styled("— Events —", Style::default().fg(get_color(app, Color::Yellow)).add_modifier(Modifier::BOLD)),
-    ]));
+    lines.push(Line::from(vec![Span::styled(
+        "— Events —",
+        Style::default()
+            .fg(get_color(app, Color::Yellow))
+            .add_modifier(Modifier::BOLD),
+    )]));
 
     // Collect and sort all events
     let mut events = Vec::new();
@@ -176,38 +198,47 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
             diff_str = format!(" {}", diff_str);
         }
 
-        let marker = if Some(idx) == next_event_idx { " (*next*)" } else { "" };
+        let marker = if Some(idx) == next_event_idx {
+            " (*next*)"
+        } else {
+            ""
+        };
 
-        lines.push(Line::from(vec![
-            Span::raw(format!("{}  {:<18}  {:<18}{}", time_str, event_name, diff_str, marker)),
-        ]));
+        lines.push(Line::from(vec![Span::raw(format!(
+            "{}  {:<18}  {:<18}{}",
+            time_str, event_name, diff_str, marker
+        ))]));
     }
     lines.push(Line::from(""));
 
     // Position section
-    lines.push(Line::from(vec![
-        Span::styled("— Position —", Style::default().fg(get_color(app, Color::Yellow)).add_modifier(Modifier::BOLD)),
-    ]));
-    lines.push(Line::from(vec![
-        Span::raw(format!("☀️ Sun:  Alt {:>5.1}°, Az {:>3.0}° {}",
-            sun_pos.altitude,
-            sun_pos.azimuth,
-            coordinates::azimuth_to_compass(sun_pos.azimuth)
-        )),
-    ]));
-    lines.push(Line::from(vec![
-        Span::raw(format!("🌕 Moon: Alt {:>5.1}°, Az {:>3.0}° {}",
-            moon_pos.altitude,
-            moon_pos.azimuth,
-            coordinates::azimuth_to_compass(moon_pos.azimuth)
-        )),
-    ]));
+    lines.push(Line::from(vec![Span::styled(
+        "— Position —",
+        Style::default()
+            .fg(get_color(app, Color::Yellow))
+            .add_modifier(Modifier::BOLD),
+    )]));
+    lines.push(Line::from(vec![Span::raw(format!(
+        "☀️ Sun:  Alt {:>5.1}°, Az {:>3.0}° {}",
+        sun_pos.altitude,
+        sun_pos.azimuth,
+        coordinates::azimuth_to_compass(sun_pos.azimuth)
+    ))]));
+    lines.push(Line::from(vec![Span::raw(format!(
+        "🌕 Moon: Alt {:>5.1}°, Az {:>3.0}° {}",
+        moon_pos.altitude,
+        moon_pos.azimuth,
+        coordinates::azimuth_to_compass(moon_pos.azimuth)
+    ))]));
     lines.push(Line::from(""));
 
     // Moon section
-    lines.push(Line::from(vec![
-        Span::styled("— Moon —", Style::default().fg(get_color(app, Color::Yellow)).add_modifier(Modifier::BOLD)),
-    ]));
+    lines.push(Line::from(vec![Span::styled(
+        "— Moon —",
+        Style::default()
+            .fg(get_color(app, Color::Yellow))
+            .add_modifier(Modifier::BOLD),
+    )]));
 
     // Classify moon size
     let size_class = if moon_pos.angular_diameter > 33.0 {
@@ -222,26 +253,30 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
         "Near Apogee"
     };
 
-    lines.push(Line::from(vec![
-        Span::raw(format!("{} Phase:           {} (Age {:.1} days)",
-            moon::phase_emoji(moon_pos.phase_angle),
-            moon::phase_name(moon_pos.phase_angle),
-            (moon_pos.phase_angle / 360.0 * 29.53)
-        )),
-    ]));
-    lines.push(Line::from(vec![
-        Span::raw(format!("💡 Fraction Illum.: {:.0}%", moon_pos.illumination * 100.0)),
-    ]));
-    lines.push(Line::from(vec![
-        Span::raw(format!("🔭 Apparent size:   {:.1}' ({})", moon_pos.angular_diameter, size_class)),
-    ]));
+    lines.push(Line::from(vec![Span::raw(format!(
+        "{} Phase:           {} (Age {:.1} days)",
+        moon::phase_emoji(moon_pos.phase_angle),
+        moon::phase_name(moon_pos.phase_angle),
+        (moon_pos.phase_angle / 360.0 * 29.53)
+    ))]));
+    lines.push(Line::from(vec![Span::raw(format!(
+        "💡 Fraction Illum.: {:.0}%",
+        moon_pos.illumination * 100.0
+    ))]));
+    lines.push(Line::from(vec![Span::raw(format!(
+        "🔭 Apparent size:   {:.1}' ({})",
+        moon_pos.angular_diameter, size_class
+    ))]));
     lines.push(Line::from(""));
 
     // Lunar phases section
     if !phases.is_empty() {
-        lines.push(Line::from(vec![
-            Span::styled("— Lunar Phases —", Style::default().fg(get_color(app, Color::Yellow)).add_modifier(Modifier::BOLD)),
-        ]));
+        lines.push(Line::from(vec![Span::styled(
+            "— Lunar Phases —",
+            Style::default()
+                .fg(get_color(app, Color::Yellow))
+                .add_modifier(Modifier::BOLD),
+        )]));
 
         for phase in phases.iter().take(4) {
             let phase_emoji = match phase.phase_type {
@@ -257,14 +292,57 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
                 moon::LunarPhaseType::LastQuarter => "Last quarter:",
             };
             let phase_dt = phase.datetime.with_timezone(&app.timezone);
-            lines.push(Line::from(vec![
-                Span::raw(format!("{} {:<18} {}",
-                    phase_emoji,
-                    phase_name,
-                    phase_dt.format("%b %d %H:%M")
-                )),
-            ]));
+            lines.push(Line::from(vec![Span::raw(format!(
+                "{} {:<18} {}",
+                phase_emoji,
+                phase_name,
+                phase_dt.format("%b %d %H:%M")
+            ))]));
         }
+    }
+
+    if app.ai_config.enabled {
+        lines.push(Line::from(vec![Span::styled(
+            "— AI Insights —",
+            Style::default()
+                .fg(get_color(app, Color::Yellow))
+                .add_modifier(Modifier::BOLD),
+        )]));
+
+        match &app.ai_outcome {
+            Some(outcome) => {
+                let updated_local = outcome
+                    .updated_at
+                    .with_timezone(&app.timezone)
+                    .format("%Y-%m-%d %H:%M:%S %Z")
+                    .to_string();
+
+                lines.push(Line::from(vec![Span::raw(format!(
+                    "Model: {}  Updated: {}",
+                    outcome.model, updated_local
+                ))]));
+
+                if let Some(content) = &outcome.content {
+                    for line in content.lines() {
+                        lines.push(Line::from(Span::raw(line.trim_end().to_string())));
+                    }
+                } else {
+                    lines.push(Line::from(Span::raw("No insights available.")));
+                }
+
+                if let Some(err) = &outcome.error {
+                    lines.push(Line::from(Span::styled(
+                        format!("⚠️ {}", err),
+                        Style::default().fg(get_color(app, Color::LightRed)),
+                    )));
+                }
+            }
+            None => {
+                lines.push(Line::from(Span::raw("Fetching insights…")));
+            }
+        }
+
+        lines.push(Line::from(""));
     }
 
     let text = Text::from(lines);
@@ -316,7 +394,11 @@ fn render_city_picker(f: &mut Frame, app: &App) {
     let search_text = format!("Search: {}", app.city_search);
     let search = Paragraph::new(search_text)
         .style(Style::default().fg(get_color(app, Color::White)))
-        .block(Block::default().borders(Borders::ALL).title("Type to search"));
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .title("Type to search"),
+        );
     f.render_widget(search, chunks[1]);
 
     // Results list
@@ -345,15 +427,9 @@ fn render_city_picker(f: &mut Frame, app: &App) {
 
             let marker = if idx == app.city_selected { "> " } else { "  " };
             let line_text = if let Some(state) = &city.state {
-                format!(
-                    "{}{} ({}, {})",
-                    marker, city.name, city.country, state
-                )
+                format!("{}{} ({}, {})", marker, city.name, city.country, state)
             } else {
-                format!(
-                    "{}{} ({})",
-                    marker, city.name, city.country
-                )
+                format!("{}{} ({})", marker, city.name, city.country)
             };
             lines.push(Line::from(Span::styled(line_text, style)));
         }

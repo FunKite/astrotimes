@@ -1,10 +1,12 @@
 // JSON output module
 
+use crate::ai;
 use crate::astro::*;
 use crate::time_sync;
-use serde::Serialize;
-use chrono::{DateTime, Datelike};
 use anyhow::Result;
+use chrono::{DateTime, Datelike};
+use chrono_tz::Tz;
+use serde::Serialize;
 
 #[derive(Serialize)]
 pub struct JsonOutput {
@@ -13,6 +15,8 @@ pub struct JsonOutput {
     pub sun: SunData,
     pub moon: MoonData,
     pub lunar_phases: Vec<LunarPhaseData>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ai_insights: Option<AiInsightsData>,
 }
 
 #[derive(Serialize)]
@@ -104,17 +108,25 @@ pub struct TimeSyncData {
     pub error: Option<String>,
 }
 
-pub fn generate_json_output<T: chrono::TimeZone>(
+#[derive(Serialize)]
+pub struct AiInsightsData {
+    pub model: String,
+    pub updated_at: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub summary: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
+}
+
+pub fn generate_json_output(
     location: &Location,
-    _timezone: &T,
+    timezone: &Tz,
     city_name: Option<String>,
-    dt: &DateTime<T>,
+    dt: &DateTime<Tz>,
     timezone_name: &str,
     time_sync_info: &time_sync::TimeSyncInfo,
-) -> Result<String>
-where
-    T::Offset: std::fmt::Display,
-{
+    ai_config: &ai::AiConfig,
+) -> Result<String> {
     // Calculate sun position and events
     let sun_pos = sun::solar_position(location, dt);
     let sun_events = SunEvents {
@@ -167,6 +179,67 @@ where
         })
         .collect();
 
+    let city_name_ref = city_name.as_ref().map(|name| name.as_str());
+    let ai_insights = if ai_config.enabled {
+        let mut events = Vec::new();
+        if let Some(e) = sun::solar_event_time(location, dt, sun::SolarEvent::SolarNoon) {
+            events.push((e, "☀️ Solar noon"));
+        }
+        if let Some(e) = sun::solar_event_time(location, dt, sun::SolarEvent::Sunset) {
+            events.push((e, "🌇 Sunset"));
+        }
+        if let Some(e) = moon::lunar_event_time(location, dt, moon::LunarEvent::Moonrise) {
+            events.push((e, "🌕 Moonrise"));
+        }
+        if let Some(e) = sun::solar_event_time(location, dt, sun::SolarEvent::CivilDusk) {
+            events.push((e, "🌆 Civil dusk"));
+        }
+        if let Some(e) = sun::solar_event_time(location, dt, sun::SolarEvent::NauticalDusk) {
+            events.push((e, "⛵ Nautical dusk"));
+        }
+        if let Some(e) = sun::solar_event_time(location, dt, sun::SolarEvent::AstronomicalDusk) {
+            events.push((e, "🌠 Astro dusk"));
+        }
+        if let Some(e) = sun::solar_event_time(location, dt, sun::SolarEvent::AstronomicalDawn) {
+            events.push((e, "🔭 Astro dawn"));
+        }
+        if let Some(e) = sun::solar_event_time(location, dt, sun::SolarEvent::NauticalDawn) {
+            events.push((e, "⚓ Nautical dawn"));
+        }
+        if let Some(e) = sun::solar_event_time(location, dt, sun::SolarEvent::CivilDawn) {
+            events.push((e, "🏙️ Civil dawn"));
+        }
+        if let Some(e) = sun::solar_event_time(location, dt, sun::SolarEvent::Sunrise) {
+            events.push((e, "🌅 Sunrise"));
+        }
+        if let Some(e) = moon::lunar_event_time(location, dt, moon::LunarEvent::Moonset) {
+            events.push((e, "🌑 Moonset"));
+        }
+
+        events.sort_by_key(|(time, _)| *time);
+        let next_idx = events.iter().position(|(time, _)| *time > *dt);
+        let summaries = ai::prepare_event_summaries(&events, dt, next_idx);
+
+        let ai_data = ai::build_ai_data(
+            location,
+            timezone,
+            dt,
+            city_name_ref,
+            &sun_pos,
+            &moon_pos,
+            summaries,
+        );
+
+        let outcome = match ai::fetch_insights(ai_config, &ai_data) {
+            Ok(outcome) => outcome,
+            Err(err) => ai::AiOutcome::from_error(&ai_config.model, err),
+        };
+
+        Some(build_ai_insights(&outcome, timezone))
+    } else {
+        None
+    };
+
     let output = JsonOutput {
         location: LocationData {
             latitude: location.latitude,
@@ -177,7 +250,10 @@ where
         },
         datetime: DateTimeData {
             local: dt.format("%Y-%m-%d %H:%M:%S %Z").to_string(),
-            utc: dt.with_timezone(&chrono::Utc).format("%Y-%m-%d %H:%M:%S UTC").to_string(),
+            utc: dt
+                .with_timezone(&chrono::Utc)
+                .format("%Y-%m-%d %H:%M:%S UTC")
+                .to_string(),
             timezone_offset: dt.format("%:z").to_string(),
             time_sync: build_time_sync_data(time_sync_info),
         },
@@ -206,6 +282,7 @@ where
             },
         },
         lunar_phases,
+        ai_insights,
     };
 
     Ok(serde_json::to_string_pretty(&output)?)
@@ -238,5 +315,18 @@ fn build_time_sync_data(time_sync_info: &time_sync::TimeSyncInfo) -> TimeSyncDat
             },
             error: time_sync_info.error.clone(),
         },
+    }
+}
+
+fn build_ai_insights(outcome: &ai::AiOutcome, timezone: &Tz) -> AiInsightsData {
+    AiInsightsData {
+        model: outcome.model.clone(),
+        updated_at: outcome
+            .updated_at
+            .with_timezone(timezone)
+            .format("%Y-%m-%d %H:%M:%S %Z")
+            .to_string(),
+        summary: outcome.content.clone(),
+        error: outcome.error.clone(),
     }
 }

@@ -54,6 +54,22 @@ pub struct Args {
     /// Strict mode: exit with error if events don't occur (polar regions)
     #[arg(long)]
     pub strict: bool,
+
+    /// Enable AI insights via a local Ollama server
+    #[arg(long)]
+    pub ai_insights: bool,
+
+    /// Ollama server base URL or host:port (defaults to http://localhost:11434)
+    #[arg(long, default_value = "http://localhost:11434")]
+    pub ai_server: String,
+
+    /// Ollama model to query for insights
+    #[arg(long, default_value = "llama3")]
+    pub ai_model: String,
+
+    /// Minutes between AI insight refreshes in watch mode (1-60, default 2)
+    #[arg(long, default_value_t = 2)]
+    pub ai_refresh_minutes: u64,
 }
 
 impl Args {
