@@ -354,22 +354,6 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
                         Style::default().fg(get_color(app, Color::LightRed)),
                     )));
                 }
-
-                if let Some(payload) = &outcome.payload {
-                    lines.push(Line::from(""));
-                    lines.push(Line::from(Span::styled(
-                        "Data sent to model:",
-                        Style::default()
-                            .fg(get_color(app, Color::Gray))
-                            .add_modifier(Modifier::BOLD),
-                    )));
-                    for line in payload.lines() {
-                        lines.push(Line::from(Span::styled(
-                            format!("  {}", line.trim_end()),
-                            Style::default().fg(get_color(app, Color::Gray)),
-                        )));
-                    }
-                }
             }
             None => {
                 lines.push(Line::from(Span::raw("Fetching insights…")));
