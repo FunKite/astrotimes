@@ -10,7 +10,7 @@ High-precision astronomical CLI application written in Rust. Calculates sun/moon
 
 ---
 
-## Current Status (Last Updated: 2025-10-08 14:13 EDT)
+## Current Status (Last Updated: 2025-10-08 14:57 EDT)
 
 ### ✅ Fully Implemented Features
 1. **NOAA Solar Calculations**
@@ -57,6 +57,12 @@ High-precision astronomical CLI application written in Rust. Calculates sun/moon
 - Added startup clock sync check against worldtimeapi.org with graceful error handling (`src/time_sync.rs`).
 - Surface time delta across text output, watch-mode TUI, and JSON API so users immediately see system clock drift.
 - JSON now exposes `datetime.time_sync` metadata (seconds offset, formatted display, status) for scripting workflows.
+
+## Session Notes (2025-10-08 Codex - AI Insights Integration)
+- Added `src/ai.rs` module for talking to local Ollama servers, including prompt scaffolding and error-wrapped responses.
+- New CLI flags `--ai-insights`, `--ai-server`, `--ai-model`, and `--ai-refresh-minutes` control model selection, host, and 1–60 minute update cadence (default 2 min).
+- Text, JSON, and TUI outputs now render an `AI Insights` section when enabled, showing model, refresh timestamp, brief bullet output, or friendly error messaging.
+- Watch mode tracks refresh state inside the app, auto-refreshing on the configured cadence and reacting to location changes.
 
 ## Critical Bug Fixes (Recent)
 
@@ -653,7 +659,7 @@ From conversation:
 
 ---
 
-*Last updated: 2025-10-08 14:13 EDT*
-*Session: Codex (GPT-5) - Time sync indicator rollout*
+*Last updated: 2025-10-08 14:57 EDT*
+*Session: Codex (GPT-5) - AI insights integration*
 *Status: Beta 0.1 - Significantly improved lunar calculations*
 *Accuracy: Solar ±1 min, Lunar phases 100%, Moonrise/moonset ±1-4 min (was ±4-11 min)*

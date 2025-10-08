@@ -1,26 +1,24 @@
 // Astrotimes - High-precision astronomical CLI for sun and moon calculations
 
+mod ai;
 mod astro;
-mod cli;
 mod city;
+mod cli;
 mod config;
 mod location;
 mod output;
 mod time_sync;
 mod tui;
 
-use anyhow::{Result, Context, anyhow};
-use clap::Parser;
-use chrono::{Local, NaiveDate, TimeZone, Datelike};
+use anyhow::{anyhow, Context, Result};
+use chrono::{Datelike, Local, NaiveDate, TimeZone};
 use chrono_tz::Tz;
+use clap::Parser;
 use crossterm::{
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
-use ratatui::{
-    backend::CrosstermBackend,
-    Terminal,
-};
+use ratatui::{backend::CrosstermBackend, Terminal};
 use std::io;
 
 fn main() -> Result<()> {
@@ -31,6 +29,8 @@ fn main() -> Result<()> {
 
     // Check system clock against authoritative source
     let time_sync_info = time_sync::check_time_sync();
+
+    let ai_config = ai::AiConfig::from_args(&args)?;
 
     // Determine location
     let (location, timezone, city_name) = determine_location(&args, &mut config)?;
@@ -57,6 +57,7 @@ fn main() -> Result<()> {
             &dt,
             timezone.name(),
             &time_sync_info,
+            &ai_config,
         )?;
         println!("{}", json);
     } else if args.should_watch() {
@@ -67,10 +68,18 @@ fn main() -> Result<()> {
             city_name.clone(),
             args.refresh,
             time_sync_info.clone(),
+            ai_config.clone(),
         )?;
     } else {
         // Single output mode (text)
-        print_text_output(&location, &timezone, &city_name, &dt, &time_sync_info)?;
+        print_text_output(
+            &location,
+            &timezone,
+            &city_name,
+            &dt,
+            &time_sync_info,
+            &ai_config,
+        )?;
     }
 
     // Save config if requested
@@ -112,9 +121,9 @@ fn determine_location(
 
     // Check CLI arguments
     if let (Some(lat), Some(lon)) = (args.lat, args.lon) {
-        let elev = args.elev.unwrap_or_else(|| {
-            location::detect_elevation(lat, lon)
-        });
+        let elev = args
+            .elev
+            .unwrap_or_else(|| location::detect_elevation(lat, lon));
         let tz_str = args.tz.clone().unwrap_or_else(|| {
             // Try to detect timezone
             if let Ok(loc) = location::detect_location() {
@@ -171,6 +180,7 @@ fn run_watch_mode(
     city_name: Option<String>,
     refresh_interval: f64,
     time_sync_info: time_sync::TimeSyncInfo,
+    ai_config: ai::AiConfig,
 ) -> Result<()> {
     // Setup terminal
     enable_raw_mode()?;
@@ -186,7 +196,12 @@ fn run_watch_mode(
         city_name,
         refresh_interval,
         time_sync_info,
+        ai_config,
     );
+
+    if app.ai_config.enabled {
+        app.refresh_ai_insights();
+    }
 
     // Main loop
     let tick_rate = std::time::Duration::from_millis(100);
@@ -197,6 +212,10 @@ fn run_watch_mode(
         if last_update.elapsed() >= app.refresh_interval {
             app.update_time();
             last_update = std::time::Instant::now();
+        }
+
+        if app.should_refresh_ai() {
+            app.refresh_ai_insights();
         }
 
         // Render
@@ -238,6 +257,7 @@ fn print_text_output(
     city_name: &Option<String>,
     dt: &chrono::DateTime<Tz>,
     time_sync_info: &time_sync::TimeSyncInfo,
+    ai_config: &ai::AiConfig,
 ) -> Result<()> {
     println!("Astro Times — Sunrise, Sunset, Moonrise, Moonset");
 
@@ -250,13 +270,18 @@ fn print_text_output(
     if let Some(city) = city_name {
         println!("🏙️ Place: {}", city);
     }
-    println!("📅 Date: {} {}  ⏰ Timezone: {} (UTC{})",
+    println!(
+        "📅 Date: {} {}  ⏰ Timezone: {} (UTC{})",
         dt.format("%b %d %H:%M:%S"),
         dt.format("%Z"),
         timezone.name(),
         dt.format("%:z")
     );
-    match (time_sync_info.delta, time_sync_info.direction(), time_sync_info.error_summary()) {
+    match (
+        time_sync_info.delta,
+        time_sync_info.direction(),
+        time_sync_info.error_summary(),
+    ) {
         (Some(delta), Some(direction), _) => {
             println!(
                 "🕒 Time sync: {} ({})",
@@ -285,22 +310,31 @@ fn print_text_output(
     if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::Sunset) {
         events.push((e, "🌇 Sunset"));
     }
-    if let Some(e) = astro::moon::lunar_event_time(location, dt, astro::moon::LunarEvent::Moonrise) {
+    if let Some(e) = astro::moon::lunar_event_time(location, dt, astro::moon::LunarEvent::Moonrise)
+    {
         events.push((e, "🌕 Moonrise"));
     }
     if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::CivilDusk) {
         events.push((e, "🌆 Civil dusk"));
     }
-    if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::NauticalDusk) {
+    if let Some(e) =
+        astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::NauticalDusk)
+    {
         events.push((e, "⛵ Nautical dusk"));
     }
-    if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::AstronomicalDusk) {
+    if let Some(e) =
+        astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::AstronomicalDusk)
+    {
         events.push((e, "🌠 Astro dusk"));
     }
-    if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::AstronomicalDawn) {
+    if let Some(e) =
+        astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::AstronomicalDawn)
+    {
         events.push((e, "🔭 Astro dawn"));
     }
-    if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::NauticalDawn) {
+    if let Some(e) =
+        astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::NauticalDawn)
+    {
         events.push((e, "⚓ Nautical dawn"));
     }
     if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::CivilDawn) {
@@ -316,6 +350,11 @@ fn print_text_output(
     events.sort_by_key(|(time, _)| *time);
 
     let next_idx = events.iter().position(|(time, _)| *time > *dt);
+    let precomputed_ai_events = if ai_config.enabled {
+        Some(ai::prepare_event_summaries(&events, dt, next_idx))
+    } else {
+        None
+    };
 
     for (idx, (event_time, event_name)) in events.iter().enumerate() {
         let diff = astro::time_utils::time_until(dt, event_time);
@@ -326,9 +365,14 @@ fn print_text_output(
             diff_str = format!(" {}", diff_str);
         }
 
-        let marker = if Some(idx) == next_idx { " (*next*)" } else { "" };
+        let marker = if Some(idx) == next_idx {
+            " (*next*)"
+        } else {
+            ""
+        };
 
-        println!("{}  {:<18}  {:<18}{}",
+        println!(
+            "{}  {:<18}  {:<18}{}",
             event_time.format("%H:%M:%S"),
             event_name,
             diff_str,
@@ -375,7 +419,10 @@ fn print_text_output(
         (moon_pos.phase_angle / 360.0 * 29.53)
     );
     println!("💡 Fraction Illum.: {:.0}%", moon_pos.illumination * 100.0);
-    println!("🔭 Apparent size:   {:.1}' ({})", moon_pos.angular_diameter, size_class);
+    println!(
+        "🔭 Apparent size:   {:.1}' ({})",
+        moon_pos.angular_diameter, size_class
+    );
 
     // Lunar phases
     let phases = astro::moon::lunar_phases(dt.year(), dt.month());
@@ -397,6 +444,47 @@ fn print_text_output(
             let phase_dt = phase.datetime.with_timezone(timezone);
             println!("{} {:<18} {}", emoji, name, phase_dt.format("%b %d %H:%M"));
         }
+    }
+
+    if ai_config.enabled {
+        let ai_events = precomputed_ai_events
+            .unwrap_or_else(|| ai::prepare_event_summaries(&events, dt, next_idx));
+        let ai_data = ai::build_ai_data(
+            location,
+            timezone,
+            dt,
+            city_name.as_deref(),
+            &sun_pos,
+            &moon_pos,
+            ai_events,
+        );
+        let ai_outcome = match ai::fetch_insights(ai_config, &ai_data) {
+            Ok(outcome) => outcome,
+            Err(err) => ai::AiOutcome::from_error(&ai_config.model, err),
+        };
+
+        println!("— AI Insights —");
+
+        if let Some(content) = &ai_outcome.content {
+            for line in content.lines() {
+                println!("{}", line.trim_end());
+            }
+        } else {
+            println!("No insights available.");
+        }
+
+        if let Some(err) = &ai_outcome.error {
+            println!("⚠️ {}", err);
+        }
+
+        println!(
+            "Model: {}  Updated: {}",
+            ai_outcome.model,
+            ai_outcome
+                .updated_at
+                .with_timezone(timezone)
+                .format("%Y-%m-%d %H:%M:%S %Z")
+        );
     }
 
     Ok(())
