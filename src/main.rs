@@ -10,7 +10,7 @@ mod tui;
 
 use anyhow::{Result, Context, anyhow};
 use clap::Parser;
-use chrono::{Local, NaiveDate, TimeZone};
+use chrono::{Local, NaiveDate, TimeZone, Datelike};
 use chrono_tz::Tz;
 use crossterm::{
     execute,
@@ -214,21 +214,80 @@ fn print_text_output(
     city_name: &Option<String>,
     dt: &chrono::DateTime<Tz>,
 ) -> Result<()> {
-    println!("Astro Times — Sunrise, Sunset, Moonrise, Moonset\n");
+    println!("Astro Times — Sunrise, Sunset, Moonrise, Moonset");
 
     // Location
     println!("— Location & Date —");
     println!(
-        "📍 Lat, Lon: {:.5}, {:.5}  Elevation: {:.0} m",
+        "📍 Lat, Lon (WGS84): {:.5}, {:.5}  ⛰️  Elevation (MSL): {:.0} m",
         location.latitude, location.longitude, location.elevation
     );
     if let Some(city) = city_name {
         println!("🏙️  Place: {}", city);
     }
-    println!("📅 Date: {}", dt.format("%b %d %H:%M:%S"));
-    println!("⏰ Timezone: {} ({})\n", timezone.name(), dt.format("%Z %:z"));
+    println!("📅 Date: {} {}  ⏰ Timezone: {} (UTC{})",
+        dt.format("%b %d %H:%M:%S"),
+        dt.format("%Z"),
+        timezone.name(),
+        dt.format("%:z")
+    );
 
-    // Sun and Moon positions
+    // Events
+    println!("— Events —");
+
+    let mut events = Vec::new();
+    if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::SolarNoon) {
+        events.push((e, "☀️  Solar noon"));
+    }
+    if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::Sunset) {
+        events.push((e, "🌇 Sunset"));
+    }
+    if let Some(e) = astro::moon::lunar_event_time(location, dt, astro::moon::LunarEvent::Moonrise) {
+        events.push((e, "🌕 Moonrise"));
+    }
+    if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::CivilDusk) {
+        events.push((e, "🌆 Civil dusk"));
+    }
+    if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::NauticalDusk) {
+        events.push((e, "⛵ Nautical dusk"));
+    }
+    if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::AstronomicalDusk) {
+        events.push((e, "🌠 Astro dusk"));
+    }
+    if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::AstronomicalDawn) {
+        events.push((e, "🔭 Astro dawn"));
+    }
+    if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::NauticalDawn) {
+        events.push((e, "⚓ Nautical dawn"));
+    }
+    if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::CivilDawn) {
+        events.push((e, "🏙️  Civil dawn"));
+    }
+    if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::Sunrise) {
+        events.push((e, "🌅 Sunrise"));
+    }
+    if let Some(e) = astro::moon::lunar_event_time(location, dt, astro::moon::LunarEvent::Moonset) {
+        events.push((e, "🌑 Moonset"));
+    }
+
+    events.sort_by_key(|(time, _)| *time);
+
+    let next_idx = events.iter().position(|(time, _)| *time > *dt);
+
+    for (idx, (event_time, event_name)) in events.iter().enumerate() {
+        let diff = astro::time_utils::time_until(dt, event_time);
+        let diff_str = astro::time_utils::format_duration_detailed(diff);
+        let marker = if Some(idx) == next_idx { " (*next*)" } else { "" };
+
+        println!("{}  {:<18} {:<18}{}",
+            event_time.format("%H:%M:%S"),
+            event_name,
+            diff_str,
+            marker
+        );
+    }
+
+    // Position
     let sun_pos = astro::sun::solar_position(location, dt);
     let moon_pos = astro::moon::lunar_position(location, dt);
 
@@ -240,37 +299,52 @@ fn print_text_output(
         astro::coordinates::azimuth_to_compass(sun_pos.azimuth)
     );
     println!(
-        "{} Moon: Alt {:>5.1}°, Az {:>3.0}° {}",
-        astro::moon::phase_emoji(moon_pos.phase_angle),
+        "🌕 Moon: Alt {:>5.1}°, Az {:>3.0}° {}",
         moon_pos.altitude,
         moon_pos.azimuth,
         astro::coordinates::azimuth_to_compass(moon_pos.azimuth)
     );
-    println!();
 
-    // Solar events
-    println!("— Solar Events —");
-    if let Some(sunrise) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::Sunrise) {
-        println!("🌅 Sunrise:       {}", sunrise.format("%H:%M"));
-    }
-    if let Some(noon) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::SolarNoon) {
-        println!("☀️  Solar noon:   {}", noon.format("%H:%M"));
-    }
-    if let Some(sunset) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::Sunset) {
-        println!("🌇 Sunset:        {}", sunset.format("%H:%M"));
-    }
-    println!();
+    // Moon
+    let size_class = if moon_pos.angular_diameter > 33.5 {
+        "(Supermoon)"
+    } else if moon_pos.angular_diameter < 29.5 {
+        "(Micromoon)"
+    } else {
+        "(Typical)"
+    };
 
-    // Moon info
     println!("— Moon —");
     println!(
-        "Phase:        {} {}",
+        "{} Phase:           {} (Age {:.1} days)",
         astro::moon::phase_emoji(moon_pos.phase_angle),
-        astro::moon::phase_name(moon_pos.phase_angle)
+        astro::moon::phase_name(moon_pos.phase_angle),
+        (moon_pos.phase_angle / 360.0 * 29.53)
     );
-    println!("Illumination: {:.0}%", moon_pos.illumination * 100.0);
-    println!("Distance:     {:.0} km", moon_pos.distance);
-    println!();
+    println!("💡 Fraction Illum.: {:.0}%", moon_pos.illumination * 100.0);
+    println!("🔭 Apparent size:   {:.1}' {}", moon_pos.angular_diameter, size_class);
+
+    // Lunar phases
+    let phases = astro::moon::lunar_phases(dt.year(), dt.month());
+    if !phases.is_empty() {
+        println!("— Lunar Phases —");
+        for phase in phases.iter().take(4) {
+            let emoji = match phase.phase_type {
+                astro::moon::LunarPhaseType::NewMoon => "🌑",
+                astro::moon::LunarPhaseType::FirstQuarter => "🌓",
+                astro::moon::LunarPhaseType::FullMoon => "🌕",
+                astro::moon::LunarPhaseType::LastQuarter => "🌗",
+            };
+            let name = match phase.phase_type {
+                astro::moon::LunarPhaseType::NewMoon => "New:",
+                astro::moon::LunarPhaseType::FirstQuarter => "First quarter:",
+                astro::moon::LunarPhaseType::FullMoon => "Full:",
+                astro::moon::LunarPhaseType::LastQuarter => "Last quarter:",
+            };
+            let phase_dt = phase.datetime.with_timezone(timezone);
+            println!("{} {:<18} {}", emoji, name, phase_dt.format("%b %d %H:%M"));
+        }
+    }
 
     Ok(())
 }

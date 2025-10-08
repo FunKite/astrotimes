@@ -61,15 +61,14 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
     let solar_noon = sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::SolarNoon);
     let civil_dawn = sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::CivilDawn);
     let civil_dusk = sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::CivilDusk);
-    let _nautical_dawn = sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::NauticalDawn);
+    let nautical_dawn = sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::NauticalDawn);
     let nautical_dusk = sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::NauticalDusk);
-    let _astro_dawn = sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::AstronomicalDawn);
+    let astro_dawn = sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::AstronomicalDawn);
     let astro_dusk = sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::AstronomicalDusk);
 
     // Lunar events
     let moonrise = moon::lunar_event_time(&app.location, &now_tz, moon::LunarEvent::Moonrise);
     let moonset = moon::lunar_event_time(&app.location, &now_tz, moon::LunarEvent::Moonset);
-    let _moon_transit = moon::lunar_event_time(&app.location, &now_tz, moon::LunarEvent::Transit);
 
     // Lunar phases
     let phases = moon::lunar_phases(now_tz.year(), now_tz.month());
@@ -82,24 +81,83 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
         Span::styled("— Location & Date —", Style::default().fg(get_color(app, Color::Yellow)).add_modifier(Modifier::BOLD)),
     ]));
     lines.push(Line::from(vec![
-        Span::raw(format!("📍 Lat, Lon: {:.5}, {:.5}  ", app.location.latitude, app.location.longitude)),
-        Span::raw(format!("Elevation: {:.0} m", app.location.elevation)),
+        Span::raw(format!("📍 Lat, Lon (WGS84): {:.5}, {:.5}  ", app.location.latitude, app.location.longitude)),
+        Span::raw(format!("⛰️  Elevation (MSL): {:.0} m", app.location.elevation)),
     ]));
     if let Some(ref city) = app.city_name {
         lines.push(Line::from(vec![Span::raw(format!("🏙️  Place: {}", city))]));
     }
     lines.push(Line::from(vec![
-        Span::raw(format!("📅 Date: {} {:02}:{:02}:{:02}  ",
+        Span::raw(format!("📅 Date: {} {:02}:{:02}:{:02} {}  ",
             now_tz.format("%b %d"),
             now_tz.hour(),
             now_tz.minute(),
-            now_tz.second()
+            now_tz.second(),
+            now_tz.format("%Z")
         )),
         Span::raw(format!("⏰ Timezone: {} ({})",
             app.timezone.name(),
-            now_tz.format("%Z %:z")
+            now_tz.format("UTC%:z")
         )),
     ]));
+    lines.push(Line::from(""));
+
+    // Events section
+    lines.push(Line::from(vec![
+        Span::styled("— Events —", Style::default().fg(get_color(app, Color::Yellow)).add_modifier(Modifier::BOLD)),
+    ]));
+
+    // Collect and sort all events
+    let mut events = Vec::new();
+    if let Some(dt) = solar_noon {
+        events.push((dt, "☀️  Solar noon"));
+    }
+    if let Some(dt) = sunset {
+        events.push((dt, "🌇 Sunset"));
+    }
+    if let Some(dt) = moonrise {
+        events.push((dt, "🌕 Moonrise"));
+    }
+    if let Some(dt) = civil_dusk {
+        events.push((dt, "🌆 Civil dusk"));
+    }
+    if let Some(dt) = nautical_dusk {
+        events.push((dt, "⛵ Nautical dusk"));
+    }
+    if let Some(dt) = astro_dusk {
+        events.push((dt, "🌠 Astro dusk"));
+    }
+    if let Some(dt) = astro_dawn {
+        events.push((dt, "🔭 Astro dawn"));
+    }
+    if let Some(dt) = nautical_dawn {
+        events.push((dt, "⚓ Nautical dawn"));
+    }
+    if let Some(dt) = civil_dawn {
+        events.push((dt, "🏙️  Civil dawn"));
+    }
+    if let Some(dt) = sunrise {
+        events.push((dt, "🌅 Sunrise"));
+    }
+    if let Some(dt) = moonset {
+        events.push((dt, "🌑 Moonset"));
+    }
+
+    events.sort_by_key(|(dt, _)| *dt);
+
+    // Find the next upcoming event
+    let next_event_idx = events.iter().position(|(dt, _)| *dt > now_tz);
+
+    for (idx, (event_time, event_name)) in events.iter().enumerate() {
+        let time_diff = time_utils::time_until(&now_tz, event_time);
+        let time_str = format!("{}", event_time.format("%H:%M:%S"));
+        let diff_str = time_utils::format_duration_detailed(time_diff);
+        let marker = if Some(idx) == next_event_idx { " (*next*)" } else { "" };
+
+        lines.push(Line::from(vec![
+            Span::raw(format!("{}  {:<18} {:<18}{}", time_str, event_name, diff_str, marker)),
+        ]));
+    }
     lines.push(Line::from(""));
 
     // Position section
@@ -114,8 +172,7 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
         )),
     ]));
     lines.push(Line::from(vec![
-        Span::raw(format!("{} Moon: Alt {:>5.1}°, Az {:>3.0}° {}",
-            moon::phase_emoji(moon_pos.phase_angle),
+        Span::raw(format!("🌕 Moon: Alt {:>5.1}°, Az {:>3.0}° {}",
             moon_pos.altitude,
             moon_pos.azimuth,
             coordinates::azimuth_to_compass(moon_pos.azimuth)
@@ -123,72 +180,32 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
     ]));
     lines.push(Line::from(""));
 
-    // Events section
-    lines.push(Line::from(vec![
-        Span::styled("— Events —", Style::default().fg(get_color(app, Color::Yellow)).add_modifier(Modifier::BOLD)),
-    ]));
-
-    // Collect and sort all events
-    let mut events = Vec::new();
-    if let Some(dt) = civil_dawn {
-        events.push((dt, "🏙️  Civil dawn", false));
-    }
-    if let Some(dt) = sunrise {
-        events.push((dt, "🌅 Sunrise", false));
-    }
-    if let Some(dt) = moonset {
-        events.push((dt, "🌑 Moonset", true));
-    }
-    if let Some(dt) = solar_noon {
-        events.push((dt, "☀️  Solar noon", false));
-    }
-    if let Some(dt) = moonrise {
-        events.push((dt, "🌕 Moonrise", true));
-    }
-    if let Some(dt) = sunset {
-        events.push((dt, "🌇 Sunset", false));
-    }
-    if let Some(dt) = civil_dusk {
-        events.push((dt, "🏙️  Civil dusk", false));
-    }
-    if let Some(dt) = nautical_dusk {
-        events.push((dt, "⚓ Nautical dusk", false));
-    }
-    if let Some(dt) = astro_dusk {
-        events.push((dt, "🔭 Astro dusk", false));
-    }
-
-    events.sort_by_key(|(dt, _, _)| *dt);
-
-    for (event_time, event_name, _is_moon) in events {
-        let time_diff = time_utils::time_until(&now_tz, &event_time);
-        let time_str = time_utils::format_time(&event_time);
-        let diff_str = time_utils::format_duration(time_diff);
-
-        lines.push(Line::from(vec![
-            Span::raw(format!("{}   {:<20} {}", time_str, event_name, diff_str)),
-        ]));
-    }
-    lines.push(Line::from(""));
-
     // Moon section
     lines.push(Line::from(vec![
         Span::styled("— Moon —", Style::default().fg(get_color(app, Color::Yellow)).add_modifier(Modifier::BOLD)),
     ]));
+
+    // Classify moon size
+    let size_class = if moon_pos.angular_diameter > 33.5 {
+        "(Supermoon)"
+    } else if moon_pos.angular_diameter < 29.5 {
+        "(Micromoon)"
+    } else {
+        "(Typical)"
+    };
+
     lines.push(Line::from(vec![
-        Span::raw(format!("Phase:               {} {}",
+        Span::raw(format!("{} Phase:           {} (Age {:.1} days)",
             moon::phase_emoji(moon_pos.phase_angle),
-            moon::phase_name(moon_pos.phase_angle)
+            moon::phase_name(moon_pos.phase_angle),
+            (moon_pos.phase_angle / 360.0 * 29.53)
         )),
     ]));
     lines.push(Line::from(vec![
-        Span::raw(format!("Illumination:        {:.0}%", moon_pos.illumination * 100.0)),
+        Span::raw(format!("💡 Fraction Illum.: {:.0}%", moon_pos.illumination * 100.0)),
     ]));
     lines.push(Line::from(vec![
-        Span::raw(format!("Apparent size:       {:.1}'", moon_pos.angular_diameter)),
-    ]));
-    lines.push(Line::from(vec![
-        Span::raw(format!("Distance:            {:.0} km", moon_pos.distance)),
+        Span::raw(format!("🔭 Apparent size:   {:.1}' {}", moon_pos.angular_diameter, size_class)),
     ]));
     lines.push(Line::from(""));
 
@@ -206,17 +223,17 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
                 moon::LunarPhaseType::LastQuarter => "🌗",
             };
             let phase_name = match phase.phase_type {
-                moon::LunarPhaseType::NewMoon => "New",
-                moon::LunarPhaseType::FirstQuarter => "First quarter",
-                moon::LunarPhaseType::FullMoon => "Full",
-                moon::LunarPhaseType::LastQuarter => "Last quarter",
+                moon::LunarPhaseType::NewMoon => "New:",
+                moon::LunarPhaseType::FirstQuarter => "First quarter:",
+                moon::LunarPhaseType::FullMoon => "Full:",
+                moon::LunarPhaseType::LastQuarter => "Last quarter:",
             };
             let phase_dt = phase.datetime.with_timezone(&app.timezone);
             lines.push(Line::from(vec![
-                Span::raw(format!("{} {:<14} {}",
+                Span::raw(format!("{} {:<18} {}",
                     phase_emoji,
                     phase_name,
-                    phase_dt.format("%b %d %H:%M %Z")
+                    phase_dt.format("%b %d %H:%M")
                 )),
             ]));
         }

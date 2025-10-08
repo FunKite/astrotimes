@@ -15,6 +15,20 @@ pub fn format_duration(duration: Duration) -> String {
     }
 }
 
+/// Format duration with seconds as detailed string
+pub fn format_duration_detailed(duration: Duration) -> String {
+    let total_secs = duration.num_seconds().abs();
+    let hours = total_secs / 3600;
+    let minutes = (total_secs % 3600) / 60;
+    let seconds = total_secs % 60;
+
+    if duration.num_seconds() < 0 {
+        format!("{:02}:{:02}:{:02} ago", hours, minutes, seconds)
+    } else {
+        format!("{:02}:{:02}:{:02} from now", hours, minutes, seconds)
+    }
+}
+
 /// Format time as HH:MM string
 pub fn format_time<T: TimeZone>(dt: &DateTime<T>) -> String
 where
