@@ -1,0 +1,45 @@
+[package]
+name = "astrotimes"
+version = "0.1.0"
+edition = "2021"
+authors = ["Mike McLarney"]
+description = "A high-precision astronomical CLI for sun and moon calculations"
+license = "MIT"
+
+[dependencies]
+# CLI and terminal UI
+clap = { version = "4.5", features = ["derive"] }
+ratatui = "0.28"
+crossterm = "0.28"
+
+# Date and time handling
+chrono = "0.4"
+chrono-tz = "0.9"
+
+# JSON serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Astronomical calculations - we'll implement custom algorithms
+# based on NOAA and Meeus for maximum accuracy
+
+# HTTP for location detection
+reqwest = { version = "0.12", features = ["blocking", "json"] }
+
+# Fuzzy search for city picker
+fuzzy-matcher = "0.3"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Math utilities
+num-traits = "0.2"
+
+# Home directory detection
+dirs = "5.0"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
