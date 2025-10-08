@@ -153,7 +153,7 @@ fn fetch_usno_data<'a>(date: &str, city: &City<'a>) -> Result<UsnoResponse, reqw
 }
 
 fn run_astrotimes<'a>(date: &str, city: &City<'a>) -> Result<std::process::Output, std::io::Error> {
-    Command::new("target/debug/astrotimes")
+    Command::new("target/release/astrotimes")
         .arg(format!("--lat={}", city.lat))
         .arg(format!("--lon={}", city.lon))
         .arg(format!("--tz={}", city.tz))

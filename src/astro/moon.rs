@@ -175,7 +175,18 @@ pub fn lunar_position<T: TimeZone>(location: &Location, dt: &DateTime<T>) -> Lun
 
     let sin_alt = lat_rad.sin() * delta.sin()
         + lat_rad.cos() * delta.cos() * ha_rad.cos();
-    let altitude = sin_alt.asin() * RAD_TO_DEG;
+    let altitude_geocentric = sin_alt.asin() * RAD_TO_DEG;
+
+    // Apply topocentric parallax correction for the moon
+    // Horizontal parallax: HP = arcsin(Earth radius / moon distance)
+    const EARTH_RADIUS_KM: f64 = 6378.14;
+    let horizontal_parallax = (EARTH_RADIUS_KM / distance).asin(); // in radians
+
+    // Parallax correction depends on altitude
+    // At horizon: full horizontal parallax; at zenith: zero
+    let altitude_geocentric_rad = altitude_geocentric * DEG_TO_RAD;
+    let parallax_correction = horizontal_parallax * altitude_geocentric_rad.cos();
+    let altitude = altitude_geocentric - (parallax_correction * RAD_TO_DEG);
 
     // Calculate azimuth using atan2 for numerical stability
     let altitude_rad = altitude * DEG_TO_RAD;
@@ -392,7 +403,9 @@ pub fn lunar_event_time<T: TimeZone>(
     let mut t1: f64 = 0.0; // hours from start
     let mut t2: f64 = 24.0;
 
-    let altitude_threshold = -0.583; // Standard refraction for rise/set
+    // Altitude threshold for moon rise/set: refraction (34') + semi-diameter (~16')
+    // ≈ 0.567° + 0.267° = 0.834° below geometric horizon
+    let altitude_threshold = -0.834;
 
     for _ in 0..30 {
         let t_mid = (t1 + t2) / 2.0;
@@ -455,31 +468,33 @@ pub fn lunar_event_time<T: TimeZone>(
 }
 
 /// Get phase name from phase angle
+/// Uses narrower boundaries for primary phases to match astronomical conventions
 pub fn phase_name(phase_angle: f64) -> &'static str {
     match phase_angle {
-        a if a < 22.5 => "New Moon",
-        a if a < 67.5 => "Waxing Crescent",
-        a if a < 112.5 => "First Quarter",
-        a if a < 157.5 => "Waxing Gibbous",
-        a if a < 202.5 => "Full Moon",
-        a if a < 247.5 => "Waning Gibbous",
-        a if a < 292.5 => "Last Quarter",
-        a if a < 337.5 => "Waning Crescent",
+        a if a < 11.25 => "New Moon",
+        a if a < 78.75 => "Waxing Crescent",
+        a if a < 101.25 => "First Quarter",
+        a if a < 168.75 => "Waxing Gibbous",
+        a if a < 191.25 => "Full Moon",
+        a if a < 258.75 => "Waning Gibbous",
+        a if a < 281.25 => "Last Quarter",
+        a if a < 348.75 => "Waning Crescent",
         _ => "New Moon",
     }
 }
 
 /// Get phase emoji
+/// Uses narrower boundaries for primary phases to match astronomical conventions
 pub fn phase_emoji(phase_angle: f64) -> &'static str {
     match phase_angle {
-        a if a < 22.5 => "🌑",
-        a if a < 67.5 => "🌒",
-        a if a < 112.5 => "🌓",
-        a if a < 157.5 => "🌔",
-        a if a < 202.5 => "🌕",
-        a if a < 247.5 => "🌖",
-        a if a < 292.5 => "🌗",
-        a if a < 337.5 => "🌘",
+        a if a < 11.25 => "🌑",
+        a if a < 78.75 => "🌒",
+        a if a < 101.25 => "🌓",
+        a if a < 168.75 => "🌔",
+        a if a < 191.25 => "🌕",
+        a if a < 258.75 => "🌖",
+        a if a < 281.25 => "🌗",
+        a if a < 348.75 => "🌘",
         _ => "🌑",
     }
 }
