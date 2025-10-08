@@ -77,6 +77,11 @@ High-precision astronomical CLI application written in Rust. Calculates sun/moon
 - Saving AI settings validates reachability, normalizes the server URL, and keeps the chosen model synced with detection results (`src/tui/app.rs`).
 - AI prompt now asks for a single interpretive paragraph rather than bullet points, and the dashboard shows “Updated MM:SS ago” to spotlight freshness (`src/ai.rs`, `src/tui/ui.rs`).
 
+## Session Notes (2025-10-08 Codex - Insight Failover & Payload Display)
+- AI polling keeps the last successful insight on screen while surfacing connection errors, so transient network hiccups don’t blank the panel (`src/tui/app.rs`).
+- HTTP timeout now stretches to just under the configured refresh interval, reducing spurious failures for slower Ollama responses (`src/ai.rs`).
+- Every insight carries the serialized JSON payload sent to the LLM; the TUI, CLI, and JSON output all render it so the user can inspect exactly what was shared (`src/ai.rs`, `src/main.rs`, `src/output.rs`, `src/tui/ui.rs`).
+
 ## Critical Bug Fixes (Recent)
 
 ### 1. Timezone Bug (FIXED)

@@ -4,7 +4,7 @@ use crate::ai;
 use crate::astro::*;
 use crate::time_sync;
 use anyhow::Result;
-use chrono::{DateTime, Datelike};
+use chrono::{DateTime, Datelike, Utc};
 use chrono_tz::Tz;
 use serde::Serialize;
 
@@ -113,9 +113,13 @@ pub struct AiInsightsData {
     pub model: String,
     pub updated_at: String,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub updated_elapsed: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub summary: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub payload: Option<String>,
 }
 
 pub fn generate_json_output(
@@ -230,10 +234,19 @@ pub fn generate_json_output(
             summaries,
         );
 
-        let outcome = match ai::fetch_insights(ai_config, &ai_data) {
+        let payload_json = serde_json::to_string_pretty(&ai_data)
+            .unwrap_or_else(|err| format!("Unable to serialize AI payload: {}", err));
+
+        let mut outcome = match ai::fetch_insights(ai_config, &ai_data) {
             Ok(outcome) => outcome,
-            Err(err) => ai::AiOutcome::from_error(&ai_config.model, err),
+            Err(err) => {
+                ai::AiOutcome::from_error(&ai_config.model, err, Some(payload_json.clone()))
+            }
         };
+
+        if outcome.payload.is_none() {
+            outcome.payload = Some(payload_json);
+        }
 
         Some(build_ai_insights(&outcome, timezone))
     } else {
@@ -319,6 +332,12 @@ fn build_time_sync_data(time_sync_info: &time_sync::TimeSyncInfo) -> TimeSyncDat
 }
 
 fn build_ai_insights(outcome: &ai::AiOutcome, timezone: &Tz) -> AiInsightsData {
+    let elapsed = Utc::now().signed_duration_since(outcome.updated_at);
+    let elapsed_secs = elapsed.num_seconds().max(0);
+    let minutes = elapsed_secs / 60;
+    let seconds = elapsed_secs % 60;
+    let elapsed_display = format!("Updated {:02}:{:02} ago", minutes, seconds);
+
     AiInsightsData {
         model: outcome.model.clone(),
         updated_at: outcome
@@ -326,7 +345,9 @@ fn build_ai_insights(outcome: &ai::AiOutcome, timezone: &Tz) -> AiInsightsData {
             .with_timezone(timezone)
             .format("%Y-%m-%d %H:%M:%S %Z")
             .to_string(),
+        updated_elapsed: Some(elapsed_display),
         summary: outcome.content.clone(),
         error: outcome.error.clone(),
+        payload: outcome.payload.clone(),
     }
 }

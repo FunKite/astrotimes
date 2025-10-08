@@ -75,6 +75,7 @@ pub struct AiOutcome {
     pub content: Option<String>,
     pub error: Option<String>,
     pub updated_at: DateTime<Utc>,
+    pub payload: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -148,22 +149,32 @@ impl AiConfig {
 }
 
 impl AiOutcome {
-    pub fn success(model: &str, content: String) -> Self {
+    pub fn success(model: &str, content: String, payload: String) -> Self {
         Self {
             model: model.to_string(),
             content: Some(content),
             error: None,
             updated_at: Utc::now(),
+            payload: Some(payload),
         }
     }
 
-    pub fn from_error(model: &str, err: anyhow::Error) -> Self {
+    pub fn from_error(model: &str, err: anyhow::Error, payload: Option<String>) -> Self {
         Self {
             model: model.to_string(),
             content: None,
             error: Some(summarize_error(&err.to_string())),
             updated_at: Utc::now(),
+            payload,
         }
+    }
+
+    pub fn with_error_message(mut self, message: String, payload: Option<String>) -> Self {
+        self.error = Some(summarize_error(&message));
+        if let Some(payload) = payload {
+            self.payload = Some(payload);
+        }
+        self
     }
 }
 
@@ -232,9 +243,20 @@ pub fn fetch_insights(config: &AiConfig, data: &AiData) -> Result<AiOutcome> {
         return Err(anyhow!("AI insights are disabled"));
     }
 
-    let prompt = build_prompt(data)?;
+    let (prompt, payload_json) = build_prompt(data)?;
+    let desired_timeout = if config.refresh > StdDuration::from_secs(1) {
+        config.refresh - StdDuration::from_secs(1)
+    } else {
+        StdDuration::from_secs(DEFAULT_TIMEOUT_SECS)
+    };
+    let timeout = if desired_timeout >= StdDuration::from_secs(DEFAULT_TIMEOUT_SECS) {
+        desired_timeout
+    } else {
+        StdDuration::from_secs(DEFAULT_TIMEOUT_SECS)
+    };
+
     let client = Client::builder()
-        .timeout(StdDuration::from_secs(DEFAULT_TIMEOUT_SECS))
+        .timeout(timeout)
         .build()
         .context("failed to construct HTTP client for Ollama")?;
 
@@ -269,17 +291,19 @@ pub fn fetch_insights(config: &AiConfig, data: &AiData) -> Result<AiOutcome> {
             content: Some("No insights returned by model.".to_string()),
             error: None,
             updated_at: Utc::now(),
+            payload: Some(payload_json),
         })
     } else {
-        Ok(AiOutcome::success(&config.model, content))
+        Ok(AiOutcome::success(&config.model, content, payload_json))
     }
 }
 
-fn build_prompt(data: &AiData) -> Result<String> {
+fn build_prompt(data: &AiData) -> Result<(String, String)> {
     let data_json =
         serde_json::to_string_pretty(data).context("failed to serialize AI data payload")?;
 
-    Ok(format!(
+    Ok((
+        format!(
         "You are an astronomy specialist generating concise insights.\n\
          Requirements:\n\
          - Provide a single short paragraph of narrative analysis highlighting notable solar and lunar observations.\n\
@@ -287,7 +311,8 @@ fn build_prompt(data: &AiData) -> Result<String> {
          - No bullet points, formatting, or questions. One response only with no follow-ups.\n\
          Data:\n{}\n\nInsights:",
         data_json
-    ))
+    ),
+    data_json))
 }
 
 fn summarize_error(message: &str) -> String {
