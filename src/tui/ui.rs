@@ -381,30 +381,33 @@ fn render_footer(f: &mut Frame, area: Rect, app: &App) {
     )));
 
     let max_width = area.width.saturating_sub(4) as usize;
-    let mut current: Vec<String> = Vec::new();
+    let mut current_line = String::new();
 
     for entry in instructions {
-        let item = format!("{}{}", if current.is_empty() { "" } else { "| " }, entry);
-        let candidate = if current.is_empty() {
-            item.clone()
+        let entry_str = entry.to_string();
+        let candidate_len = if current_line.is_empty() {
+            entry_str.len()
         } else {
-            format!("{} | {}", current.join(" | "), entry)
+            current_line.len() + 3 + entry_str.len()
         };
 
-        if !current.is_empty() && candidate.len() > max_width {
+        if !current_line.is_empty() && candidate_len > max_width {
             lines.push(Line::from(Span::styled(
-                current.join(" | "),
+                current_line.clone(),
                 Style::default().fg(get_color(app, Color::Gray)),
             )));
-            current = vec![entry.to_string()];
-        } else if current.is_empty() {
-            current.push(entry.to_string());
+            current_line = entry_str;
+        } else {
+            if !current_line.is_empty() {
+                current_line.push_str(" | ");
+            }
+            current_line.push_str(&entry_str);
         }
     }
 
-    if !current.is_empty() {
+    if !current_line.is_empty() {
         lines.push(Line::from(Span::styled(
-            current.join(" | "),
+            current_line,
             Style::default().fg(get_color(app, Color::Gray)),
         )));
     }
