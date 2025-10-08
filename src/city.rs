@@ -13,8 +13,7 @@ pub struct City {
     pub elev: f64,
     pub tz: String,
     pub country: String,
-    #[serde(default)]
-    pub state: String,
+    pub state: Option<String>,
 }
 
 pub struct CityDatabase {
@@ -43,7 +42,11 @@ impl CityDatabase {
         let mut results: Vec<_> = self.cities
             .iter()
             .filter_map(|city| {
-                let search_text = format!("{}, {}, {}", city.name, city.state, city.country);
+                let search_text = if let Some(state) = &city.state {
+                    format!("{}, {}, {}", city.name, state, city.country)
+                } else {
+                    format!("{}, {}", city.name, city.country)
+                };
                 matcher.fuzzy_match(&search_text, query).map(|score| (city, score))
             })
             .collect();
@@ -59,7 +62,7 @@ impl CityDatabase {
             .iter()
             .filter(|city| match field {
                 "country" => city.country.to_lowercase().contains(&value_lower),
-                "state" => city.state.to_lowercase().contains(&value_lower),
+                "state" => city.state.as_ref().map_or(false, |s| s.to_lowercase().contains(&value_lower)),
                 "tz" => city.tz.to_lowercase().contains(&value_lower),
                 _ => false,
             })
