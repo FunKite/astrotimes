@@ -323,10 +323,10 @@ fn render_city_picker(f: &mut Frame, app: &App) {
             };
 
             let marker = if idx == app.city_selected { "> " } else { "  " };
-            let line_text = if !city.state.is_empty() {
+            let line_text = if let Some(state) = &city.state {
                 format!(
                     "{}{} ({}, {})",
-                    marker, city.name, city.country, city.state
+                    marker, city.name, city.country, state
                 )
             } else {
                 format!(
