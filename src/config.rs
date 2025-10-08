@@ -1,9 +1,9 @@
 // Configuration management
 
+use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
-use anyhow::{Result, Context};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
@@ -40,11 +40,10 @@ impl Config {
             return Ok(None);
         }
 
-        let contents = fs::read_to_string(&path)
-            .context("Failed to read config file")?;
+        let contents = fs::read_to_string(&path).context("Failed to read config file")?;
 
-        let config: Self = serde_json::from_str(&contents)
-            .context("Failed to parse config file")?;
+        let config: Self =
+            serde_json::from_str(&contents).context("Failed to parse config file")?;
 
         Ok(Some(config))
     }
@@ -53,11 +52,9 @@ impl Config {
     pub fn save(&self) -> Result<()> {
         let path = Self::config_path()?;
 
-        let contents = serde_json::to_string_pretty(self)
-            .context("Failed to serialize config")?;
+        let contents = serde_json::to_string_pretty(self).context("Failed to serialize config")?;
 
-        fs::write(&path, contents)
-            .context("Failed to write config file")?;
+        fs::write(&path, contents).context("Failed to write config file")?;
 
         Ok(())
     }
