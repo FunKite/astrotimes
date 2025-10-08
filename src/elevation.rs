@@ -50,6 +50,9 @@ fn init_elevation_data() -> Option<GeoTiff> {
 }
 
 /// Get raw elevation from ETOPO data at given lat/lon
+///
+/// Uses closest pixel fallback: if exact coordinate fails, tries nearby pixels
+/// to ensure robustness for edge cases and coordinate precision issues.
 fn get_raw_etopo_elevation(lat: f64, lon: f64) -> Result<f64> {
     let geotiff = ELEVATION_DATA.get_or_init(init_elevation_data);
 
@@ -60,11 +63,46 @@ fn get_raw_etopo_elevation(lat: f64, lon: f64) -> Result<f64> {
     // GeoTIFF coordinate: x = longitude, y = latitude
     // Band 0 is the first (and typically only) band in elevation data
     let coord = Coord { x: lon, y: lat };
-    let elevation: i16 = geotiff
-        .get_value_at(&coord, 0)
-        .context("Failed to read elevation from GeoTIFF")?;
 
-    Ok(elevation as f64)
+    // Try exact coordinate first
+    if let Some(elevation) = geotiff.get_value_at::<i16>(&coord, 0) {
+        return Ok(elevation as f64);
+    }
+
+    // Exact lookup failed - try closest pixel fallback
+    // This handles edge cases: coordinates on TIFF boundaries,
+    // precision issues, or pixels marked as no-data
+
+    // Try a small search pattern around the coordinate
+    // Search within ±0.01 degrees (~1km at equator)
+    let offsets = [
+        (0.005, 0.0),    // East
+        (-0.005, 0.0),   // West
+        (0.0, 0.005),    // North
+        (0.0, -0.005),   // South
+        (0.005, 0.005),  // NE
+        (-0.005, 0.005), // NW
+        (0.005, -0.005), // SE
+        (-0.005, -0.005),// SW
+    ];
+
+    for (dlon, dlat) in &offsets {
+        let nearby_coord = Coord {
+            x: lon + dlon,
+            y: lat + dlat,
+        };
+
+        if let Some(elevation) = geotiff.get_value_at::<i16>(&nearby_coord, 0) {
+            return Ok(elevation as f64);
+        }
+    }
+
+    // If all nearby pixels failed, return error
+    Err(anyhow!(
+        "Failed to read elevation at ({}, {}) and nearby pixels. \
+        Coordinate may be outside TIFF coverage area.",
+        lat, lon
+    ))
 }
 
 /// Calculate Haversine distance between two points in kilometers
