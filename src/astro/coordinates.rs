@@ -1,6 +1,5 @@
 // Coordinate transformation utilities
 
-use super::*;
 
 /// Convert altitude-azimuth to compass bearing
 pub fn azimuth_to_compass(azimuth: f64) -> &'static str {
@@ -13,16 +12,19 @@ pub fn azimuth_to_compass(azimuth: f64) -> &'static str {
 }
 
 /// Format altitude for display
+#[allow(dead_code)]
 pub fn format_altitude(altitude: f64) -> String {
     format!("{:>5.1}°", altitude)
 }
 
 /// Format azimuth for display
+#[allow(dead_code)]
 pub fn format_azimuth(azimuth: f64) -> String {
     format!("{:>3.0}° {}", azimuth, azimuth_to_compass(azimuth))
 }
 
 /// Calculate atmospheric refraction correction
+#[allow(dead_code)]
 pub fn refraction_correction(altitude: f64, pressure_mb: f64, temp_c: f64) -> f64 {
     if altitude < -2.0 {
         return 0.0; // Below horizon
@@ -46,6 +48,7 @@ pub fn refraction_correction(altitude: f64, pressure_mb: f64, temp_c: f64) -> f6
 }
 
 /// Calculate horizon dip from elevation
+#[allow(dead_code)]
 pub fn horizon_dip(elevation_m: f64) -> f64 {
     // Dip in degrees
     1.76 * (elevation_m.max(0.0) / 1000.0).sqrt() / 60.0

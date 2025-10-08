@@ -7,13 +7,14 @@ pub mod coordinates;
 pub mod time_utils;
 
 use chrono::{DateTime, Datelike, Timelike, TimeZone};
-use chrono_tz::Tz;
 use std::f64::consts::PI;
 
 // Constants
 pub const DEG_TO_RAD: f64 = PI / 180.0;
 pub const RAD_TO_DEG: f64 = 180.0 / PI;
+#[allow(dead_code)]
 pub const AU_TO_KM: f64 = 149597870.7; // Astronomical Unit in kilometers
+#[allow(dead_code)]
 pub const EARTH_RADIUS_KM: f64 = 6371.0; // Mean Earth radius
 
 /// Location on Earth

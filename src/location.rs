@@ -4,6 +4,7 @@ use serde::Deserialize;
 use anyhow::{Result, anyhow};
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct IpApiResponse {
     lat: f64,
     lon: f64,
@@ -16,6 +17,7 @@ pub struct DetectedLocation {
     pub latitude: f64,
     pub longitude: f64,
     pub timezone: String,
+    #[allow(dead_code)]
     pub elevation: f64,
 }
 

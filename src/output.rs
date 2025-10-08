@@ -95,7 +95,7 @@ pub struct LunarPhaseData {
 
 pub fn generate_json_output<T: chrono::TimeZone>(
     location: &Location,
-    timezone: &T,
+    _timezone: &T,
     city_name: Option<String>,
     dt: &DateTime<T>,
     timezone_name: &str,
