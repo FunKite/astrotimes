@@ -255,13 +255,13 @@ fn print_text_output(
         events.push((e, "🌠 Astro dusk"));
     }
     if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::AstronomicalDawn) {
-        events.push((e, "🔭  Astro dawn"));
+        events.push((e, "🔭 Astro dawn"));
     }
     if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::NauticalDawn) {
         events.push((e, "⚓ Nautical dawn"));
     }
     if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::CivilDawn) {
-        events.push((e, "🏙️  Civil dawn"));
+        events.push((e, "🏙️ Civil dawn"));
     }
     if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::Sunrise) {
         events.push((e, "🌅 Sunrise"));
@@ -276,10 +276,16 @@ fn print_text_output(
 
     for (idx, (event_time, event_name)) in events.iter().enumerate() {
         let diff = astro::time_utils::time_until(dt, event_time);
-        let diff_str = astro::time_utils::format_duration_detailed(diff);
+        let mut diff_str = astro::time_utils::format_duration_detailed(diff);
+
+        // Add leading space for events with wide emojis to maintain alignment
+        if event_name.contains("Civil dawn") || event_name.contains("Solar noon") {
+            diff_str = format!(" {}", diff_str);
+        }
+
         let marker = if Some(idx) == next_idx { " (*next*)" } else { "" };
 
-        println!("{}  {:<18} {:<18}{}",
+        println!("{}  {:<18}  {:<18}{}",
             event_time.format("%H:%M:%S"),
             event_name,
             diff_str,

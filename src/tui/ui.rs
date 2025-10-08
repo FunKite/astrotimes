@@ -135,13 +135,13 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
         events.push((dt, "🌠 Astro dusk"));
     }
     if let Some(dt) = astro_dawn {
-        events.push((dt, "🔭  Astro dawn"));
+        events.push((dt, "🔭 Astro dawn"));
     }
     if let Some(dt) = nautical_dawn {
         events.push((dt, "⚓ Nautical dawn"));
     }
     if let Some(dt) = civil_dawn {
-        events.push((dt, "🏙️  Civil dawn"));
+        events.push((dt, "🏙️ Civil dawn"));
     }
     if let Some(dt) = sunrise {
         events.push((dt, "🌅 Sunrise"));
@@ -158,11 +158,17 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
     for (idx, (event_time, event_name)) in events.iter().enumerate() {
         let time_diff = time_utils::time_until(&now_tz, event_time);
         let time_str = format!("{}", event_time.format("%H:%M:%S"));
-        let diff_str = time_utils::format_duration_detailed(time_diff);
+        let mut diff_str = time_utils::format_duration_detailed(time_diff);
+
+        // Add leading space for events with wide emojis to maintain alignment
+        if event_name.contains("Civil dawn") || event_name.contains("Solar noon") {
+            diff_str = format!(" {}", diff_str);
+        }
+
         let marker = if Some(idx) == next_event_idx { " (*next*)" } else { "" };
 
         lines.push(Line::from(vec![
-            Span::raw(format!("{}  {:<18} {:<18}{}", time_str, event_name, diff_str, marker)),
+            Span::raw(format!("{}  {:<18}  {:<18}{}", time_str, event_name, diff_str, marker)),
         ]));
     }
     lines.push(Line::from(""));

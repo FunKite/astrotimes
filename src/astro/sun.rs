@@ -207,11 +207,14 @@ pub fn solar_position<T: TimeZone>(
     let dec = sun_declination(t);
     let eqtime = equation_of_time(t);
 
-    // Calculate true solar time
+    // Convert to UTC for calculation (CRITICAL: must use UTC, not local time)
+    let utc_dt = dt.with_timezone(&chrono::Utc);
+
+    // Calculate true solar time (using UTC hours)
     let time_offset = eqtime + 4.0 * location.longitude;
-    let true_solar_time = dt.hour() as f64 * 60.0
-        + dt.minute() as f64
-        + dt.second() as f64 / 60.0
+    let true_solar_time = utc_dt.hour() as f64 * 60.0
+        + utc_dt.minute() as f64
+        + utc_dt.second() as f64 / 60.0
         + time_offset;
 
     // Hour angle in degrees
