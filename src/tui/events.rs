@@ -106,13 +106,13 @@ fn handle_ai_config_keys(app: &mut App, key: KeyEvent) -> Result<()> {
                 app.ai_config_draft.set_error(err.to_string());
             }
         },
-        KeyCode::Up => app.ai_config_draft.prev_field(),
-        KeyCode::Down => app.ai_config_draft.next_field(),
-        KeyCode::Tab => app.ai_config_draft.next_field(),
-        KeyCode::BackTab => app.ai_config_draft.prev_field(),
+        KeyCode::Up => app.retreat_ai_field(),
+        KeyCode::Down => app.advance_ai_field(),
+        KeyCode::Tab => app.advance_ai_field(),
+        KeyCode::BackTab => app.retreat_ai_field(),
         KeyCode::Char(' ') => {
             if app.ai_config_draft.current_field() == AiConfigField::Enabled {
-                app.ai_config_draft.toggle_enabled();
+                app.toggle_ai_enabled();
             } else {
                 app.ai_config_draft.input_char(' ');
             }
@@ -131,6 +131,10 @@ fn handle_ai_config_keys(app: &mut App, key: KeyEvent) -> Result<()> {
                 app.ai_config_draft.input_char('-');
             }
         }
+        KeyCode::Left => app.cycle_ai_model(-1),
+        KeyCode::Right => app.cycle_ai_model(1),
+        KeyCode::Char('[') => app.cycle_ai_model(-1),
+        KeyCode::Char(']') => app.cycle_ai_model(1),
         KeyCode::Backspace | KeyCode::Delete => app.ai_config_draft.backspace(),
         KeyCode::Char(c) => app.ai_config_draft.input_char(c),
         _ => {}
