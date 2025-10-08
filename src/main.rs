@@ -255,13 +255,13 @@ fn print_text_output(
         events.push((e, "🌠 Astro dusk"));
     }
     if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::AstronomicalDawn) {
-        events.push((e, "🔭 Astro dawn"));
+        events.push((e, "🔭  Astro dawn"));
     }
     if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::NauticalDawn) {
         events.push((e, "⚓ Nautical dawn"));
     }
     if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::CivilDawn) {
-        events.push((e, "🏙️ Civil dawn"));
+        events.push((e, "🏙️  Civil dawn"));
     }
     if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::Sunrise) {
         events.push((e, "🌅 Sunrise"));
@@ -306,12 +306,16 @@ fn print_text_output(
     );
 
     // Moon
-    let size_class = if moon_pos.angular_diameter > 33.5 {
-        "(Supermoon)"
-    } else if moon_pos.angular_diameter < 29.5 {
-        "(Micromoon)"
+    let size_class = if moon_pos.angular_diameter > 33.0 {
+        "Near Perigee"
+    } else if moon_pos.angular_diameter > 32.0 {
+        "Larger than Average"
+    } else if moon_pos.angular_diameter > 30.5 {
+        "Average"
+    } else if moon_pos.angular_diameter > 29.5 {
+        "Smaller than Average"
     } else {
-        "(Typical)"
+        "Near Apogee"
     };
 
     println!("— Moon —");
@@ -322,7 +326,7 @@ fn print_text_output(
         (moon_pos.phase_angle / 360.0 * 29.53)
     );
     println!("💡 Fraction Illum.: {:.0}%", moon_pos.illumination * 100.0);
-    println!("🔭 Apparent size:   {:.1}' {}", moon_pos.angular_diameter, size_class);
+    println!("🔭 Apparent size:   {:.1}' ({})", moon_pos.angular_diameter, size_class);
 
     // Lunar phases
     let phases = astro::moon::lunar_phases(dt.year(), dt.month());
