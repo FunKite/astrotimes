@@ -35,8 +35,8 @@ impl SolarEvent {
 /// Solar position (altitude and azimuth)
 #[derive(Debug, Clone, Copy)]
 pub struct SolarPosition {
-    pub altitude: f64,  // degrees above horizon
-    pub azimuth: f64,   // degrees from North (0=N, 90=E, 180=S, 270=W)
+    pub altitude: f64, // degrees above horizon
+    pub azimuth: f64,  // degrees from North (0=N, 90=E, 180=S, 270=W)
 }
 
 /// Calculate geometric mean longitude of the Sun (degrees)
@@ -197,10 +197,7 @@ pub fn solar_event_time<T: TimeZone>(
 }
 
 /// Calculate solar position (altitude and azimuth) at a given time
-pub fn solar_position<T: TimeZone>(
-    location: &Location,
-    dt: &DateTime<T>,
-) -> SolarPosition {
+pub fn solar_position<T: TimeZone>(location: &Location, dt: &DateTime<T>) -> SolarPosition {
     let jd = julian_day(dt);
     let t = julian_century(jd);
 
@@ -225,14 +222,13 @@ pub fn solar_position<T: TimeZone>(
     let ha_rad = ha * DEG_TO_RAD;
 
     // Calculate altitude
-    let sin_alt = lat_rad.sin() * dec_rad.sin()
-        + lat_rad.cos() * dec_rad.cos() * ha_rad.cos();
+    let sin_alt = lat_rad.sin() * dec_rad.sin() + lat_rad.cos() * dec_rad.cos() * ha_rad.cos();
     let altitude = sin_alt.asin() * RAD_TO_DEG;
 
     // Calculate azimuth using atan2 for numerical stability
     let altitude_rad = altitude * DEG_TO_RAD;
-    let cos_az = (dec_rad.sin() - lat_rad.sin() * altitude_rad.sin())
-        / (lat_rad.cos() * altitude_rad.cos());
+    let cos_az =
+        (dec_rad.sin() - lat_rad.sin() * altitude_rad.sin()) / (lat_rad.cos() * altitude_rad.cos());
     let sin_az = -ha_rad.sin() * dec_rad.cos() / altitude_rad.cos();
 
     let mut azimuth = sin_az.atan2(cos_az) * RAD_TO_DEG;

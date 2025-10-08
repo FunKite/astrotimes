@@ -66,6 +66,11 @@ High-precision astronomical CLI application written in Rust. Calculates sun/moon
 - Added in-app AI configuration panel (press `a` in watch mode) to toggle insights, edit Ollama server/model, and adjust refresh cadence with validation before saving.
 - Default watch refresh interval tightened to 1 s for solar/lunar updates while AI insights remain at 2 min; footer hotkey list now wraps cleanly on narrow terminals.
 
+## Session Notes (2025-10-08 Codex - Hotkey Visibility Fix)
+- Footer panel now calculates its required height from the terminal width so wrapped shortcut rows stay visible in watch mode (`src/tui/ui.rs`).
+- Consolidated the footer shortcut list into a single constant shared by the renderer and sizing helper to keep layouts consistent.
+- Confirmed the build remains healthy with `cargo check`.
+
 ## Critical Bug Fixes (Recent)
 
 ### 1. Timezone Bug (FIXED)

@@ -1,12 +1,11 @@
 // Coordinate transformation utilities
 
-
 /// Convert altitude-azimuth to compass bearing
 pub fn azimuth_to_compass(azimuth: f64) -> &'static str {
     let idx = ((azimuth + 11.25) / 22.5) as usize % 16;
     const COMPASS: [&str; 16] = [
-        "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
-        "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW",
+        "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW",
+        "NW", "NNW",
     ];
     COMPASS[idx]
 }

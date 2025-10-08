@@ -1,7 +1,7 @@
 // Location detection using IP geolocation
 
+use anyhow::{anyhow, Result};
 use serde::Deserialize;
-use anyhow::{Result, anyhow};
 
 #[derive(Debug, Deserialize)]
 #[allow(dead_code)]
@@ -24,10 +24,7 @@ pub struct DetectedLocation {
 /// Detect location from IP address
 pub fn detect_location() -> Result<DetectedLocation> {
     // Try multiple IP geolocation services
-    let services = [
-        "https://ipapi.co/json/",
-        "https://ip-api.com/json/",
-    ];
+    let services = ["https://ipapi.co/json/", "https://ip-api.com/json/"];
 
     for service in &services {
         if let Ok(loc) = try_service(service) {
@@ -88,7 +85,10 @@ pub fn detect_elevation(lat: f64, lon: f64) -> f64 {
 }
 
 fn try_elevation_service(lat: f64, lon: f64) -> Result<f64> {
-    let url = format!("https://api.open-elevation.com/api/v1/lookup?locations={},{}", lat, lon);
+    let url = format!(
+        "https://api.open-elevation.com/api/v1/lookup?locations={},{}",
+        lat, lon
+    );
 
     #[derive(Deserialize)]
     struct ElevationResponse {

@@ -12,17 +12,29 @@ use ratatui::{
     Frame,
 };
 
+const FOOTER_INSTRUCTIONS: [&str; 7] = [
+    "q quit",
+    "s save",
+    "c city",
+    "a AI",
+    "n night",
+    "]/[ slow/fast",
+    "= reset",
+];
+
 pub fn render(f: &mut Frame, app: &App) {
     match app.mode {
         super::app::AppMode::Watch => {
+            let area = f.area();
+            let footer_height = footer_line_count(area.width);
             let chunks = Layout::default()
                 .direction(Direction::Vertical)
                 .constraints([
                     Constraint::Length(3), // Title
                     Constraint::Min(10),   // Main content
-                    Constraint::Length(3), // Footer
+                    Constraint::Length(footer_height),
                 ])
-                .split(f.area());
+                .split(area);
 
             render_title(f, chunks[0], app);
             render_main_content(f, chunks[1], app);
@@ -358,16 +370,6 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
 }
 
 fn render_footer(f: &mut Frame, area: Rect, app: &App) {
-    let instructions = vec![
-        "q quit",
-        "s save",
-        "c city",
-        "a AI",
-        "n night",
-        "]/[ slow/fast",
-        "= reset",
-    ];
-
     let mut lines = Vec::new();
     let header = format!(
         "— System — Update: {:.1}s",
@@ -383,12 +385,12 @@ fn render_footer(f: &mut Frame, area: Rect, app: &App) {
     let max_width = area.width.saturating_sub(4) as usize;
     let mut current_line = String::new();
 
-    for entry in instructions {
-        let entry_str = entry.to_string();
+    for entry in FOOTER_INSTRUCTIONS {
+        let entry_len = entry.len();
         let candidate_len = if current_line.is_empty() {
-            entry_str.len()
+            entry_len
         } else {
-            current_line.len() + 3 + entry_str.len()
+            current_line.len() + 3 + entry_len
         };
 
         if !current_line.is_empty() && candidate_len > max_width {
@@ -396,12 +398,13 @@ fn render_footer(f: &mut Frame, area: Rect, app: &App) {
                 current_line.clone(),
                 Style::default().fg(get_color(app, Color::Gray)),
             )));
-            current_line = entry_str;
+            current_line.clear();
+            current_line.push_str(entry);
         } else {
             if !current_line.is_empty() {
                 current_line.push_str(" | ");
             }
-            current_line.push_str(&entry_str);
+            current_line.push_str(entry);
         }
     }
 
@@ -417,6 +420,42 @@ fn render_footer(f: &mut Frame, area: Rect, app: &App) {
         .block(Block::default().borders(Borders::ALL));
 
     f.render_widget(footer, area);
+}
+
+fn footer_line_count(width: u16) -> u16 {
+    if width <= 4 {
+        return 3;
+    }
+
+    let max_width = width.saturating_sub(4) as usize;
+    let mut line_count = 1; // Header line
+    let mut current_len = 0usize;
+
+    for entry in FOOTER_INSTRUCTIONS {
+        let entry_len = entry.len();
+        let candidate_len = if current_len == 0 {
+            entry_len
+        } else {
+            current_len + 3 + entry_len
+        };
+
+        if current_len != 0 && candidate_len > max_width {
+            line_count += 1;
+            current_len = entry_len;
+        } else {
+            if current_len != 0 {
+                current_len += 3 + entry_len;
+            } else {
+                current_len = entry_len;
+            }
+        }
+    }
+
+    if current_len > 0 {
+        line_count += 1;
+    }
+
+    (line_count as u16 + 2).max(3)
 }
 
 fn render_city_picker(f: &mut Frame, app: &App) {

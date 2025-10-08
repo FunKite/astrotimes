@@ -119,13 +119,15 @@ fn fetch_delta() -> anyhow::Result<ChronoDuration> {
 
 impl TimeSyncInfo {
     pub fn direction(&self) -> Option<TimeSyncDirection> {
-        self.delta
-            .and_then(|delta| classify_direction(delta))
+        self.delta.and_then(|delta| classify_direction(delta))
     }
 
     pub fn delta_seconds(&self) -> Option<f64> {
-        self.delta
-            .and_then(|delta| delta.num_microseconds().map(|micros| micros as f64 / 1_000_000.0))
+        self.delta.and_then(|delta| {
+            delta
+                .num_microseconds()
+                .map(|micros| micros as f64 / 1_000_000.0)
+        })
     }
 
     pub fn error_summary(&self) -> Option<String> {

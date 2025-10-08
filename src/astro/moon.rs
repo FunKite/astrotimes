@@ -2,7 +2,7 @@
 // Based on "Astronomical Algorithms" by Jean Meeus
 
 use super::*;
-use chrono::{DateTime, Duration, TimeZone, Datelike};
+use chrono::{DateTime, Datelike, Duration, TimeZone};
 
 /// Lunar phase types
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -48,16 +48,14 @@ const MOON_APOGEE_DIST: f64 = 406700.0; // km (approximate)
 /// Calculate mean lunar longitude (Meeus formula)
 fn moon_mean_longitude(t: f64) -> f64 {
     let l = 218.3164477
-        + t * (481267.88123421
-            + t * (-0.0015786 + t * (1.0 / 538841.0 + t * (-1.0 / 65194000.0))));
+        + t * (481267.88123421 + t * (-0.0015786 + t * (1.0 / 538841.0 + t * (-1.0 / 65194000.0))));
     normalize_degrees(l)
 }
 
 /// Calculate mean elongation of the Moon
 fn moon_mean_elongation(t: f64) -> f64 {
     let d = 297.8501921
-        + t * (445267.1114034
-            + t * (-0.0018819 + t * (1.0 / 545868.0 + t * (-1.0 / 113065000.0))));
+        + t * (445267.1114034 + t * (-0.0018819 + t * (1.0 / 545868.0 + t * (-1.0 / 113065000.0))));
     normalize_degrees(d)
 }
 
@@ -70,8 +68,7 @@ fn sun_mean_anomaly_moon(t: f64) -> f64 {
 /// Calculate Moon's mean anomaly
 fn moon_mean_anomaly(t: f64) -> f64 {
     let m_prime = 134.9633964
-        + t * (477198.8675055
-            + t * (0.0087414 + t * (1.0 / 69699.0 + t * (-1.0 / 14712000.0))));
+        + t * (477198.8675055 + t * (0.0087414 + t * (1.0 / 69699.0 + t * (-1.0 / 14712000.0))));
     normalize_degrees(m_prime)
 }
 
@@ -150,17 +147,14 @@ pub fn lunar_position<T: TimeZone>(location: &Location, dt: &DateTime<T>) -> Lun
     let beta_rad = beta * DEG_TO_RAD;
     let epsilon_rad = epsilon * DEG_TO_RAD;
 
-    let alpha = (lambda_rad.sin() * epsilon_rad.cos()
-        - beta_rad.tan() * epsilon_rad.sin())
-    .atan2(lambda_rad.cos());
+    let alpha = (lambda_rad.sin() * epsilon_rad.cos() - beta_rad.tan() * epsilon_rad.sin())
+        .atan2(lambda_rad.cos());
     let delta = (beta_rad.sin() * epsilon_rad.cos()
         + beta_rad.cos() * epsilon_rad.sin() * lambda_rad.sin())
     .asin();
 
     // Calculate Greenwich Mean Sidereal Time
-    let gmst = 280.46061837
-        + 360.98564736629 * (jd - 2451545.0)
-        + 0.000387933 * t * t
+    let gmst = 280.46061837 + 360.98564736629 * (jd - 2451545.0) + 0.000387933 * t * t
         - t * t * t / 38710000.0;
 
     // Local sidereal time
@@ -173,8 +167,7 @@ pub fn lunar_position<T: TimeZone>(location: &Location, dt: &DateTime<T>) -> Lun
     let lat_rad = location.latitude * DEG_TO_RAD;
     let ha_rad = ha * DEG_TO_RAD;
 
-    let sin_alt = lat_rad.sin() * delta.sin()
-        + lat_rad.cos() * delta.cos() * ha_rad.cos();
+    let sin_alt = lat_rad.sin() * delta.sin() + lat_rad.cos() * delta.cos() * ha_rad.cos();
     let altitude_geocentric = sin_alt.asin() * RAD_TO_DEG;
 
     // Apply topocentric parallax correction for the moon
@@ -190,8 +183,8 @@ pub fn lunar_position<T: TimeZone>(location: &Location, dt: &DateTime<T>) -> Lun
 
     // Calculate azimuth using atan2 for numerical stability
     let altitude_rad = altitude * DEG_TO_RAD;
-    let cos_az = (delta.sin() - lat_rad.sin() * altitude_rad.sin())
-        / (lat_rad.cos() * altitude_rad.cos());
+    let cos_az =
+        (delta.sin() - lat_rad.sin() * altitude_rad.sin()) / (lat_rad.cos() * altitude_rad.cos());
     let sin_az = -ha_rad.sin() * delta.cos() / altitude_rad.cos();
 
     let mut azimuth = sin_az.atan2(cos_az) * RAD_TO_DEG;
@@ -225,9 +218,7 @@ fn calculate_phase_illumination<T: TimeZone>(dt: &DateTime<T>) -> (f64, f64) {
     let m_prime = moon_mean_anomaly(t) * DEG_TO_RAD;
 
     // Illumination angle (0° = full moon, 180° = new moon)
-    let illum_angle = 180.0 - d * RAD_TO_DEG
-        - 6.289 * m_prime.sin()
-        + 2.100 * m.sin()
+    let illum_angle = 180.0 - d * RAD_TO_DEG - 6.289 * m_prime.sin() + 2.100 * m.sin()
         - 1.274 * (2.0 * d - m_prime).sin()
         - 0.658 * (2.0 * d).sin()
         - 0.214 * (2.0 * m_prime).sin()
@@ -284,10 +275,7 @@ pub fn lunar_phases(year: i32, month: u32) -> Vec<LunarPhase> {
 fn lunar_phase_jde(k: f64, phase_type: LunarPhaseType) -> f64 {
     let t = k / 1236.85;
 
-    let jde = 2451550.09766
-        + 29.530588861 * k
-        + 0.00015437 * t * t
-        - 0.000000150 * t * t * t
+    let jde = 2451550.09766 + 29.530588861 * k + 0.00015437 * t * t - 0.000000150 * t * t * t
         + 0.00000000073 * t * t * t * t;
 
     let e = 1.0 - 0.002516 * t - 0.0000074 * t * t;
@@ -314,16 +302,13 @@ fn lunar_phase_jde(k: f64, phase_type: LunarPhaseType) -> f64 {
                 + 0.00208 * e * e * (2.0 * m_rad).sin()
         }
         LunarPhaseType::FirstQuarter | LunarPhaseType::LastQuarter => {
-            let mut corr = -0.62801 * m_prime_rad.sin()
-                + 0.17172 * e * m_rad.sin()
+            let mut corr = -0.62801 * m_prime_rad.sin() + 0.17172 * e * m_rad.sin()
                 - 0.01183 * e * (m_prime_rad + m_rad).sin()
                 + 0.00862 * (2.0 * m_prime_rad).sin()
                 + 0.00804 * (2.0 * f_rad).sin()
                 + 0.00454 * e * (m_prime_rad - m_rad).sin();
 
-            let w = 0.00306
-                - 0.00038 * e * m_rad.cos()
-                + 0.00026 * m_prime_rad.cos()
+            let w = 0.00306 - 0.00038 * e * m_rad.cos() + 0.00026 * m_prime_rad.cos()
                 - 0.00002 * (m_prime_rad - m_rad).cos()
                 + 0.00002 * (m_prime_rad + m_rad).cos()
                 + 0.00002 * (2.0 * f_rad).cos();
@@ -409,15 +394,15 @@ pub fn lunar_event_time<T: TimeZone>(
 
     for _ in 0..30 {
         let t_mid = (t1 + t2) / 2.0;
-        let dt_mid = tz.from_local_datetime(
-            &(start + Duration::seconds((t_mid * 3600.0) as i64))
-        ).unwrap();
+        let dt_mid = tz
+            .from_local_datetime(&(start + Duration::seconds((t_mid * 3600.0) as i64)))
+            .unwrap();
 
         let pos = lunar_position(location, &dt_mid);
 
-        let dt_before = tz.from_local_datetime(
-            &(start + Duration::seconds(((t_mid - 0.1) * 3600.0) as i64))
-        ).unwrap();
+        let dt_before = tz
+            .from_local_datetime(&(start + Duration::seconds(((t_mid - 0.1) * 3600.0) as i64)))
+            .unwrap();
         let pos_before = lunar_position(location, &dt_before);
 
         match event {
@@ -443,9 +428,11 @@ pub fn lunar_event_time<T: TimeZone>(
             }
             LunarEvent::Transit => {
                 // Find maximum altitude
-                let dt_after = tz.from_local_datetime(
-                    &(start + Duration::seconds(((t_mid + 0.1) * 3600.0) as i64))
-                ).unwrap();
+                let dt_after = tz
+                    .from_local_datetime(
+                        &(start + Duration::seconds(((t_mid + 0.1) * 3600.0) as i64)),
+                    )
+                    .unwrap();
                 let pos_after = lunar_position(location, &dt_after);
 
                 if pos.altitude > pos_before.altitude && pos.altitude > pos_after.altitude {
@@ -459,7 +446,8 @@ pub fn lunar_event_time<T: TimeZone>(
             }
         }
 
-        if (t2 - t1).abs() < 1.0_f64 / 3600.0 { // 1 second precision
+        if (t2 - t1).abs() < 1.0_f64 / 3600.0 {
+            // 1 second precision
             break;
         }
     }

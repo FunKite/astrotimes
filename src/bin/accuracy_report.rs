@@ -1,9 +1,9 @@
 use chrono::prelude::*;
 use reqwest;
 use serde::Deserialize;
-use std::process::Command;
 use std::fs::File;
 use std::io::Write;
+use std::process::Command;
 
 // --- Data Structures for Deserialization ---
 
@@ -69,7 +69,6 @@ struct PhaseData {
     illumination_percent: f64,
 }
 
-
 // --- Data Structures for Comparison ---
 
 struct City<'a> {
@@ -92,13 +91,62 @@ struct ComparisonResult {
 // --- Main Logic ---
 
 const CITIES: &[City] = &[
-    City { name: "New York", lat: 40.7128, lon: -74.0060, tz: "America/New_York", tz_offset: -5, observes_dst: true },
-    City { name: "Chicago", lat: 41.8781, lon: -87.6298, tz: "America/Chicago", tz_offset: -6, observes_dst: true },
-    City { name: "Denver", lat: 39.7392, lon: -104.9903, tz: "America/Denver", tz_offset: -7, observes_dst: true },
-    City { name: "Los Angeles", lat: 34.0522, lon: -118.2437, tz: "America/Los_Angeles", tz_offset: -8, observes_dst: true },
-    City { name: "Anchorage", lat: 61.2181, lon: -149.9003, tz: "America/Anchorage", tz_offset: -9, observes_dst: true },
-    City { name: "Honolulu", lat: 21.3069, lon: -157.8583, tz: "Pacific/Honolulu", tz_offset: -10, observes_dst: false },
-    City { name: "Phoenix", lat: 33.4484, lon: -112.0740, tz: "America/Phoenix", tz_offset: -7, observes_dst: false },
+    City {
+        name: "New York",
+        lat: 40.7128,
+        lon: -74.0060,
+        tz: "America/New_York",
+        tz_offset: -5,
+        observes_dst: true,
+    },
+    City {
+        name: "Chicago",
+        lat: 41.8781,
+        lon: -87.6298,
+        tz: "America/Chicago",
+        tz_offset: -6,
+        observes_dst: true,
+    },
+    City {
+        name: "Denver",
+        lat: 39.7392,
+        lon: -104.9903,
+        tz: "America/Denver",
+        tz_offset: -7,
+        observes_dst: true,
+    },
+    City {
+        name: "Los Angeles",
+        lat: 34.0522,
+        lon: -118.2437,
+        tz: "America/Los_Angeles",
+        tz_offset: -8,
+        observes_dst: true,
+    },
+    City {
+        name: "Anchorage",
+        lat: 61.2181,
+        lon: -149.9003,
+        tz: "America/Anchorage",
+        tz_offset: -9,
+        observes_dst: true,
+    },
+    City {
+        name: "Honolulu",
+        lat: 21.3069,
+        lon: -157.8583,
+        tz: "Pacific/Honolulu",
+        tz_offset: -10,
+        observes_dst: false,
+    },
+    City {
+        name: "Phoenix",
+        lat: 33.4484,
+        lon: -112.0740,
+        tz: "America/Phoenix",
+        tz_offset: -7,
+        observes_dst: false,
+    },
 ];
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -119,22 +167,49 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let astro_output = run_astrotimes(&today, city)?;
         if !astro_output.status.success() {
-            println!("    Error running astrotimes command: {}", String::from_utf8_lossy(&astro_output.stderr));
+            println!(
+                "    Error running astrotimes command: {}",
+                String::from_utf8_lossy(&astro_output.stderr)
+            );
             continue;
         }
         let astro_data: AstrotimesResponse = serde_json::from_slice(&astro_output.stdout)?;
 
-        compare_event("Sunrise", &usno_data.sundata, astro_data.sun.events.sunrise.as_deref(), &mut results, city.name);
-        compare_event("Sunset", &usno_data.sundata, astro_data.sun.events.sunset.as_deref(), &mut results, city.name);
-        compare_event("Moonrise", &usno_data.moondata, astro_data.moon.events.moonrise.as_deref(), &mut results, city.name);
-        compare_event("Moonset", &usno_data.moondata, astro_data.moon.events.moonset.as_deref(), &mut results, city.name);
+        compare_event(
+            "Sunrise",
+            &usno_data.sundata,
+            astro_data.sun.events.sunrise.as_deref(),
+            &mut results,
+            city.name,
+        );
+        compare_event(
+            "Sunset",
+            &usno_data.sundata,
+            astro_data.sun.events.sunset.as_deref(),
+            &mut results,
+            city.name,
+        );
+        compare_event(
+            "Moonrise",
+            &usno_data.moondata,
+            astro_data.moon.events.moonrise.as_deref(),
+            &mut results,
+            city.name,
+        );
+        compare_event(
+            "Moonset",
+            &usno_data.moondata,
+            astro_data.moon.events.moonset.as_deref(),
+            &mut results,
+            city.name,
+        );
 
         phase_results.push((
             city.name.to_string(),
             usno_data.curphase.unwrap_or_default(),
             astro_data.moon.phase.name,
             usno_data.fracillum.unwrap_or_default(),
-            format!("{:.2}%", astro_data.moon.phase.illumination_percent)
+            format!("{:.2}%", astro_data.moon.phase.illumination_percent),
         ));
     }
 
@@ -163,7 +238,13 @@ fn run_astrotimes<'a>(date: &str, city: &City<'a>) -> Result<std::process::Outpu
         .output()
 }
 
-fn compare_event(event_name: &str, usno_events: &[Event], astro_time_opt: Option<&str>, results: &mut Vec<ComparisonResult>, city_name: &str) {
+fn compare_event(
+    event_name: &str,
+    usno_events: &[Event],
+    astro_time_opt: Option<&str>,
+    results: &mut Vec<ComparisonResult>,
+    city_name: &str,
+) {
     let usno_phen_to_find = match event_name {
         "Sunrise" | "Moonrise" => "Rise",
         "Sunset" | "Moonset" => "Set",
@@ -174,7 +255,10 @@ fn compare_event(event_name: &str, usno_events: &[Event], astro_time_opt: Option
     let usno_time_str = usno_event.and_then(|e| e.time.as_deref()).unwrap_or("N/A");
     let astro_time_str = astro_time_opt.unwrap_or("N/A");
 
-    let diff_minutes = if let (Some(usno_t), Some(astro_t)) = (parse_usno_time(usno_time_str), parse_astro_time(astro_time_str)) {
+    let diff_minutes = if let (Some(usno_t), Some(astro_t)) = (
+        parse_usno_time(usno_time_str),
+        parse_astro_time(astro_time_str),
+    ) {
         (astro_t.signed_duration_since(usno_t)).num_minutes()
     } else {
         i64::MAX
@@ -199,15 +283,27 @@ fn parse_astro_time(time_str: &str) -> Option<NaiveTime> {
     NaiveTime::parse_from_str(time_part, "%H:%M:%S").ok()
 }
 
-fn generate_html_report(results: &[ComparisonResult], phase_results: &[(String, String, String, String, String)]) -> Result<(), std::io::Error> {
+fn generate_html_report(
+    results: &[ComparisonResult],
+    phase_results: &[(String, String, String, String, String)],
+) -> Result<(), std::io::Error> {
     let mut file = File::create("accuracy_report.html")?;
 
-    writeln!(file, "<!DOCTYPE html><html><head><title>Astrotimes Accuracy Report</title>")?;
+    writeln!(
+        file,
+        "<!DOCTYPE html><html><head><title>Astrotimes Accuracy Report</title>"
+    )?;
     writeln!(file, "<style>")?;
     writeln!(file, "body {{ font-family: sans-serif; margin: 2em; }}")?;
     writeln!(file, "h1, h2 {{ color: #333; }}")?;
-    writeln!(file, "table {{ border-collapse: collapse; width: 100%; margin-bottom: 2em; }}")?;
-    writeln!(file, "th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}")?;
+    writeln!(
+        file,
+        "table {{ border-collapse: collapse; width: 100%; margin-bottom: 2em; }}"
+    )?;
+    writeln!(
+        file,
+        "th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}"
+    )?;
     writeln!(file, "th {{ background-color: #f2f2f2; }}")?;
     writeln!(file, "tr:nth-child(even) {{ background-color: #f9f9f9; }}")?;
     writeln!(file, ".pass {{ color: green; }}")?;
@@ -243,7 +339,11 @@ fn generate_html_report(results: &[ComparisonResult], phase_results: &[(String, 
     writeln!(file, "<table><tr><th>City</th><th>USNO Phase</th><th>Astrotimes Phase</th><th>USNO Illumination</th><th>Astrotimes Illumination</th></tr>")?;
 
     for (city, usno_phase, astro_phase, usno_illum, astro_illum) in phase_results {
-         writeln!(file, "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>", city, usno_phase, astro_phase, usno_illum, astro_illum)?;
+        writeln!(
+            file,
+            "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>",
+            city, usno_phase, astro_phase, usno_illum, astro_illum
+        )?;
     }
     writeln!(file, "</table>")?;
 
