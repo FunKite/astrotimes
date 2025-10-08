@@ -2,6 +2,7 @@
 
 use crate::astro::*;
 use crate::city::City;
+use crate::time_sync::TimeSyncInfo;
 use chrono::{DateTime, Local};
 use chrono_tz::Tz;
 use std::time::Duration;
@@ -25,6 +26,7 @@ pub struct App {
     pub city_search: String,
     pub city_results: Vec<City>,
     pub city_selected: usize,
+    pub time_sync: TimeSyncInfo,
 }
 
 impl App {
@@ -33,6 +35,7 @@ impl App {
         timezone: Tz,
         city_name: Option<String>,
         refresh_interval: f64,
+        time_sync: TimeSyncInfo,
     ) -> Self {
         Self {
             location,
@@ -47,6 +50,7 @@ impl App {
             city_search: String::new(),
             city_results: Vec::new(),
             city_selected: 0,
+            time_sync,
         }
     }
 

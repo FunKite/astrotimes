@@ -10,7 +10,7 @@ High-precision astronomical CLI application written in Rust. Calculates sun/moon
 
 ---
 
-## Current Status (Last Updated: 2025-10-08 14:30 EDT)
+## Current Status (Last Updated: 2025-10-08 14:13 EDT)
 
 ### ✅ Fully Implemented Features
 1. **NOAA Solar Calculations**
@@ -52,6 +52,11 @@ High-precision astronomical CLI application written in Rust. Calculates sun/moon
    - JSON mode (--json for scripting)
 
 ---
+
+## Session Notes (2025-10-08 Codex - Time Sync Indicator)
+- Added startup clock sync check against worldtimeapi.org with graceful error handling (`src/time_sync.rs`).
+- Surface time delta across text output, watch-mode TUI, and JSON API so users immediately see system clock drift.
+- JSON now exposes `datetime.time_sync` metadata (seconds offset, formatted display, status) for scripting workflows.
 
 ## Critical Bug Fixes (Recent)
 
@@ -648,7 +653,7 @@ From conversation:
 
 ---
 
-*Last updated: 2025-10-08 14:30 EDT*
-*Session: Accuracy improvements - Moon phase naming and parallax correction*
+*Last updated: 2025-10-08 14:13 EDT*
+*Session: Codex (GPT-5) - Time sync indicator rollout*
 *Status: Beta 0.1 - Significantly improved lunar calculations*
 *Accuracy: Solar ±1 min, Lunar phases 100%, Moonrise/moonset ±1-4 min (was ±4-11 min)*

@@ -6,6 +6,7 @@ mod city;
 mod config;
 mod location;
 mod output;
+mod time_sync;
 mod tui;
 
 use anyhow::{Result, Context, anyhow};
@@ -28,6 +29,9 @@ fn main() -> Result<()> {
     // Load or create configuration
     let mut config = config::Config::load().ok().flatten();
 
+    // Check system clock against authoritative source
+    let time_sync_info = time_sync::check_time_sync();
+
     // Determine location
     let (location, timezone, city_name) = determine_location(&args, &mut config)?;
 
@@ -46,14 +50,27 @@ fn main() -> Result<()> {
     // Output mode
     if args.json {
         // JSON output mode
-        let json = output::generate_json_output(&location, &timezone, city_name.clone(), &dt, timezone.name())?;
+        let json = output::generate_json_output(
+            &location,
+            &timezone,
+            city_name.clone(),
+            &dt,
+            timezone.name(),
+            &time_sync_info,
+        )?;
         println!("{}", json);
     } else if args.should_watch() {
         // Interactive watch mode
-        run_watch_mode(location, timezone, city_name.clone(), args.refresh)?;
+        run_watch_mode(
+            location,
+            timezone,
+            city_name.clone(),
+            args.refresh,
+            time_sync_info.clone(),
+        )?;
     } else {
         // Single output mode (text)
-        print_text_output(&location, &timezone, &city_name, &dt)?;
+        print_text_output(&location, &timezone, &city_name, &dt, &time_sync_info)?;
     }
 
     // Save config if requested
@@ -153,6 +170,7 @@ fn run_watch_mode(
     timezone: Tz,
     city_name: Option<String>,
     refresh_interval: f64,
+    time_sync_info: time_sync::TimeSyncInfo,
 ) -> Result<()> {
     // Setup terminal
     enable_raw_mode()?;
@@ -162,7 +180,13 @@ fn run_watch_mode(
     let mut terminal = Terminal::new(backend)?;
 
     // Create app
-    let mut app = tui::App::new(location, timezone, city_name, refresh_interval);
+    let mut app = tui::App::new(
+        location,
+        timezone,
+        city_name,
+        refresh_interval,
+        time_sync_info,
+    );
 
     // Main loop
     let tick_rate = std::time::Duration::from_millis(100);
@@ -213,6 +237,7 @@ fn print_text_output(
     timezone: &Tz,
     city_name: &Option<String>,
     dt: &chrono::DateTime<Tz>,
+    time_sync_info: &time_sync::TimeSyncInfo,
 ) -> Result<()> {
     println!("Astro Times — Sunrise, Sunset, Moonrise, Moonset");
 
@@ -231,6 +256,24 @@ fn print_text_output(
         timezone.name(),
         dt.format("%:z")
     );
+    match (time_sync_info.delta, time_sync_info.direction(), time_sync_info.error_summary()) {
+        (Some(delta), Some(direction), _) => {
+            println!(
+                "🕒 Time sync: {} ({})",
+                time_sync::format_offset(delta),
+                time_sync::describe_direction(direction)
+            );
+        }
+        (Some(delta), None, _) => {
+            println!("🕒 Time sync: {}", time_sync::format_offset(delta));
+        }
+        (None, _, Some(err)) => {
+            println!("🕒 Time sync: unavailable ({})", err);
+        }
+        _ => {
+            println!("🕒 Time sync: unavailable");
+        }
+    }
 
     // Events
     println!("— Events —");
