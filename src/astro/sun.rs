@@ -136,17 +136,22 @@ fn hour_angle_for_altitude(lat: f64, dec: f64, altitude: f64) -> Option<f64> {
 
 /// Calculate solar noon time for a given location and date
 pub fn solar_noon<T: TimeZone>(location: &Location, date: &DateTime<T>) -> DateTime<T> {
-    let jd = julian_day(date);
+    // Use noon UTC as reference for calculations
+    let base_date = date.date_naive().and_hms_opt(12, 0, 0).unwrap();
+    let utc_noon = chrono::Utc.from_local_datetime(&base_date).unwrap();
+
+    let jd = julian_day(&utc_noon);
     let t = julian_century(jd);
     let eqtime = equation_of_time(t);
 
-    // Solar noon in minutes from midnight
+    // Solar noon in minutes from midnight UTC
     let solar_noon_offset = 720.0 - 4.0 * location.longitude - eqtime;
 
-    let base_date = date.date_naive().and_hms_opt(0, 0, 0).unwrap();
-    let solar_noon_dt = base_date + Duration::seconds((solar_noon_offset * 60.0) as i64);
+    let utc_midnight = date.date_naive().and_hms_opt(0, 0, 0).unwrap();
+    let solar_noon_utc = chrono::Utc.from_local_datetime(&utc_midnight).unwrap()
+        + Duration::seconds((solar_noon_offset * 60.0) as i64);
 
-    date.timezone().from_local_datetime(&solar_noon_dt).unwrap()
+    solar_noon_utc.with_timezone(&date.timezone())
 }
 
 /// Calculate solar event time
@@ -159,7 +164,11 @@ pub fn solar_event_time<T: TimeZone>(
         return Some(solar_noon(location, date));
     }
 
-    let jd = julian_day(date);
+    // Use noon UTC as reference for calculations
+    let base_date = date.date_naive().and_hms_opt(12, 0, 0).unwrap();
+    let utc_noon = chrono::Utc.from_local_datetime(&base_date).unwrap();
+
+    let jd = julian_day(&utc_noon);
     let t = julian_century(jd);
     let dec = sun_declination(t);
     let eqtime = equation_of_time(t);
@@ -180,10 +189,11 @@ pub fn solar_event_time<T: TimeZone>(
         720.0 - 4.0 * (location.longitude - ha) - eqtime
     };
 
-    let base_date = date.date_naive().and_hms_opt(0, 0, 0).unwrap();
-    let event_dt = base_date + Duration::seconds((offset * 60.0) as i64);
+    let utc_midnight = date.date_naive().and_hms_opt(0, 0, 0).unwrap();
+    let event_utc = chrono::Utc.from_local_datetime(&utc_midnight).unwrap()
+        + Duration::seconds((offset * 60.0) as i64);
 
-    Some(date.timezone().from_local_datetime(&event_dt).unwrap())
+    Some(event_utc.with_timezone(&date.timezone()))
 }
 
 /// Calculate solar position (altitude and azimuth) at a given time
@@ -216,15 +226,16 @@ pub fn solar_position<T: TimeZone>(
         + lat_rad.cos() * dec_rad.cos() * ha_rad.cos();
     let altitude = sin_alt.asin() * RAD_TO_DEG;
 
-    // Calculate azimuth
-    let cos_az = (dec_rad.sin() - lat_rad.sin() * sin_alt)
-        / (lat_rad.cos() * sin_alt.acos().cos());
+    // Calculate azimuth using atan2 for numerical stability
+    let altitude_rad = altitude * DEG_TO_RAD;
+    let cos_az = (dec_rad.sin() - lat_rad.sin() * altitude_rad.sin())
+        / (lat_rad.cos() * altitude_rad.cos());
+    let sin_az = -ha_rad.sin() * dec_rad.cos() / altitude_rad.cos();
 
-    let azimuth = if ha > 0.0 {
-        (cos_az.acos() * RAD_TO_DEG + 180.0) % 360.0
-    } else {
-        (540.0 - cos_az.acos() * RAD_TO_DEG) % 360.0
-    };
+    let mut azimuth = sin_az.atan2(cos_az) * RAD_TO_DEG;
+    if azimuth < 0.0 {
+        azimuth += 360.0;
+    }
 
     SolarPosition { altitude, azimuth }
 }

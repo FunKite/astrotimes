@@ -219,11 +219,11 @@ fn print_text_output(
     // Location
     println!("— Location & Date —");
     println!(
-        "📍 Lat, Lon (WGS84): {:.5}, {:.5}  ⛰️  Elevation (MSL): {:.0} m",
+        "📍 Lat, Lon (WGS84): {:.5}, {:.5}  ⛰️ Elevation (MSL): {:.0} m",
         location.latitude, location.longitude, location.elevation
     );
     if let Some(city) = city_name {
-        println!("🏙️  Place: {}", city);
+        println!("🏙️ Place: {}", city);
     }
     println!("📅 Date: {} {}  ⏰ Timezone: {} (UTC{})",
         dt.format("%b %d %H:%M:%S"),
@@ -237,7 +237,7 @@ fn print_text_output(
 
     let mut events = Vec::new();
     if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::SolarNoon) {
-        events.push((e, "☀️  Solar noon"));
+        events.push((e, "☀️ Solar noon"));
     }
     if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::Sunset) {
         events.push((e, "🌇 Sunset"));
@@ -261,7 +261,7 @@ fn print_text_output(
         events.push((e, "⚓ Nautical dawn"));
     }
     if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::CivilDawn) {
-        events.push((e, "🏙️  Civil dawn"));
+        events.push((e, "🏙️ Civil dawn"));
     }
     if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::Sunrise) {
         events.push((e, "🌅 Sunrise"));
@@ -293,7 +293,7 @@ fn print_text_output(
 
     println!("— Position —");
     println!(
-        "☀️  Sun:  Alt {:>5.1}°, Az {:>3.0}° {}",
+        "☀️ Sun:  Alt {:>5.1}°, Az {:>3.0}° {}",
         sun_pos.altitude,
         sun_pos.azimuth,
         astro::coordinates::azimuth_to_compass(sun_pos.azimuth)
