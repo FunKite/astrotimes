@@ -35,13 +35,17 @@ impl Location {
 }
 
 /// Calculate Julian Day from DateTime
+/// CRITICAL: Julian Day is defined in UTC, so we must convert to UTC first
 pub fn julian_day<T: TimeZone>(dt: &DateTime<T>) -> f64 {
-    let year = dt.year() as f64;
-    let month = dt.month() as f64;
-    let day = dt.day() as f64
-        + dt.hour() as f64 / 24.0
-        + dt.minute() as f64 / 1440.0
-        + dt.second() as f64 / 86400.0;
+    // Convert to UTC for Julian Day calculation
+    let utc_dt = dt.with_timezone(&chrono::Utc);
+
+    let year = utc_dt.year() as f64;
+    let month = utc_dt.month() as f64;
+    let day = utc_dt.day() as f64
+        + utc_dt.hour() as f64 / 24.0
+        + utc_dt.minute() as f64 / 1440.0
+        + utc_dt.second() as f64 / 86400.0;
 
     let mut y = year;
     let mut m = month;
