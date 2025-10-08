@@ -4,6 +4,7 @@ use crate::ai;
 use crate::astro::*;
 use crate::city::City;
 use crate::time_sync::TimeSyncInfo;
+use anyhow::{anyhow, Result};
 use chrono::{DateTime, Local};
 use chrono_tz::Tz;
 use std::time::{Duration, Instant};
@@ -12,6 +13,127 @@ use std::time::{Duration, Instant};
 pub enum AppMode {
     Watch,
     CityPicker,
+    AiConfig,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AiConfigField {
+    Enabled,
+    Server,
+    Model,
+    RefreshMinutes,
+}
+
+#[derive(Debug, Clone)]
+pub struct AiConfigDraft {
+    pub enabled: bool,
+    pub server: String,
+    pub model: String,
+    pub refresh_minutes: String,
+    pub field_index: usize,
+    pub error: Option<String>,
+}
+
+impl AiConfigDraft {
+    const FIELD_COUNT: usize = 4;
+
+    pub fn from_config(config: &ai::AiConfig) -> Self {
+        Self {
+            enabled: config.enabled,
+            server: config.server.clone(),
+            model: config.model.clone(),
+            refresh_minutes: config.refresh_minutes().to_string(),
+            field_index: 0,
+            error: None,
+        }
+    }
+
+    pub fn sync_from(&mut self, config: &ai::AiConfig) {
+        self.enabled = config.enabled;
+        self.server = config.server.clone();
+        self.model = config.model.clone();
+        self.refresh_minutes = config.refresh_minutes().to_string();
+        self.field_index = 0;
+        self.error = None;
+    }
+
+    pub fn current_field(&self) -> AiConfigField {
+        match self.field_index {
+            0 => AiConfigField::Enabled,
+            1 => AiConfigField::Server,
+            2 => AiConfigField::Model,
+            _ => AiConfigField::RefreshMinutes,
+        }
+    }
+
+    pub fn next_field(&mut self) {
+        self.field_index = (self.field_index + 1) % Self::FIELD_COUNT;
+        self.clear_error();
+    }
+
+    pub fn prev_field(&mut self) {
+        self.field_index = (self.field_index + Self::FIELD_COUNT - 1) % Self::FIELD_COUNT;
+        self.clear_error();
+    }
+
+    pub fn toggle_enabled(&mut self) {
+        self.enabled = !self.enabled;
+        self.clear_error();
+    }
+
+    pub fn input_char(&mut self, c: char) {
+        self.clear_error();
+        match self.current_field() {
+            AiConfigField::Enabled => {}
+            AiConfigField::Server => self.server.push(c),
+            AiConfigField::Model => self.model.push(c),
+            AiConfigField::RefreshMinutes => {
+                if c.is_ascii_digit() && self.refresh_minutes.len() < 2 {
+                    self.refresh_minutes.push(c);
+                }
+            }
+        }
+    }
+
+    pub fn backspace(&mut self) {
+        self.clear_error();
+        match self.current_field() {
+            AiConfigField::Enabled => {}
+            AiConfigField::Server => {
+                self.server.pop();
+            }
+            AiConfigField::Model => {
+                self.model.pop();
+            }
+            AiConfigField::RefreshMinutes => {
+                self.refresh_minutes.pop();
+            }
+        }
+    }
+
+    pub fn bump_refresh(&mut self, delta: i64) {
+        if self.current_field() != AiConfigField::RefreshMinutes {
+            return;
+        }
+
+        let mut value = self.refresh_minutes.trim().parse::<i64>().unwrap_or(2);
+        value += delta;
+        if value < 1 {
+            value = 1;
+        } else if value > 60 {
+            value = 60;
+        }
+        self.refresh_minutes = value.to_string();
+        self.clear_error();
+    }
+
+    pub fn clear_error(&mut self) {
+        self.error = None;
+    }
+
+    pub fn set_error<S: Into<String>>(&mut self, msg: S) {
+        self.error = Some(msg.into());
+    }
 }
 
 pub struct App {
@@ -31,6 +153,7 @@ pub struct App {
     pub ai_config: ai::AiConfig,
     pub ai_outcome: Option<ai::AiOutcome>,
     pub ai_last_refresh: Option<Instant>,
+    pub ai_config_draft: AiConfigDraft,
 }
 
 impl App {
@@ -56,6 +179,7 @@ impl App {
             city_results: Vec::new(),
             city_selected: 0,
             time_sync,
+            ai_config_draft: AiConfigDraft::from_config(&ai_config),
             ai_config,
             ai_outcome: None,
             ai_last_refresh: None,
@@ -97,7 +221,6 @@ impl App {
         self.city_search = query.to_string();
         self.city_selected = 0;
 
-        // Load city database and search
         if let Ok(db) = crate::city::CityDatabase::load() {
             self.city_results = db
                 .search(&self.city_search)
@@ -218,5 +341,49 @@ impl App {
 
         self.ai_outcome = Some(outcome);
         self.ai_last_refresh = Some(Instant::now());
+    }
+
+    pub fn open_ai_config(&mut self) {
+        self.ai_config_draft.sync_from(&self.ai_config);
+        self.mode = AppMode::AiConfig;
+    }
+
+    pub fn apply_ai_config_changes(&mut self) -> Result<()> {
+        let minutes_str = self.ai_config_draft.refresh_minutes.trim();
+        if minutes_str.is_empty() {
+            return Err(anyhow!("Refresh minutes cannot be empty"));
+        }
+
+        let minutes = minutes_str
+            .parse::<u64>()
+            .map_err(|_| anyhow!("Refresh minutes must be a number between 1 and 60"))?;
+        if minutes == 0 || minutes > 60 {
+            return Err(anyhow!("Refresh minutes must be between 1 and 60"));
+        }
+
+        let model = self.ai_config_draft.model.trim();
+        if model.is_empty() {
+            return Err(anyhow!("Model name cannot be empty"));
+        }
+
+        let normalized_server = ai::AiConfig::normalized_server(
+            self.ai_config_draft.enabled,
+            &self.ai_config_draft.server,
+        );
+
+        self.ai_config.enabled = self.ai_config_draft.enabled;
+        self.ai_config.server = normalized_server;
+        self.ai_config.model = model.to_string();
+        self.ai_config.refresh = Duration::from_secs(minutes * 60);
+
+        self.ai_config_draft.sync_from(&self.ai_config);
+        self.ai_outcome = None;
+        self.ai_last_refresh = None;
+
+        if self.ai_config.enabled {
+            self.refresh_ai_insights();
+        }
+
+        Ok(())
     }
 }
