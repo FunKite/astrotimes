@@ -1,1 +1,5132 @@
-404: Not Found
+[
+  {
+    "name": "Tokyo",
+    "lat": 35.6895,
+    "lon": 139.6917,
+    "elev": 40,
+    "tz": "Asia/Tokyo",
+    "state": null,
+    "country": "JP"
+  },
+  {
+    "name": "Delhi",
+    "lat": 28.6139,
+    "lon": 77.209,
+    "elev": 216,
+    "tz": "Asia/Kolkata",
+    "state": null,
+    "country": "IN"
+  },
+  {
+    "name": "Shanghai",
+    "lat": 31.2304,
+    "lon": 121.4737,
+    "elev": 4,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "São Paulo",
+    "lat": -23.5505,
+    "lon": -46.6333,
+    "elev": 760,
+    "tz": "America/Sao_Paulo",
+    "state": null,
+    "country": "BR"
+  },
+  {
+    "name": "Mexico City",
+    "lat": 19.4326,
+    "lon": -99.1332,
+    "elev": 2250,
+    "tz": "America/Mexico_City",
+    "state": null,
+    "country": "MX"
+  },
+  {
+    "name": "Cairo",
+    "lat": 30.0444,
+    "lon": 31.2357,
+    "elev": 23,
+    "tz": "Africa/Cairo",
+    "state": null,
+    "country": "EG"
+  },
+  {
+    "name": "Mumbai",
+    "lat": 19.076,
+    "lon": 72.8777,
+    "elev": 14,
+    "tz": "Asia/Kolkata",
+    "state": null,
+    "country": "IN"
+  },
+  {
+    "name": "Beijing",
+    "lat": 39.9042,
+    "lon": 116.4074,
+    "elev": 43,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Dhaka",
+    "lat": 23.8103,
+    "lon": 90.4125,
+    "elev": 4,
+    "tz": "Asia/Dhaka",
+    "state": null,
+    "country": "BD"
+  },
+  {
+    "name": "Osaka",
+    "lat": 34.6937,
+    "lon": 135.5023,
+    "elev": 3,
+    "tz": "Asia/Tokyo",
+    "state": null,
+    "country": "JP"
+  },
+  {
+    "name": "Karachi",
+    "lat": 24.8607,
+    "lon": 67.0011,
+    "elev": 8,
+    "tz": "Asia/Karachi",
+    "state": null,
+    "country": "PK"
+  },
+  {
+    "name": "Buenos Aires",
+    "lat": -34.6037,
+    "lon": -58.3816,
+    "elev": 25,
+    "tz": "America/Argentina/Buenos_Aires",
+    "state": null,
+    "country": "AR"
+  },
+  {
+    "name": "Istanbul",
+    "lat": 41.0082,
+    "lon": 28.9784,
+    "elev": 39,
+    "tz": "Europe/Istanbul",
+    "state": null,
+    "country": "TR"
+  },
+  {
+    "name": "Kolkata",
+    "lat": 22.5726,
+    "lon": 88.3639,
+    "elev": 9,
+    "tz": "Asia/Kolkata",
+    "state": null,
+    "country": "IN"
+  },
+  {
+    "name": "Manila",
+    "lat": 14.5995,
+    "lon": 120.9842,
+    "elev": 16,
+    "tz": "Asia/Manila",
+    "state": null,
+    "country": "PH"
+  },
+  {
+    "name": "Lagos",
+    "lat": 6.5244,
+    "lon": 3.3792,
+    "elev": 41,
+    "tz": "Africa/Lagos",
+    "state": null,
+    "country": "NG"
+  },
+  {
+    "name": "Rio de Janeiro",
+    "lat": -22.9068,
+    "lon": -43.1729,
+    "elev": 2,
+    "tz": "America/Sao_Paulo",
+    "state": null,
+    "country": "BR"
+  },
+  {
+    "name": "Tianjin",
+    "lat": 39.0851,
+    "lon": 117.1994,
+    "elev": 7,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Guangzhou",
+    "lat": 23.1291,
+    "lon": 113.2644,
+    "elev": 21,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Moscow",
+    "lat": 55.7558,
+    "lon": 37.6173,
+    "elev": 144,
+    "tz": "Europe/Moscow",
+    "state": null,
+    "country": "RU"
+  },
+  {
+    "name": "Shenzhen",
+    "lat": 22.5431,
+    "lon": 114.0579,
+    "elev": 6,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Lahore",
+    "lat": 31.5204,
+    "lon": 74.3587,
+    "elev": 217,
+    "tz": "Asia/Karachi",
+    "state": null,
+    "country": "PK"
+  },
+  {
+    "name": "Bengaluru",
+    "lat": 12.9716,
+    "lon": 77.5946,
+    "elev": 920,
+    "tz": "Asia/Kolkata",
+    "state": null,
+    "country": "IN"
+  },
+  {
+    "name": "Paris",
+    "lat": 48.8566,
+    "lon": 2.3522,
+    "elev": 35,
+    "tz": "Europe/Paris",
+    "state": null,
+    "country": "FR"
+  },
+  {
+    "name": "Bogotá",
+    "lat": 4.711,
+    "lon": -74.0721,
+    "elev": 2640,
+    "tz": "America/Bogota",
+    "state": null,
+    "country": "CO"
+  },
+  {
+    "name": "Jakarta",
+    "lat": -6.2088,
+    "lon": 106.8456,
+    "elev": 8,
+    "tz": "Asia/Jakarta",
+    "state": null,
+    "country": "ID"
+  },
+  {
+    "name": "Chennai",
+    "lat": 13.0827,
+    "lon": 80.2707,
+    "elev": 6,
+    "tz": "Asia/Kolkata",
+    "state": null,
+    "country": "IN"
+  },
+  {
+    "name": "New York",
+    "lat": 40.7506,
+    "lon": -73.9939,
+    "elev": 17,
+    "tz": "America/New_York",
+    "state": "NY",
+    "country": "US"
+  },
+  {
+    "name": "Los Angeles",
+    "lat": 34.0522,
+    "lon": -118.2437,
+    "elev": 104,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Chicago",
+    "lat": 41.8756,
+    "lon": -87.6244,
+    "elev": 181,
+    "tz": "America/Chicago",
+    "state": "IL",
+    "country": "US"
+  },
+  {
+    "name": "Houston",
+    "lat": 29.7603,
+    "lon": -95.3698,
+    "elev": 12,
+    "tz": "America/Chicago",
+    "state": "TX",
+    "country": "US"
+  },
+  {
+    "name": "Phoenix",
+    "lat": 33.4484,
+    "lon": -112.074,
+    "elev": 337,
+    "tz": "America/Phoenix",
+    "state": "AZ",
+    "country": "US"
+  },
+  {
+    "name": "Philadelphia",
+    "lat": 39.9526,
+    "lon": -75.1652,
+    "elev": 12,
+    "tz": "America/New_York",
+    "state": "PA",
+    "country": "US"
+  },
+  {
+    "name": "San Antonio",
+    "lat": 29.4241,
+    "lon": -98.4936,
+    "elev": 198,
+    "tz": "America/Chicago",
+    "state": "TX",
+    "country": "US"
+  },
+  {
+    "name": "San Diego",
+    "lat": 32.7157,
+    "lon": -117.1611,
+    "elev": 19,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Dallas",
+    "lat": 32.7767,
+    "lon": -96.797,
+    "elev": 131,
+    "tz": "America/Chicago",
+    "state": "TX",
+    "country": "US"
+  },
+  {
+    "name": "San Jose",
+    "lat": 37.3382,
+    "lon": -121.8863,
+    "elev": 26,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Austin",
+    "lat": 30.2672,
+    "lon": -97.7431,
+    "elev": 165,
+    "tz": "America/Chicago",
+    "state": "TX",
+    "country": "US"
+  },
+  {
+    "name": "Jacksonville",
+    "lat": 30.3322,
+    "lon": -81.6557,
+    "elev": 5,
+    "tz": "America/New_York",
+    "state": "FL",
+    "country": "US"
+  },
+  {
+    "name": "Fort Worth",
+    "lat": 32.7555,
+    "lon": -97.3308,
+    "elev": 202,
+    "tz": "America/Chicago",
+    "state": "TX",
+    "country": "US"
+  },
+  {
+    "name": "Columbus",
+    "lat": 39.9612,
+    "lon": -82.9988,
+    "elev": 254,
+    "tz": "America/New_York",
+    "state": "OH",
+    "country": "US"
+  },
+  {
+    "name": "Charlotte",
+    "lat": 35.2271,
+    "lon": -80.8431,
+    "elev": 230,
+    "tz": "America/New_York",
+    "state": "NC",
+    "country": "US"
+  },
+  {
+    "name": "San Francisco",
+    "lat": 37.7749,
+    "lon": -122.4194,
+    "elev": 16,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Indianapolis",
+    "lat": 39.7684,
+    "lon": -86.1581,
+    "elev": 217,
+    "tz": "America/Indiana/Indianapolis",
+    "state": "IN",
+    "country": "US"
+  },
+  {
+    "name": "Seattle",
+    "lat": 47.6062,
+    "lon": -122.3321,
+    "elev": 56,
+    "tz": "America/Los_Angeles",
+    "state": "WA",
+    "country": "US"
+  },
+  {
+    "name": "Denver",
+    "lat": 39.7392,
+    "lon": -104.9903,
+    "elev": 1609,
+    "tz": "America/Denver",
+    "state": "CO",
+    "country": "US"
+  },
+  {
+    "name": "Washington",
+    "lat": 38.9072,
+    "lon": -77.0369,
+    "elev": 7,
+    "tz": "America/New_York",
+    "state": "DC",
+    "country": "US"
+  },
+  {
+    "name": "Boston",
+    "lat": 42.3601,
+    "lon": -71.0589,
+    "elev": 13,
+    "tz": "America/New_York",
+    "state": "MA",
+    "country": "US"
+  },
+  {
+    "name": "El Paso",
+    "lat": 31.7619,
+    "lon": -106.485,
+    "elev": 1140,
+    "tz": "America/Denver",
+    "state": "TX",
+    "country": "US"
+  },
+  {
+    "name": "Nashville",
+    "lat": 36.1627,
+    "lon": -86.7816,
+    "elev": 182,
+    "tz": "America/Chicago",
+    "state": "TN",
+    "country": "US"
+  },
+  {
+    "name": "Detroit",
+    "lat": 42.3314,
+    "lon": -83.0458,
+    "elev": 183,
+    "tz": "America/Detroit",
+    "state": "MI",
+    "country": "US"
+  },
+  {
+    "name": "Oklahoma City",
+    "lat": 35.4676,
+    "lon": -97.5164,
+    "elev": 365,
+    "tz": "America/Chicago",
+    "state": "OK",
+    "country": "US"
+  },
+  {
+    "name": "Portland",
+    "lat": 45.5152,
+    "lon": -122.6784,
+    "elev": 15,
+    "tz": "America/Los_Angeles",
+    "state": "OR",
+    "country": "US"
+  },
+  {
+    "name": "Las Vegas",
+    "lat": 36.1699,
+    "lon": -115.1398,
+    "elev": 610,
+    "tz": "America/Los_Angeles",
+    "state": "NV",
+    "country": "US"
+  },
+  {
+    "name": "Memphis",
+    "lat": 35.1495,
+    "lon": -90.049,
+    "elev": 98,
+    "tz": "America/Chicago",
+    "state": "TN",
+    "country": "US"
+  },
+  {
+    "name": "Louisville",
+    "lat": 38.2527,
+    "lon": -85.7585,
+    "elev": 142,
+    "tz": "America/Kentucky/Louisville",
+    "state": "KY",
+    "country": "US"
+  },
+  {
+    "name": "Baltimore",
+    "lat": 39.2904,
+    "lon": -76.6122,
+    "elev": 10,
+    "tz": "America/New_York",
+    "state": "MD",
+    "country": "US"
+  },
+  {
+    "name": "Milwaukee",
+    "lat": 43.0389,
+    "lon": -87.9065,
+    "elev": 188,
+    "tz": "America/Chicago",
+    "state": "WI",
+    "country": "US"
+  },
+  {
+    "name": "Albuquerque",
+    "lat": 35.0844,
+    "lon": -106.6504,
+    "elev": 1619,
+    "tz": "America/Denver",
+    "state": "NM",
+    "country": "US"
+  },
+  {
+    "name": "Tucson",
+    "lat": 32.2226,
+    "lon": -110.9747,
+    "elev": 728,
+    "tz": "America/Phoenix",
+    "state": "AZ",
+    "country": "US"
+  },
+  {
+    "name": "Fresno",
+    "lat": 36.7378,
+    "lon": -119.7871,
+    "elev": 100,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Sacramento",
+    "lat": 38.5816,
+    "lon": -121.4944,
+    "elev": 9,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Kansas City",
+    "lat": 39.0997,
+    "lon": -94.5786,
+    "elev": 277,
+    "tz": "America/Chicago",
+    "state": "MO",
+    "country": "US"
+  },
+  {
+    "name": "Mesa",
+    "lat": 33.4152,
+    "lon": -111.8315,
+    "elev": 370,
+    "tz": "America/Phoenix",
+    "state": "AZ",
+    "country": "US"
+  },
+  {
+    "name": "Atlanta",
+    "lat": 33.749,
+    "lon": -84.388,
+    "elev": 320,
+    "tz": "America/New_York",
+    "state": "GA",
+    "country": "US"
+  },
+  {
+    "name": "Omaha",
+    "lat": 41.2565,
+    "lon": -95.9345,
+    "elev": 320,
+    "tz": "America/Chicago",
+    "state": "NE",
+    "country": "US"
+  },
+  {
+    "name": "Colorado Springs",
+    "lat": 38.8339,
+    "lon": -104.8214,
+    "elev": 1839,
+    "tz": "America/Denver",
+    "state": "CO",
+    "country": "US"
+  },
+  {
+    "name": "Raleigh",
+    "lat": 35.7796,
+    "lon": -78.6382,
+    "elev": 96,
+    "tz": "America/New_York",
+    "state": "NC",
+    "country": "US"
+  },
+  {
+    "name": "Long Beach",
+    "lat": 33.7701,
+    "lon": -118.1937,
+    "elev": 10,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Virginia Beach",
+    "lat": 36.8529,
+    "lon": -75.978,
+    "elev": 4,
+    "tz": "America/New_York",
+    "state": "VA",
+    "country": "US"
+  },
+  {
+    "name": "Miami",
+    "lat": 25.7617,
+    "lon": -80.1918,
+    "elev": 2,
+    "tz": "America/New_York",
+    "state": "FL",
+    "country": "US"
+  },
+  {
+    "name": "Oakland",
+    "lat": 37.8044,
+    "lon": -122.2711,
+    "elev": 13,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Minneapolis",
+    "lat": 44.9778,
+    "lon": -93.265,
+    "elev": 264,
+    "tz": "America/Chicago",
+    "state": "MN",
+    "country": "US"
+  },
+  {
+    "name": "Tulsa",
+    "lat": 36.154,
+    "lon": -95.9928,
+    "elev": 223,
+    "tz": "America/Chicago",
+    "state": "OK",
+    "country": "US"
+  },
+  {
+    "name": "Cleveland",
+    "lat": 41.4993,
+    "lon": -81.6944,
+    "elev": 199,
+    "tz": "America/New_York",
+    "state": "OH",
+    "country": "US"
+  },
+  {
+    "name": "Wichita",
+    "lat": 37.6872,
+    "lon": -97.3301,
+    "elev": 402,
+    "tz": "America/Chicago",
+    "state": "KS",
+    "country": "US"
+  },
+  {
+    "name": "Arlington",
+    "lat": 32.7357,
+    "lon": -97.1081,
+    "elev": 184,
+    "tz": "America/Chicago",
+    "state": "TX",
+    "country": "US"
+  },
+  {
+    "name": "New Orleans",
+    "lat": 29.9511,
+    "lon": -90.0715,
+    "elev": -2,
+    "tz": "America/Chicago",
+    "state": "LA",
+    "country": "US"
+  },
+  {
+    "name": "Bakersfield",
+    "lat": 35.3733,
+    "lon": -119.0187,
+    "elev": 112,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Tampa",
+    "lat": 27.9506,
+    "lon": -82.4572,
+    "elev": 15,
+    "tz": "America/New_York",
+    "state": "FL",
+    "country": "US"
+  },
+  {
+    "name": "Honolulu",
+    "lat": 21.3099,
+    "lon": -157.8581,
+    "elev": 6,
+    "tz": "Pacific/Honolulu",
+    "state": "HI",
+    "country": "US"
+  },
+  {
+    "name": "Anaheim",
+    "lat": 33.8366,
+    "lon": -117.9143,
+    "elev": 50,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Aurora",
+    "lat": 39.7294,
+    "lon": -104.8319,
+    "elev": 1655,
+    "tz": "America/Denver",
+    "state": "CO",
+    "country": "US"
+  },
+  {
+    "name": "Santa Ana",
+    "lat": 33.7455,
+    "lon": -117.8677,
+    "elev": 56,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "St. Louis",
+    "lat": 38.627,
+    "lon": -90.1994,
+    "elev": 141,
+    "tz": "America/Chicago",
+    "state": "MO",
+    "country": "US"
+  },
+  {
+    "name": "Riverside",
+    "lat": 33.9533,
+    "lon": -117.3962,
+    "elev": 253,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Corpus Christi",
+    "lat": 27.8006,
+    "lon": -97.3964,
+    "elev": 10,
+    "tz": "America/Chicago",
+    "state": "TX",
+    "country": "US"
+  },
+  {
+    "name": "Lexington",
+    "lat": 38.0406,
+    "lon": -84.5037,
+    "elev": 295,
+    "tz": "America/New_York",
+    "state": "KY",
+    "country": "US"
+  },
+  {
+    "name": "Pittsburgh",
+    "lat": 40.4406,
+    "lon": -79.9959,
+    "elev": 239,
+    "tz": "America/New_York",
+    "state": "PA",
+    "country": "US"
+  },
+  {
+    "name": "Anchorage",
+    "lat": 61.2181,
+    "lon": -149.9003,
+    "elev": 31,
+    "tz": "America/Anchorage",
+    "state": "AK",
+    "country": "US"
+  },
+  {
+    "name": "Stockton",
+    "lat": 37.9577,
+    "lon": -121.2908,
+    "elev": 4,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Cincinnati",
+    "lat": 39.1031,
+    "lon": -84.512,
+    "elev": 267,
+    "tz": "America/New_York",
+    "state": "OH",
+    "country": "US"
+  },
+  {
+    "name": "St. Paul",
+    "lat": 44.9537,
+    "lon": -93.09,
+    "elev": 214,
+    "tz": "America/Chicago",
+    "state": "MN",
+    "country": "US"
+  },
+  {
+    "name": "Toledo",
+    "lat": 41.6528,
+    "lon": -83.5379,
+    "elev": 187,
+    "tz": "America/New_York",
+    "state": "OH",
+    "country": "US"
+  },
+  {
+    "name": "Newark",
+    "lat": 40.7357,
+    "lon": -74.1724,
+    "elev": 10,
+    "tz": "America/New_York",
+    "state": "NJ",
+    "country": "US"
+  },
+  {
+    "name": "Greensboro",
+    "lat": 36.0726,
+    "lon": -79.792,
+    "elev": 271,
+    "tz": "America/New_York",
+    "state": "NC",
+    "country": "US"
+  },
+  {
+    "name": "Plano",
+    "lat": 33.0198,
+    "lon": -96.6989,
+    "elev": 204,
+    "tz": "America/Chicago",
+    "state": "TX",
+    "country": "US"
+  },
+  {
+    "name": "Henderson",
+    "lat": 36.0395,
+    "lon": -114.9817,
+    "elev": 610,
+    "tz": "America/Los_Angeles",
+    "state": "NV",
+    "country": "US"
+  },
+  {
+    "name": "Lincoln",
+    "lat": 40.8136,
+    "lon": -96.7026,
+    "elev": 361,
+    "tz": "America/Chicago",
+    "state": "NE",
+    "country": "US"
+  },
+  {
+    "name": "Buffalo",
+    "lat": 42.8864,
+    "lon": -78.8784,
+    "elev": 184,
+    "tz": "America/New_York",
+    "state": "NY",
+    "country": "US"
+  },
+  {
+    "name": "Jersey City",
+    "lat": 40.7178,
+    "lon": -74.0431,
+    "elev": 8,
+    "tz": "America/New_York",
+    "state": "NJ",
+    "country": "US"
+  },
+  {
+    "name": "Chula Vista",
+    "lat": 32.6401,
+    "lon": -117.0842,
+    "elev": 65,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Fort Wayne",
+    "lat": 41.0793,
+    "lon": -85.1394,
+    "elev": 248,
+    "tz": "America/Indiana/Indianapolis",
+    "state": "IN",
+    "country": "US"
+  },
+  {
+    "name": "Orlando",
+    "lat": 28.5383,
+    "lon": -81.3792,
+    "elev": 34,
+    "tz": "America/New_York",
+    "state": "FL",
+    "country": "US"
+  },
+  {
+    "name": "St. Petersburg",
+    "lat": 27.7676,
+    "lon": -82.6403,
+    "elev": 9,
+    "tz": "America/New_York",
+    "state": "FL",
+    "country": "US"
+  },
+  {
+    "name": "Chandler",
+    "lat": 33.3062,
+    "lon": -111.8413,
+    "elev": 390,
+    "tz": "America/Phoenix",
+    "state": "AZ",
+    "country": "US"
+  },
+  {
+    "name": "Laredo",
+    "lat": 27.5306,
+    "lon": -99.4803,
+    "elev": 131,
+    "tz": "America/Chicago",
+    "state": "TX",
+    "country": "US"
+  },
+  {
+    "name": "Norfolk",
+    "lat": 36.8468,
+    "lon": -76.2852,
+    "elev": 5,
+    "tz": "America/New_York",
+    "state": "VA",
+    "country": "US"
+  },
+  {
+    "name": "Durham",
+    "lat": 35.994,
+    "lon": -78.8986,
+    "elev": 123,
+    "tz": "America/New_York",
+    "state": "NC",
+    "country": "US"
+  },
+  {
+    "name": "Madison",
+    "lat": 43.0731,
+    "lon": -89.4012,
+    "elev": 259,
+    "tz": "America/Chicago",
+    "state": "WI",
+    "country": "US"
+  },
+  {
+    "name": "Lubbock",
+    "lat": 33.5779,
+    "lon": -101.8552,
+    "elev": 993,
+    "tz": "America/Chicago",
+    "state": "TX",
+    "country": "US"
+  },
+  {
+    "name": "Irvine",
+    "lat": 33.6846,
+    "lon": -117.8265,
+    "elev": 17,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Glendale",
+    "lat": 33.5387,
+    "lon": -112.186,
+    "elev": 345,
+    "tz": "America/Phoenix",
+    "state": "AZ",
+    "country": "US"
+  },
+  {
+    "name": "Garland",
+    "lat": 32.9126,
+    "lon": -96.6389,
+    "elev": 165,
+    "tz": "America/Chicago",
+    "state": "TX",
+    "country": "US"
+  },
+  {
+    "name": "Hialeah",
+    "lat": 25.8576,
+    "lon": -80.2781,
+    "elev": 2,
+    "tz": "America/New_York",
+    "state": "FL",
+    "country": "US"
+  },
+  {
+    "name": "Reno",
+    "lat": 39.5296,
+    "lon": -119.8138,
+    "elev": 1372,
+    "tz": "America/Los_Angeles",
+    "state": "NV",
+    "country": "US"
+  },
+  {
+    "name": "Chesapeake",
+    "lat": 36.7682,
+    "lon": -76.2875,
+    "elev": 6,
+    "tz": "America/New_York",
+    "state": "VA",
+    "country": "US"
+  },
+  {
+    "name": "Gilbert",
+    "lat": 33.3528,
+    "lon": -111.789,
+    "elev": 390,
+    "tz": "America/Phoenix",
+    "state": "AZ",
+    "country": "US"
+  },
+  {
+    "name": "Baton Rouge",
+    "lat": 30.4515,
+    "lon": -91.1871,
+    "elev": 17,
+    "tz": "America/Chicago",
+    "state": "LA",
+    "country": "US"
+  },
+  {
+    "name": "Irving",
+    "lat": 32.8143,
+    "lon": -96.9489,
+    "elev": 157,
+    "tz": "America/Chicago",
+    "state": "TX",
+    "country": "US"
+  },
+  {
+    "name": "Scottsdale",
+    "lat": 33.4942,
+    "lon": -111.9261,
+    "elev": 415,
+    "tz": "America/Phoenix",
+    "state": "AZ",
+    "country": "US"
+  },
+  {
+    "name": "North Las Vegas",
+    "lat": 36.1989,
+    "lon": -115.1175,
+    "elev": 610,
+    "tz": "America/Los_Angeles",
+    "state": "NV",
+    "country": "US"
+  },
+  {
+    "name": "Fremont",
+    "lat": 37.5485,
+    "lon": -121.9886,
+    "elev": 12,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Boise",
+    "lat": 43.615,
+    "lon": -116.2023,
+    "elev": 838,
+    "tz": "America/Boise",
+    "state": "ID",
+    "country": "US"
+  },
+  {
+    "name": "Richmond",
+    "lat": 37.5407,
+    "lon": -77.436,
+    "elev": 49,
+    "tz": "America/New_York",
+    "state": "VA",
+    "country": "US"
+  },
+  {
+    "name": "San Bernardino",
+    "lat": 34.1083,
+    "lon": -117.2898,
+    "elev": 347,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Birmingham",
+    "lat": 33.5207,
+    "lon": -86.8025,
+    "elev": 187,
+    "tz": "America/Chicago",
+    "state": "AL",
+    "country": "US"
+  },
+  {
+    "name": "Spokane",
+    "lat": 47.6587,
+    "lon": -117.426,
+    "elev": 537,
+    "tz": "America/Los_Angeles",
+    "state": "WA",
+    "country": "US"
+  },
+  {
+    "name": "Rochester",
+    "lat": 43.1566,
+    "lon": -77.6088,
+    "elev": 154,
+    "tz": "America/New_York",
+    "state": "NY",
+    "country": "US"
+  },
+  {
+    "name": "Des Moines",
+    "lat": 41.5868,
+    "lon": -93.625,
+    "elev": 263,
+    "tz": "America/Chicago",
+    "state": "IA",
+    "country": "US"
+  },
+  {
+    "name": "Modesto",
+    "lat": 37.6391,
+    "lon": -120.9969,
+    "elev": 29,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Fayetteville",
+    "lat": 35.0527,
+    "lon": -78.8784,
+    "elev": 56,
+    "tz": "America/New_York",
+    "state": "NC",
+    "country": "US"
+  },
+  {
+    "name": "Tacoma",
+    "lat": 47.2529,
+    "lon": -122.4443,
+    "elev": 64,
+    "tz": "America/Los_Angeles",
+    "state": "WA",
+    "country": "US"
+  },
+  {
+    "name": "Oxnard",
+    "lat": 34.1975,
+    "lon": -119.1771,
+    "elev": 13,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Fontana",
+    "lat": 34.0922,
+    "lon": -117.435,
+    "elev": 427,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Montgomery",
+    "lat": 32.3792,
+    "lon": -86.3077,
+    "elev": 67,
+    "tz": "America/Chicago",
+    "state": "AL",
+    "country": "US"
+  },
+  {
+    "name": "Burlington",
+    "lat": 44.4759,
+    "lon": -73.2121,
+    "elev": 104,
+    "tz": "America/New_York",
+    "state": "VT",
+    "country": "US"
+  },
+  {
+    "name": "Carson",
+    "lat": 45.725,
+    "lon": -121.8192,
+    "elev": 143,
+    "tz": "America/Los_Angeles",
+    "state": "WA",
+    "country": "US"
+  },
+  {
+    "name": "La Paz",
+    "lat": -16.4897,
+    "lon": -68.1193,
+    "elev": 3640,
+    "tz": "America/La_Paz",
+    "state": null,
+    "country": "BO"
+  },
+  {
+    "name": "Quito",
+    "lat": -0.1807,
+    "lon": -78.4678,
+    "elev": 2850,
+    "tz": "America/Guayaquil",
+    "state": null,
+    "country": "EC"
+  },
+  {
+    "name": "Kathmandu",
+    "lat": 27.7172,
+    "lon": 85.324,
+    "elev": 1400,
+    "tz": "Asia/Kathmandu",
+    "state": null,
+    "country": "NP"
+  },
+  {
+    "name": "Thimphu",
+    "lat": 27.4728,
+    "lon": 89.639,
+    "elev": 2334,
+    "tz": "Asia/Thimphu",
+    "state": null,
+    "country": "BT"
+  },
+  {
+    "name": "El Alto",
+    "lat": -16.5,
+    "lon": -68.15,
+    "elev": 4150,
+    "tz": "America/La_Paz",
+    "state": null,
+    "country": "BO"
+  },
+  {
+    "name": "Puno",
+    "lat": -15.8402,
+    "lon": -70.0219,
+    "elev": 3827,
+    "tz": "America/Lima",
+    "state": null,
+    "country": "PE"
+  },
+  {
+    "name": "Arequipa",
+    "lat": -16.409,
+    "lon": -71.5375,
+    "elev": 2380,
+    "tz": "America/Lima",
+    "state": null,
+    "country": "PE"
+  },
+  {
+    "name": "Xining",
+    "lat": 36.6171,
+    "lon": 101.7782,
+    "elev": 2295,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Ulaanbaatar",
+    "lat": 47.8864,
+    "lon": 106.9057,
+    "elev": 1350,
+    "tz": "Asia/Ulaanbaatar",
+    "state": null,
+    "country": "MN"
+  },
+  {
+    "name": "Reykjavik",
+    "lat": 64.1466,
+    "lon": -21.9426,
+    "elev": 14,
+    "tz": "Atlantic/Reykjavik",
+    "state": null,
+    "country": "IS"
+  },
+  {
+    "name": "Longyearbyen",
+    "lat": 78.2232,
+    "lon": 15.6469,
+    "elev": 20,
+    "tz": "Arctic/Longyearbyen",
+    "state": null,
+    "country": "SJ"
+  },
+  {
+    "name": "Lanzhou",
+    "lat": 36.0614,
+    "lon": 103.8343,
+    "elev": 1518,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Gilgit",
+    "lat": 35.9208,
+    "lon": 74.3089,
+    "elev": 1500,
+    "tz": "Asia/Karachi",
+    "state": null,
+    "country": "PK"
+  },
+  {
+    "name": "Asmara",
+    "lat": 15.3229,
+    "lon": 38.9251,
+    "elev": 2325,
+    "tz": "Africa/Asmara",
+    "state": null,
+    "country": "ER"
+  },
+  {
+    "name": "Mekelle",
+    "lat": 13.4967,
+    "lon": 39.4767,
+    "elev": 2254,
+    "tz": "Africa/Addis_Ababa",
+    "state": null,
+    "country": "ET"
+  },
+  {
+    "name": "Gondar",
+    "lat": 12.603,
+    "lon": 37.4521,
+    "elev": 2133,
+    "tz": "Africa/Addis_Ababa",
+    "state": null,
+    "country": "ET"
+  },
+  {
+    "name": "Huancayo",
+    "lat": -12.0651,
+    "lon": -75.2049,
+    "elev": 3259,
+    "tz": "America/Lima",
+    "state": null,
+    "country": "PE"
+  },
+  {
+    "name": "Ayacucho",
+    "lat": -13.1639,
+    "lon": -74.223,
+    "elev": 2761,
+    "tz": "America/Lima",
+    "state": null,
+    "country": "PE"
+  },
+  {
+    "name": "Juliaca",
+    "lat": -15.4989,
+    "lon": -70.1294,
+    "elev": 3825,
+    "tz": "America/Lima",
+    "state": null,
+    "country": "PE"
+  },
+  {
+    "name": "Kargil",
+    "lat": 34.5563,
+    "lon": 76.1257,
+    "elev": 2676,
+    "tz": "Asia/Kolkata",
+    "state": null,
+    "country": "IN"
+  },
+  {
+    "name": "Shimla",
+    "lat": 31.1048,
+    "lon": 77.1734,
+    "elev": 2276,
+    "tz": "Asia/Kolkata",
+    "state": null,
+    "country": "IN"
+  },
+  {
+    "name": "Shigatse",
+    "lat": 29.2477,
+    "lon": 88.8806,
+    "elev": 3836,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Nagqu",
+    "lat": 31.4768,
+    "lon": 92.0586,
+    "elev": 4507,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Santa Fe",
+    "lat": 35.687,
+    "lon": -105.9378,
+    "elev": 2194,
+    "tz": "America/Denver",
+    "state": "NM",
+    "country": "US"
+  },
+  {
+    "name": "Taos",
+    "lat": 36.4072,
+    "lon": -105.5731,
+    "elev": 2124,
+    "tz": "America/Denver",
+    "state": "NM",
+    "country": "US"
+  },
+  {
+    "name": "Durango",
+    "lat": 37.2753,
+    "lon": -107.8801,
+    "elev": 1989,
+    "tz": "America/Denver",
+    "state": "CO",
+    "country": "US"
+  },
+  {
+    "name": "Telluride",
+    "lat": 37.9375,
+    "lon": -107.8123,
+    "elev": 2667,
+    "tz": "America/Denver",
+    "state": "CO",
+    "country": "US"
+  },
+  {
+    "name": "Prescott",
+    "lat": 34.54,
+    "lon": -112.4685,
+    "elev": 1636,
+    "tz": "America/Phoenix",
+    "state": "AZ",
+    "country": "US"
+  },
+  {
+    "name": "Sedona",
+    "lat": 34.8697,
+    "lon": -111.7609,
+    "elev": 1326,
+    "tz": "America/Phoenix",
+    "state": "AZ",
+    "country": "US"
+  },
+  {
+    "name": "Pagosa Springs",
+    "lat": 37.2695,
+    "lon": -107.0098,
+    "elev": 2170,
+    "tz": "America/Denver",
+    "state": "CO",
+    "country": "US"
+  },
+  {
+    "name": "Cajamarca",
+    "lat": -7.1618,
+    "lon": -78.5128,
+    "elev": 2750,
+    "tz": "America/Lima",
+    "state": null,
+    "country": "PE"
+  },
+  {
+    "name": "Cerro de Pasco",
+    "lat": -10.682,
+    "lon": -76.2567,
+    "elev": 4330,
+    "tz": "America/Lima",
+    "state": null,
+    "country": "PE"
+  },
+  {
+    "name": "Huancavelica",
+    "lat": -12.7867,
+    "lon": -74.9742,
+    "elev": 3676,
+    "tz": "America/Lima",
+    "state": null,
+    "country": "PE"
+  },
+  {
+    "name": "Manali",
+    "lat": 32.2432,
+    "lon": 77.1892,
+    "elev": 2050,
+    "tz": "Asia/Kolkata",
+    "state": null,
+    "country": "IN"
+  },
+  {
+    "name": "Keylong",
+    "lat": 32.5714,
+    "lon": 77.025,
+    "elev": 3350,
+    "tz": "Asia/Kolkata",
+    "state": null,
+    "country": "IN"
+  },
+  {
+    "name": "Srinagar",
+    "lat": 34.0837,
+    "lon": 74.7973,
+    "elev": 1585,
+    "tz": "Asia/Kolkata",
+    "state": null,
+    "country": "IN"
+  },
+  {
+    "name": "Kinshasa",
+    "lat": -4.3276,
+    "lon": 15.3136,
+    "elev": 281,
+    "tz": "Africa/Kinshasa",
+    "state": null,
+    "country": "CD"
+  },
+  {
+    "name": "Chengdu",
+    "lat": 30.6667,
+    "lon": 104.0667,
+    "elev": 499,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Wuhan",
+    "lat": 30.5833,
+    "lon": 114.2667,
+    "elev": 20,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Seoul",
+    "lat": 37.566,
+    "lon": 126.9784,
+    "elev": 38,
+    "tz": "Asia/Seoul",
+    "state": null,
+    "country": "KR"
+  },
+  {
+    "name": "Dongguan",
+    "lat": 23.018,
+    "lon": 113.7487,
+    "elev": 1,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Xi’an",
+    "lat": 34.2583,
+    "lon": 108.9286,
+    "elev": 416,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Nanjing",
+    "lat": 32.0617,
+    "lon": 118.7778,
+    "elev": 22,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Hangzhou",
+    "lat": 30.2936,
+    "lon": 120.1614,
+    "elev": 12,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Foshan",
+    "lat": 23.0268,
+    "lon": 113.1315,
+    "elev": 5,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Ho Chi Minh City",
+    "lat": 10.823,
+    "lon": 106.6296,
+    "elev": 7,
+    "tz": "Asia/Ho_Chi_Minh",
+    "state": null,
+    "country": "VN"
+  },
+  {
+    "name": "London",
+    "lat": 51.5085,
+    "lon": -0.1257,
+    "elev": 25,
+    "tz": "Europe/London",
+    "state": null,
+    "country": "GB"
+  },
+  {
+    "name": "Hanoi",
+    "lat": 21.0245,
+    "lon": 105.8412,
+    "elev": 10,
+    "tz": "Asia/Bangkok",
+    "state": null,
+    "country": "VN"
+  },
+  {
+    "name": "Taipei",
+    "lat": 25.0478,
+    "lon": 121.5319,
+    "elev": 10,
+    "tz": "Asia/Taipei",
+    "state": null,
+    "country": "TW"
+  },
+  {
+    "name": "Lima",
+    "lat": -12.0432,
+    "lon": -77.0282,
+    "elev": 152,
+    "tz": "America/Lima",
+    "state": null,
+    "country": "PE"
+  },
+  {
+    "name": "Hong Kong",
+    "lat": 22.2783,
+    "lon": 114.1747,
+    "elev": 60,
+    "tz": "Asia/Hong_Kong",
+    "state": null,
+    "country": "HK"
+  },
+  {
+    "name": "Chongqing",
+    "lat": 29.5603,
+    "lon": 106.5577,
+    "elev": 289,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Baghdad",
+    "lat": 33.3406,
+    "lon": 44.4009,
+    "elev": 41,
+    "tz": "Asia/Baghdad",
+    "state": null,
+    "country": "IQ"
+  },
+  {
+    "name": "Qingdao",
+    "lat": 36.0649,
+    "lon": 120.3804,
+    "elev": 16,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Tehran",
+    "lat": 35.6944,
+    "lon": 51.4215,
+    "elev": 1178,
+    "tz": "Asia/Tehran",
+    "state": null,
+    "country": "IR"
+  },
+  {
+    "name": "Shenyang",
+    "lat": 41.7922,
+    "lon": 123.4328,
+    "elev": 53,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Hyderābād",
+    "lat": 17.384,
+    "lon": 78.4564,
+    "elev": 515,
+    "tz": "Asia/Kolkata",
+    "state": null,
+    "country": "IN"
+  },
+  {
+    "name": "Suzhou",
+    "lat": 31.3041,
+    "lon": 120.5954,
+    "elev": 10,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Ahmedabad",
+    "lat": 23.0258,
+    "lon": 72.5873,
+    "elev": 56,
+    "tz": "Asia/Kolkata",
+    "state": null,
+    "country": "IN"
+  },
+  {
+    "name": "Abidjan",
+    "lat": 5.3544,
+    "lon": -4.0017,
+    "elev": 50,
+    "tz": "Africa/Abidjan",
+    "state": null,
+    "country": "CI"
+  },
+  {
+    "name": "Singapore",
+    "lat": 1.2897,
+    "lon": 103.8501,
+    "elev": 23,
+    "tz": "Asia/Singapore",
+    "state": null,
+    "country": "SG"
+  },
+  {
+    "name": "Johannesburg",
+    "lat": -26.2023,
+    "lon": 28.0436,
+    "elev": 1767,
+    "tz": "Africa/Johannesburg",
+    "state": null,
+    "country": "ZA"
+  },
+  {
+    "name": "Dar es Salaam",
+    "lat": -6.8235,
+    "lon": 39.2695,
+    "elev": 24,
+    "tz": "Africa/Dar_es_Salaam",
+    "state": null,
+    "country": "TZ"
+  },
+  {
+    "name": "Saint Petersburg",
+    "lat": 59.9386,
+    "lon": 30.3141,
+    "elev": 11,
+    "tz": "Europe/Moscow",
+    "state": null,
+    "country": "RU"
+  },
+  {
+    "name": "Alexandria",
+    "lat": 31.2018,
+    "lon": 29.9158,
+    "elev": 9,
+    "tz": "Africa/Cairo",
+    "state": null,
+    "country": "EG"
+  },
+  {
+    "name": "Harbin",
+    "lat": 45.75,
+    "lon": 126.65,
+    "elev": 140,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Sydney",
+    "lat": -33.8678,
+    "lon": 151.2073,
+    "elev": 58,
+    "tz": "Australia/Sydney",
+    "state": null,
+    "country": "AU"
+  },
+  {
+    "name": "Bangkok",
+    "lat": 13.754,
+    "lon": 100.5014,
+    "elev": 12,
+    "tz": "Asia/Bangkok",
+    "state": null,
+    "country": "TH"
+  },
+  {
+    "name": "Hefei",
+    "lat": 31.8639,
+    "lon": 117.2808,
+    "elev": 24,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Melbourne",
+    "lat": -37.814,
+    "lon": 144.9633,
+    "elev": 25,
+    "tz": "Australia/Melbourne",
+    "state": null,
+    "country": "AU"
+  },
+  {
+    "name": "Dalian",
+    "lat": 38.9122,
+    "lon": 121.6022,
+    "elev": 33,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Kano",
+    "lat": 12.0001,
+    "lon": 8.5167,
+    "elev": 484,
+    "tz": "Africa/Lagos",
+    "state": null,
+    "country": "NG"
+  },
+  {
+    "name": "Santiago",
+    "lat": -33.4569,
+    "lon": -70.6483,
+    "elev": 556,
+    "tz": "America/Santiago",
+    "state": null,
+    "country": "CL"
+  },
+  {
+    "name": "Changchun",
+    "lat": 43.88,
+    "lon": 125.3228,
+    "elev": 206,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Cape Town",
+    "lat": -33.9258,
+    "lon": 18.4232,
+    "elev": 25,
+    "tz": "Africa/Johannesburg",
+    "state": null,
+    "country": "ZA"
+  },
+  {
+    "name": "Jeddah",
+    "lat": 21.4901,
+    "lon": 39.1862,
+    "elev": 7,
+    "tz": "Asia/Riyadh",
+    "state": null,
+    "country": "SA"
+  },
+  {
+    "name": "Xiamen",
+    "lat": 24.4798,
+    "lon": 118.0819,
+    "elev": 12,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Surat",
+    "lat": 21.1959,
+    "lon": 72.8302,
+    "elev": 20,
+    "tz": "Asia/Kolkata",
+    "state": null,
+    "country": "IN"
+  },
+  {
+    "name": "Yangon",
+    "lat": 16.8053,
+    "lon": 96.1561,
+    "elev": 30,
+    "tz": "Asia/Yangon",
+    "state": null,
+    "country": "MM"
+  },
+  {
+    "name": "Kabul",
+    "lat": 34.5281,
+    "lon": 69.1723,
+    "elev": 1798,
+    "tz": "Asia/Kabul",
+    "state": null,
+    "country": "AF"
+  },
+  {
+    "name": "Nairobi",
+    "lat": -1.2833,
+    "lon": 36.8167,
+    "elev": 1684,
+    "tz": "Africa/Nairobi",
+    "state": null,
+    "country": "KE"
+  },
+  {
+    "name": "Wuxi",
+    "lat": 31.5689,
+    "lon": 120.2886,
+    "elev": 10,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Giza",
+    "lat": 30.0094,
+    "lon": 31.2086,
+    "elev": 19,
+    "tz": "Africa/Cairo",
+    "state": null,
+    "country": "EG"
+  },
+  {
+    "name": "Jinan",
+    "lat": 36.6683,
+    "lon": 116.9972,
+    "elev": 32,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Taiyuan",
+    "lat": 37.8694,
+    "lon": 112.5603,
+    "elev": 795,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Zhengzhou",
+    "lat": 34.7578,
+    "lon": 113.6486,
+    "elev": 104,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Bamako",
+    "lat": 12.65,
+    "lon": -8.0,
+    "elev": 338,
+    "tz": "Africa/Bamako",
+    "state": null,
+    "country": "ML"
+  },
+  {
+    "name": "Riyadh",
+    "lat": 24.6877,
+    "lon": 46.7219,
+    "elev": 612,
+    "tz": "Asia/Riyadh",
+    "state": null,
+    "country": "SA"
+  },
+  {
+    "name": "Shijiazhuang",
+    "lat": 38.0414,
+    "lon": 114.4786,
+    "elev": 77,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Chattogram",
+    "lat": 22.3384,
+    "lon": 91.8317,
+    "elev": 15,
+    "tz": "Asia/Dhaka",
+    "state": null,
+    "country": "BD"
+  },
+  {
+    "name": "Addis Ababa",
+    "lat": 9.025,
+    "lon": 38.7469,
+    "elev": 2405,
+    "tz": "Africa/Addis_Ababa",
+    "state": null,
+    "country": "ET"
+  },
+  {
+    "name": "Kunming",
+    "lat": 25.0389,
+    "lon": 102.7183,
+    "elev": 1895,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Zhongshan",
+    "lat": 22.5231,
+    "lon": 113.3791,
+    "elev": 9,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Nanning",
+    "lat": 22.8167,
+    "lon": 108.3167,
+    "elev": 91,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Shantou",
+    "lat": 23.3549,
+    "lon": 116.6788,
+    "elev": 3,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Yokohama",
+    "lat": 35.4333,
+    "lon": 139.65,
+    "elev": 21,
+    "tz": "Asia/Tokyo",
+    "state": null,
+    "country": "JP"
+  },
+  {
+    "name": "Fuzhou",
+    "lat": 26.0614,
+    "lon": 119.3061,
+    "elev": 14,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Ningbo",
+    "lat": 29.8782,
+    "lon": 121.5494,
+    "elev": 15,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Busan",
+    "lat": 35.1017,
+    "lon": 129.03,
+    "elev": 15,
+    "tz": "Asia/Seoul",
+    "state": null,
+    "country": "KR"
+  },
+  {
+    "name": "Casablanca",
+    "lat": 33.5883,
+    "lon": -7.6114,
+    "elev": 27,
+    "tz": "Africa/Casablanca",
+    "state": null,
+    "country": "MA"
+  },
+  {
+    "name": "Ibadan",
+    "lat": 7.3776,
+    "lon": 3.9059,
+    "elev": 181,
+    "tz": "Africa/Lagos",
+    "state": null,
+    "country": "NG"
+  },
+  {
+    "name": "Puyang",
+    "lat": 29.4568,
+    "lon": 119.8887,
+    "elev": 76,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Ankara",
+    "lat": 39.9199,
+    "lon": 32.8543,
+    "elev": 850,
+    "tz": "Europe/Istanbul",
+    "state": null,
+    "country": "TR"
+  },
+  {
+    "name": "Dubai",
+    "lat": 25.0772,
+    "lon": 55.3093,
+    "elev": 24,
+    "tz": "Asia/Dubai",
+    "state": null,
+    "country": "AE"
+  },
+  {
+    "name": "Shiyan",
+    "lat": 32.6475,
+    "lon": 110.7781,
+    "elev": 247,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Berlin",
+    "lat": 52.5244,
+    "lon": 13.4105,
+    "elev": 74,
+    "tz": "Europe/Berlin",
+    "state": null,
+    "country": "DE"
+  },
+  {
+    "name": "Tangshan",
+    "lat": 39.6333,
+    "lon": 118.1833,
+    "elev": 36,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Changzhou",
+    "lat": 31.7736,
+    "lon": 119.954,
+    "elev": 9,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Madrid",
+    "lat": 40.4165,
+    "lon": -3.7026,
+    "elev": 665,
+    "tz": "Europe/Madrid",
+    "state": null,
+    "country": "ES"
+  },
+  {
+    "name": "Pyongyang",
+    "lat": 39.0339,
+    "lon": 125.7543,
+    "elev": 43,
+    "tz": "Asia/Pyongyang",
+    "state": null,
+    "country": "KP"
+  },
+  {
+    "name": "Zibo",
+    "lat": 36.7906,
+    "lon": 118.0633,
+    "elev": 51,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Pune",
+    "lat": 18.5196,
+    "lon": 73.8554,
+    "elev": 554,
+    "tz": "Asia/Kolkata",
+    "state": null,
+    "country": "IN"
+  },
+  {
+    "name": "Durban",
+    "lat": -29.8579,
+    "lon": 31.0292,
+    "elev": 21,
+    "tz": "Africa/Johannesburg",
+    "state": null,
+    "country": "ZA"
+  },
+  {
+    "name": "Bursa",
+    "lat": 40.1956,
+    "lon": 29.0601,
+    "elev": 155,
+    "tz": "Europe/Istanbul",
+    "state": null,
+    "country": "TR"
+  },
+  {
+    "name": "Changsha",
+    "lat": 28.1987,
+    "lon": 112.9709,
+    "elev": 67,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Guiyang",
+    "lat": 26.5833,
+    "lon": 106.7167,
+    "elev": 1087,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Ürümqi",
+    "lat": 43.801,
+    "lon": 87.6005,
+    "elev": 862,
+    "tz": "Asia/Urumqi",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Caracas",
+    "lat": 10.488,
+    "lon": -66.8792,
+    "elev": 887,
+    "tz": "America/Caracas",
+    "state": null,
+    "country": "VE"
+  },
+  {
+    "name": "Incheon",
+    "lat": 37.4565,
+    "lon": 126.7052,
+    "elev": 43,
+    "tz": "Asia/Seoul",
+    "state": null,
+    "country": "KR"
+  },
+  {
+    "name": "Huizhou",
+    "lat": 23.1115,
+    "lon": 114.4152,
+    "elev": 25,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Surabaya",
+    "lat": -7.2492,
+    "lon": 112.7508,
+    "elev": 8,
+    "tz": "Asia/Jakarta",
+    "state": null,
+    "country": "ID"
+  },
+  {
+    "name": "Haikou",
+    "lat": 20.0342,
+    "lon": 110.3465,
+    "elev": 9,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Kanpur",
+    "lat": 26.4652,
+    "lon": 80.3498,
+    "elev": 137,
+    "tz": "Asia/Kolkata",
+    "state": null,
+    "country": "IN"
+  },
+  {
+    "name": "Kyiv",
+    "lat": 50.4547,
+    "lon": 30.5238,
+    "elev": 187,
+    "tz": "Europe/Kyiv",
+    "state": null,
+    "country": "UA"
+  },
+  {
+    "name": "Luanda",
+    "lat": -8.8368,
+    "lon": 13.2343,
+    "elev": 73,
+    "tz": "Africa/Luanda",
+    "state": null,
+    "country": "AO"
+  },
+  {
+    "name": "Quezon City",
+    "lat": 14.6488,
+    "lon": 121.0509,
+    "elev": 49,
+    "tz": "Asia/Manila",
+    "state": null,
+    "country": "PH"
+  },
+  {
+    "name": "Linyi",
+    "lat": 35.0631,
+    "lon": 118.3428,
+    "elev": 69,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Baoding",
+    "lat": 38.8729,
+    "lon": 115.4625,
+    "elev": 15,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Brooklyn",
+    "lat": 40.6501,
+    "lon": -73.9496,
+    "elev": 15,
+    "tz": "America/New_York",
+    "state": "NY",
+    "country": "US"
+  },
+  {
+    "name": "Guayaquil",
+    "lat": -2.1962,
+    "lon": -79.8862,
+    "elev": 14,
+    "tz": "America/Guayaquil",
+    "state": null,
+    "country": "EC"
+  },
+  {
+    "name": "Belo Horizonte",
+    "lat": -19.9208,
+    "lon": -43.9378,
+    "elev": 888,
+    "tz": "America/Sao_Paulo",
+    "state": null,
+    "country": "BR"
+  },
+  {
+    "name": "Salvador",
+    "lat": -12.9756,
+    "lon": -38.491,
+    "elev": 4,
+    "tz": "America/Bahia",
+    "state": null,
+    "country": "BR"
+  },
+  {
+    "name": "Jaipur",
+    "lat": 26.9196,
+    "lon": 75.7878,
+    "elev": 435,
+    "tz": "Asia/Kolkata",
+    "state": null,
+    "country": "IN"
+  },
+  {
+    "name": "Abuja",
+    "lat": 9.0579,
+    "lon": 7.4951,
+    "elev": 476,
+    "tz": "Africa/Lagos",
+    "state": null,
+    "country": "NG"
+  },
+  {
+    "name": "Wenzhou",
+    "lat": 27.9994,
+    "lon": 120.6668,
+    "elev": 10,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Dakar",
+    "lat": 14.6937,
+    "lon": -17.4441,
+    "elev": 12,
+    "tz": "Africa/Dakar",
+    "state": null,
+    "country": "SN"
+  },
+  {
+    "name": "Yunfu",
+    "lat": 22.9279,
+    "lon": 112.0381,
+    "elev": 67,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Navi Mumbai",
+    "lat": 19.0368,
+    "lon": 73.0158,
+    "elev": 14,
+    "tz": "Asia/Kolkata",
+    "state": null,
+    "country": "IN"
+  },
+  {
+    "name": "Toronto",
+    "lat": 43.7064,
+    "lon": -79.3986,
+    "elev": 161,
+    "tz": "America/Toronto",
+    "state": null,
+    "country": "CA"
+  },
+  {
+    "name": "Mogadishu",
+    "lat": 2.0371,
+    "lon": 45.3438,
+    "elev": 12,
+    "tz": "Africa/Mogadishu",
+    "state": null,
+    "country": "SO"
+  },
+  {
+    "name": "Brisbane",
+    "lat": -27.4679,
+    "lon": 153.0281,
+    "elev": 27,
+    "tz": "Australia/Brisbane",
+    "state": null,
+    "country": "AU"
+  },
+  {
+    "name": "Daegu",
+    "lat": 35.8703,
+    "lon": 128.5911,
+    "elev": 45,
+    "tz": "Asia/Seoul",
+    "state": null,
+    "country": "KR"
+  },
+  {
+    "name": "Bekasi",
+    "lat": -6.2349,
+    "lon": 106.9896,
+    "elev": 18,
+    "tz": "Asia/Jakarta",
+    "state": null,
+    "country": "ID"
+  },
+  {
+    "name": "Kumasi",
+    "lat": 6.6885,
+    "lon": -1.6244,
+    "elev": 270,
+    "tz": "Africa/Accra",
+    "state": null,
+    "country": "GH"
+  },
+  {
+    "name": "Faisalabad",
+    "lat": 31.4155,
+    "lon": 73.0897,
+    "elev": 186,
+    "tz": "Asia/Karachi",
+    "state": null,
+    "country": "PK"
+  },
+  {
+    "name": "İzmir",
+    "lat": 38.4127,
+    "lon": 27.1384,
+    "elev": 122,
+    "tz": "Europe/Istanbul",
+    "state": null,
+    "country": "TR"
+  },
+  {
+    "name": "Huai'an",
+    "lat": 33.5886,
+    "lon": 119.0192,
+    "elev": 14,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Lucknow",
+    "lat": 26.8393,
+    "lon": 80.9231,
+    "elev": 126,
+    "tz": "Asia/Kolkata",
+    "state": null,
+    "country": "IN"
+  },
+  {
+    "name": "Bandung",
+    "lat": -6.9222,
+    "lon": 107.6069,
+    "elev": 714,
+    "tz": "Asia/Jakarta",
+    "state": null,
+    "country": "ID"
+  },
+  {
+    "name": "Medan",
+    "lat": 3.5833,
+    "lon": 98.6667,
+    "elev": 26,
+    "tz": "Asia/Jakarta",
+    "state": null,
+    "country": "ID"
+  },
+  {
+    "name": "Ouagadougou",
+    "lat": 12.3657,
+    "lon": -1.5339,
+    "elev": 299,
+    "tz": "Africa/Ouagadougou",
+    "state": null,
+    "country": "BF"
+  },
+  {
+    "name": "Fortaleza",
+    "lat": -3.7172,
+    "lon": -38.5431,
+    "elev": 18,
+    "tz": "America/Fortaleza",
+    "state": null,
+    "country": "BR"
+  },
+  {
+    "name": "Cali",
+    "lat": 3.4372,
+    "lon": -76.5225,
+    "elev": 967,
+    "tz": "America/Bogota",
+    "state": null,
+    "country": "CO"
+  },
+  {
+    "name": "Algiers",
+    "lat": 36.7323,
+    "lon": 3.0875,
+    "elev": 113,
+    "tz": "Africa/Algiers",
+    "state": null,
+    "country": "DZ"
+  },
+  {
+    "name": "Nanchang",
+    "lat": 28.684,
+    "lon": 115.8531,
+    "elev": 20,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Hohhot",
+    "lat": 40.8106,
+    "lon": 111.6522,
+    "elev": 1051,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Rome",
+    "lat": 41.8919,
+    "lon": 12.5113,
+    "elev": 20,
+    "tz": "Europe/Rome",
+    "state": null,
+    "country": "IT"
+  },
+  {
+    "name": "Mashhad",
+    "lat": 36.2981,
+    "lon": 59.6057,
+    "elev": 980,
+    "tz": "Asia/Tehran",
+    "state": null,
+    "country": "IR"
+  },
+  {
+    "name": "Kowloon",
+    "lat": 22.3167,
+    "lon": 114.1833,
+    "elev": 92,
+    "tz": "Asia/Hong_Kong",
+    "state": null,
+    "country": "HK"
+  },
+  {
+    "name": "Shaoxing",
+    "lat": 30.0024,
+    "lon": 120.5786,
+    "elev": 21,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Nantong",
+    "lat": 32.0303,
+    "lon": 120.8747,
+    "elev": 6,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Queens",
+    "lat": 40.6815,
+    "lon": -73.8365,
+    "elev": 12,
+    "tz": "America/New_York",
+    "state": "NY",
+    "country": "US"
+  },
+  {
+    "name": "Nagpur",
+    "lat": 21.1463,
+    "lon": 79.0849,
+    "elev": 319,
+    "tz": "Asia/Kolkata",
+    "state": null,
+    "country": "IN"
+  },
+  {
+    "name": "Yantai",
+    "lat": 37.4765,
+    "lon": 121.4408,
+    "elev": 22,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Maracaibo",
+    "lat": 10.6666,
+    "lon": -71.6124,
+    "elev": 40,
+    "tz": "America/Caracas",
+    "state": null,
+    "country": "VE"
+  },
+  {
+    "name": "Lubumbashi",
+    "lat": -11.6609,
+    "lon": 27.4794,
+    "elev": 1260,
+    "tz": "Africa/Lubumbashi",
+    "state": null,
+    "country": "CD"
+  },
+  {
+    "name": "Manaus",
+    "lat": -3.1019,
+    "lon": -60.025,
+    "elev": 20,
+    "tz": "America/Manaus",
+    "state": null,
+    "country": "BR"
+  },
+  {
+    "name": "Brasília",
+    "lat": -15.7797,
+    "lon": -47.9297,
+    "elev": 1136,
+    "tz": "America/Sao_Paulo",
+    "state": null,
+    "country": "BR"
+  },
+  {
+    "name": "Zhuhai",
+    "lat": 22.2769,
+    "lon": 113.5678,
+    "elev": 35,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Santo Domingo",
+    "lat": 18.4719,
+    "lon": -69.8923,
+    "elev": 24,
+    "tz": "America/Santo_Domingo",
+    "state": null,
+    "country": "DO"
+  },
+  {
+    "name": "Perth",
+    "lat": -31.9522,
+    "lon": 115.8614,
+    "elev": 34,
+    "tz": "Australia/Perth",
+    "state": null,
+    "country": "AU"
+  },
+  {
+    "name": "Nagoya",
+    "lat": 35.1815,
+    "lon": 136.9064,
+    "elev": 23,
+    "tz": "Asia/Tokyo",
+    "state": null,
+    "country": "JP"
+  },
+  {
+    "name": "Havana",
+    "lat": 23.133,
+    "lon": -82.383,
+    "elev": 41,
+    "tz": "America/Havana",
+    "state": null,
+    "country": "CU"
+  },
+  {
+    "name": "Baotou",
+    "lat": 40.6516,
+    "lon": 109.8439,
+    "elev": 1064,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Coimbatore",
+    "lat": 11.0055,
+    "lon": 76.9661,
+    "elev": 411,
+    "tz": "Asia/Kolkata",
+    "state": null,
+    "country": "IN"
+  },
+  {
+    "name": "Port Harcourt",
+    "lat": 4.7774,
+    "lon": 7.0134,
+    "elev": 16,
+    "tz": "Africa/Lagos",
+    "state": null,
+    "country": "NG"
+  },
+  {
+    "name": "Mbuji-Mayi",
+    "lat": -6.136,
+    "lon": 23.5898,
+    "elev": 621,
+    "tz": "Africa/Lubumbashi",
+    "state": null,
+    "country": "CD"
+  },
+  {
+    "name": "Aleppo",
+    "lat": 36.2012,
+    "lon": 37.1612,
+    "elev": 401,
+    "tz": "Asia/Damascus",
+    "state": null,
+    "country": "SY"
+  },
+  {
+    "name": "Kunshan",
+    "lat": 31.3776,
+    "lon": 120.9543,
+    "elev": 10,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Al Mawşil al Jadīdah",
+    "lat": 36.3327,
+    "lon": 43.1056,
+    "elev": 239,
+    "tz": "Asia/Baghdad",
+    "state": null,
+    "country": "IQ"
+  },
+  {
+    "name": "Depok",
+    "lat": -6.4,
+    "lon": 106.8186,
+    "elev": 92,
+    "tz": "Asia/Jakarta",
+    "state": null,
+    "country": "ID"
+  },
+  {
+    "name": "Weifang",
+    "lat": 36.71,
+    "lon": 119.1019,
+    "elev": 30,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Zunyi",
+    "lat": 27.6867,
+    "lon": 106.9072,
+    "elev": 867,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Al Başrah al Qadīmah",
+    "lat": 30.5032,
+    "lon": 47.8151,
+    "elev": 7,
+    "tz": "Asia/Baghdad",
+    "state": null,
+    "country": "IQ"
+  },
+  {
+    "name": "Lianyungang",
+    "lat": 34.5984,
+    "lon": 119.2156,
+    "elev": 1,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Medellín",
+    "lat": 6.2518,
+    "lon": -75.5636,
+    "elev": 1405,
+    "tz": "America/Bogota",
+    "state": null,
+    "country": "CO"
+  },
+  {
+    "name": "Brazzaville",
+    "lat": -4.2661,
+    "lon": 15.2832,
+    "elev": 284,
+    "tz": "Africa/Brazzaville",
+    "state": null,
+    "country": "CG"
+  },
+  {
+    "name": "Tashkent",
+    "lat": 41.2647,
+    "lon": 69.2163,
+    "elev": 424,
+    "tz": "Asia/Tashkent",
+    "state": null,
+    "country": "UZ"
+  },
+  {
+    "name": "Ganzhou",
+    "lat": 25.8466,
+    "lon": 114.9326,
+    "elev": 117,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Almaty",
+    "lat": 43.25,
+    "lon": 76.9167,
+    "elev": 805,
+    "tz": "Asia/Almaty",
+    "state": null,
+    "country": "KZ"
+  },
+  {
+    "name": "Khartoum",
+    "lat": 15.5518,
+    "lon": 32.5324,
+    "elev": 381,
+    "tz": "Africa/Khartoum",
+    "state": null,
+    "country": "SD"
+  },
+  {
+    "name": "Sapporo",
+    "lat": 43.0667,
+    "lon": 141.35,
+    "elev": 26,
+    "tz": "Asia/Tokyo",
+    "state": null,
+    "country": "JP"
+  },
+  {
+    "name": "Accra",
+    "lat": 5.556,
+    "lon": -0.1969,
+    "elev": 33,
+    "tz": "Africa/Accra",
+    "state": null,
+    "country": "GH"
+  },
+  {
+    "name": "Curitiba",
+    "lat": -25.4278,
+    "lon": -49.2731,
+    "elev": 924,
+    "tz": "America/Sao_Paulo",
+    "state": null,
+    "country": "BR"
+  },
+  {
+    "name": "Ordos",
+    "lat": 39.6086,
+    "lon": 109.7816,
+    "elev": 2149,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Sanaa",
+    "lat": 15.3547,
+    "lon": 44.2067,
+    "elev": 2253,
+    "tz": "Asia/Aden",
+    "state": null,
+    "country": "YE"
+  },
+  {
+    "name": "Conakry",
+    "lat": 9.538,
+    "lon": -13.6773,
+    "elev": 13,
+    "tz": "Africa/Conakry",
+    "state": null,
+    "country": "GN"
+  },
+  {
+    "name": "Tijuana",
+    "lat": 32.5027,
+    "lon": -117.0037,
+    "elev": 97,
+    "tz": "America/Tijuana",
+    "state": null,
+    "country": "MX"
+  },
+  {
+    "name": "Beirut",
+    "lat": 33.8933,
+    "lon": 35.5016,
+    "elev": 40,
+    "tz": "Asia/Beirut",
+    "state": null,
+    "country": "LB"
+  },
+  {
+    "name": "Tangerang",
+    "lat": -6.1781,
+    "lon": 106.63,
+    "elev": 18,
+    "tz": "Asia/Jakarta",
+    "state": null,
+    "country": "ID"
+  },
+  {
+    "name": "Jieyang",
+    "lat": 23.5418,
+    "lon": 116.3658,
+    "elev": 7,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Jilin",
+    "lat": 43.8508,
+    "lon": 126.5603,
+    "elev": 196,
+    "tz": "Asia/Shanghai",
+    "state": null,
+    "country": "CN"
+  },
+  {
+    "name": "Bucharest",
+    "lat": 44.4323,
+    "lon": 26.1063,
+    "elev": 83,
+    "tz": "Europe/Bucharest",
+    "state": null,
+    "country": "RO"
+  },
+  {
+    "name": "Saint Paul",
+    "lat": 44.9444,
+    "lon": -93.0933,
+    "elev": 242,
+    "tz": "America/Chicago",
+    "state": "MN",
+    "country": "US"
+  },
+  {
+    "name": "Winston-Salem",
+    "lat": 36.0999,
+    "lon": -80.2442,
+    "elev": 293,
+    "tz": "America/New_York",
+    "state": "NC",
+    "country": "US"
+  },
+  {
+    "name": "Frisco",
+    "lat": 33.1507,
+    "lon": -96.8236,
+    "elev": 212,
+    "tz": "America/Chicago",
+    "state": "TX",
+    "country": "US"
+  },
+  {
+    "name": "Cape Coral",
+    "lat": 26.5629,
+    "lon": -81.9495,
+    "elev": 1,
+    "tz": "America/New_York",
+    "state": "FL",
+    "country": "US"
+  },
+  {
+    "name": "Huntsville",
+    "lat": 34.7304,
+    "lon": -86.5859,
+    "elev": 193,
+    "tz": "America/Chicago",
+    "state": "AL",
+    "country": "US"
+  },
+  {
+    "name": "Santa Clarita",
+    "lat": 34.3917,
+    "lon": -118.5426,
+    "elev": 368,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "McKinney",
+    "lat": 33.1976,
+    "lon": -96.6153,
+    "elev": 192,
+    "tz": "America/Chicago",
+    "state": "TX",
+    "country": "US"
+  },
+  {
+    "name": "Salt Lake City",
+    "lat": 40.7608,
+    "lon": -111.8911,
+    "elev": 1299,
+    "tz": "America/Denver",
+    "state": "UT",
+    "country": "US"
+  },
+  {
+    "name": "Moreno Valley",
+    "lat": 33.9375,
+    "lon": -117.2306,
+    "elev": 497,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Worcester",
+    "lat": 42.2626,
+    "lon": -71.8023,
+    "elev": 147,
+    "tz": "America/New_York",
+    "state": "MA",
+    "country": "US"
+  },
+  {
+    "name": "Yonkers",
+    "lat": 40.9312,
+    "lon": -73.8988,
+    "elev": 25,
+    "tz": "America/New_York",
+    "state": "NY",
+    "country": "US"
+  },
+  {
+    "name": "Sioux Falls",
+    "lat": 43.55,
+    "lon": -96.7003,
+    "elev": 448,
+    "tz": "America/Chicago",
+    "state": "SD",
+    "country": "US"
+  },
+  {
+    "name": "Grand Prairie",
+    "lat": 32.746,
+    "lon": -96.9978,
+    "elev": 157,
+    "tz": "America/Chicago",
+    "state": "TX",
+    "country": "US"
+  },
+  {
+    "name": "Tallahassee",
+    "lat": 30.4383,
+    "lon": -84.2807,
+    "elev": 62,
+    "tz": "America/New_York",
+    "state": "FL",
+    "country": "US"
+  },
+  {
+    "name": "Little Rock",
+    "lat": 34.7465,
+    "lon": -92.2896,
+    "elev": 102,
+    "tz": "America/Chicago",
+    "state": "AR",
+    "country": "US"
+  },
+  {
+    "name": "Amarillo",
+    "lat": 35.222,
+    "lon": -101.8313,
+    "elev": 1118,
+    "tz": "America/Chicago",
+    "state": "TX",
+    "country": "US"
+  },
+  {
+    "name": "Overland Park",
+    "lat": 38.9822,
+    "lon": -94.6708,
+    "elev": 329,
+    "tz": "America/Chicago",
+    "state": "KS",
+    "country": "US"
+  },
+  {
+    "name": "Columbus",
+    "lat": 32.461,
+    "lon": -84.9877,
+    "elev": 82,
+    "tz": "America/New_York",
+    "state": "GA",
+    "country": "US"
+  },
+  {
+    "name": "Augusta",
+    "lat": 33.471,
+    "lon": -81.9748,
+    "elev": 43,
+    "tz": "America/New_York",
+    "state": "GA",
+    "country": "US"
+  },
+  {
+    "name": "Mobile",
+    "lat": 30.6944,
+    "lon": -88.043,
+    "elev": 3,
+    "tz": "America/Chicago",
+    "state": "AL",
+    "country": "US"
+  },
+  {
+    "name": "Grand Rapids",
+    "lat": 42.9634,
+    "lon": -85.6681,
+    "elev": 195,
+    "tz": "America/Detroit",
+    "state": "MI",
+    "country": "US"
+  },
+  {
+    "name": "Peoria",
+    "lat": 33.5806,
+    "lon": -112.2374,
+    "elev": 348,
+    "tz": "America/Phoenix",
+    "state": "AZ",
+    "country": "US"
+  },
+  {
+    "name": "Vancouver",
+    "lat": 45.6387,
+    "lon": -122.6615,
+    "elev": 52,
+    "tz": "America/Los_Angeles",
+    "state": "WA",
+    "country": "US"
+  },
+  {
+    "name": "Knoxville",
+    "lat": 35.9606,
+    "lon": -83.9207,
+    "elev": 276,
+    "tz": "America/New_York",
+    "state": "TN",
+    "country": "US"
+  },
+  {
+    "name": "Providence",
+    "lat": 41.824,
+    "lon": -71.4128,
+    "elev": 2,
+    "tz": "America/New_York",
+    "state": "RI",
+    "country": "US"
+  },
+  {
+    "name": "Huntington Beach",
+    "lat": 33.6603,
+    "lon": -117.9992,
+    "elev": 12,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Brownsville",
+    "lat": 25.9017,
+    "lon": -97.4975,
+    "elev": 10,
+    "tz": "America/Chicago",
+    "state": "TX",
+    "country": "US"
+  },
+  {
+    "name": "Chattanooga",
+    "lat": 35.0456,
+    "lon": -85.3097,
+    "elev": 206,
+    "tz": "America/New_York",
+    "state": "TN",
+    "country": "US"
+  },
+  {
+    "name": "Fort Lauderdale",
+    "lat": 26.1223,
+    "lon": -80.1434,
+    "elev": 1,
+    "tz": "America/New_York",
+    "state": "FL",
+    "country": "US"
+  },
+  {
+    "name": "Tempe",
+    "lat": 33.4148,
+    "lon": -111.9093,
+    "elev": 360,
+    "tz": "America/Phoenix",
+    "state": "AZ",
+    "country": "US"
+  },
+  {
+    "name": "Akron",
+    "lat": 41.0814,
+    "lon": -81.519,
+    "elev": 291,
+    "tz": "America/New_York",
+    "state": "OH",
+    "country": "US"
+  },
+  {
+    "name": "Glendale",
+    "lat": 34.1425,
+    "lon": -118.2551,
+    "elev": 159,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Clarksville",
+    "lat": 36.5298,
+    "lon": -87.3594,
+    "elev": 145,
+    "tz": "America/Chicago",
+    "state": "TN",
+    "country": "US"
+  },
+  {
+    "name": "Ontario",
+    "lat": 34.0633,
+    "lon": -117.6509,
+    "elev": 306,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Newport News",
+    "lat": 36.9804,
+    "lon": -76.4297,
+    "elev": 6,
+    "tz": "America/New_York",
+    "state": "VA",
+    "country": "US"
+  },
+  {
+    "name": "Elk Grove",
+    "lat": 38.4088,
+    "lon": -121.3716,
+    "elev": 14,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Cary",
+    "lat": 35.7915,
+    "lon": -78.7811,
+    "elev": 152,
+    "tz": "America/New_York",
+    "state": "NC",
+    "country": "US"
+  },
+  {
+    "name": "Aurora",
+    "lat": 41.7606,
+    "lon": -88.3201,
+    "elev": 207,
+    "tz": "America/Chicago",
+    "state": "IL",
+    "country": "US"
+  },
+  {
+    "name": "Salem",
+    "lat": 44.9429,
+    "lon": -123.0351,
+    "elev": 49,
+    "tz": "America/Los_Angeles",
+    "state": "OR",
+    "country": "US"
+  },
+  {
+    "name": "Pembroke Pines",
+    "lat": 26.0032,
+    "lon": -80.2239,
+    "elev": 2,
+    "tz": "America/New_York",
+    "state": "FL",
+    "country": "US"
+  },
+  {
+    "name": "Eugene",
+    "lat": 44.0521,
+    "lon": -123.0867,
+    "elev": 131,
+    "tz": "America/Los_Angeles",
+    "state": "OR",
+    "country": "US"
+  },
+  {
+    "name": "Santa Rosa",
+    "lat": 38.4405,
+    "lon": -122.7144,
+    "elev": 50,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Rancho Cucamonga",
+    "lat": 34.1064,
+    "lon": -117.5931,
+    "elev": 368,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Shreveport",
+    "lat": 32.5251,
+    "lon": -93.7502,
+    "elev": 44,
+    "tz": "America/Chicago",
+    "state": "LA",
+    "country": "US"
+  },
+  {
+    "name": "Garden Grove",
+    "lat": 33.7739,
+    "lon": -117.9415,
+    "elev": 27,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Oceanside",
+    "lat": 33.1959,
+    "lon": -117.3795,
+    "elev": 20,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Fort Collins",
+    "lat": 40.5853,
+    "lon": -105.0844,
+    "elev": 1525,
+    "tz": "America/Denver",
+    "state": "CO",
+    "country": "US"
+  },
+  {
+    "name": "Springfield",
+    "lat": 37.2153,
+    "lon": -93.2982,
+    "elev": 396,
+    "tz": "America/Chicago",
+    "state": "MO",
+    "country": "US"
+  },
+  {
+    "name": "Murfreesboro",
+    "lat": 35.8456,
+    "lon": -86.3903,
+    "elev": 186,
+    "tz": "America/Chicago",
+    "state": "TN",
+    "country": "US"
+  },
+  {
+    "name": "Surprise",
+    "lat": 33.6306,
+    "lon": -112.3332,
+    "elev": 358,
+    "tz": "America/Phoenix",
+    "state": "AZ",
+    "country": "US"
+  },
+  {
+    "name": "Lancaster",
+    "lat": 34.698,
+    "lon": -118.1367,
+    "elev": 719,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Denton",
+    "lat": 33.2148,
+    "lon": -97.1331,
+    "elev": 201,
+    "tz": "America/Chicago",
+    "state": "TX",
+    "country": "US"
+  },
+  {
+    "name": "Roseville",
+    "lat": 38.7521,
+    "lon": -121.288,
+    "elev": 50,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Palmdale",
+    "lat": 34.5794,
+    "lon": -118.1165,
+    "elev": 810,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Corona",
+    "lat": 33.8753,
+    "lon": -117.5664,
+    "elev": 207,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Salinas",
+    "lat": 36.6777,
+    "lon": -121.6555,
+    "elev": 16,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Killeen",
+    "lat": 31.1171,
+    "lon": -97.7278,
+    "elev": 252,
+    "tz": "America/Chicago",
+    "state": "TX",
+    "country": "US"
+  },
+  {
+    "name": "Paterson",
+    "lat": 40.9168,
+    "lon": -74.1718,
+    "elev": 26,
+    "tz": "America/New_York",
+    "state": "NJ",
+    "country": "US"
+  },
+  {
+    "name": "Alexandria",
+    "lat": 38.8048,
+    "lon": -77.0469,
+    "elev": 12,
+    "tz": "America/New_York",
+    "state": "VA",
+    "country": "US"
+  },
+  {
+    "name": "Hollywood",
+    "lat": 26.0112,
+    "lon": -80.1495,
+    "elev": 3,
+    "tz": "America/New_York",
+    "state": "FL",
+    "country": "US"
+  },
+  {
+    "name": "Hayward",
+    "lat": 37.6688,
+    "lon": -122.0808,
+    "elev": 34,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Charleston",
+    "lat": 32.7763,
+    "lon": -79.9327,
+    "elev": 6,
+    "tz": "America/New_York",
+    "state": "SC",
+    "country": "US"
+  },
+  {
+    "name": "Macon",
+    "lat": 32.8407,
+    "lon": -83.6324,
+    "elev": 112,
+    "tz": "America/New_York",
+    "state": "GA",
+    "country": "US"
+  },
+  {
+    "name": "Lakewood",
+    "lat": 39.7047,
+    "lon": -105.0814,
+    "elev": 1682,
+    "tz": "America/Denver",
+    "state": "CO",
+    "country": "US"
+  },
+  {
+    "name": "Sunnyvale",
+    "lat": 37.3688,
+    "lon": -122.0363,
+    "elev": 39,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Kansas City",
+    "lat": 39.1142,
+    "lon": -94.6275,
+    "elev": 266,
+    "tz": "America/Chicago",
+    "state": "KS",
+    "country": "US"
+  },
+  {
+    "name": "Springfield",
+    "lat": 42.1015,
+    "lon": -72.5898,
+    "elev": 25,
+    "tz": "America/New_York",
+    "state": "MA",
+    "country": "US"
+  },
+  {
+    "name": "Bellevue",
+    "lat": 47.6104,
+    "lon": -122.2007,
+    "elev": 26,
+    "tz": "America/Los_Angeles",
+    "state": "WA",
+    "country": "US"
+  },
+  {
+    "name": "Naperville",
+    "lat": 41.7859,
+    "lon": -88.1473,
+    "elev": 216,
+    "tz": "America/Chicago",
+    "state": "IL",
+    "country": "US"
+  },
+  {
+    "name": "Joliet",
+    "lat": 41.5252,
+    "lon": -88.0834,
+    "elev": 165,
+    "tz": "America/Chicago",
+    "state": "IL",
+    "country": "US"
+  },
+  {
+    "name": "Bridgeport",
+    "lat": 41.1792,
+    "lon": -73.1894,
+    "elev": 1,
+    "tz": "America/New_York",
+    "state": "CT",
+    "country": "US"
+  },
+  {
+    "name": "Mesquite",
+    "lat": 32.7668,
+    "lon": -96.5992,
+    "elev": 151,
+    "tz": "America/Chicago",
+    "state": "TX",
+    "country": "US"
+  },
+  {
+    "name": "Pasadena",
+    "lat": 29.6911,
+    "lon": -95.2091,
+    "elev": 9,
+    "tz": "America/Chicago",
+    "state": "TX",
+    "country": "US"
+  },
+  {
+    "name": "Olathe",
+    "lat": 38.8814,
+    "lon": -94.8191,
+    "elev": 315,
+    "tz": "America/Chicago",
+    "state": "KS",
+    "country": "US"
+  },
+  {
+    "name": "Escondido",
+    "lat": 33.1192,
+    "lon": -117.0864,
+    "elev": 197,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Savannah",
+    "lat": 32.0835,
+    "lon": -81.0998,
+    "elev": 6,
+    "tz": "America/New_York",
+    "state": "GA",
+    "country": "US"
+  },
+  {
+    "name": "McAllen",
+    "lat": 26.2034,
+    "lon": -98.23,
+    "elev": 37,
+    "tz": "America/Chicago",
+    "state": "TX",
+    "country": "US"
+  },
+  {
+    "name": "Gainesville",
+    "lat": 29.6516,
+    "lon": -82.3248,
+    "elev": 54,
+    "tz": "America/New_York",
+    "state": "FL",
+    "country": "US"
+  },
+  {
+    "name": "Pomona",
+    "lat": 34.0553,
+    "lon": -117.7523,
+    "elev": 259,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Rockford",
+    "lat": 42.2711,
+    "lon": -89.094,
+    "elev": 218,
+    "tz": "America/Chicago",
+    "state": "IL",
+    "country": "US"
+  },
+  {
+    "name": "Thornton",
+    "lat": 39.868,
+    "lon": -104.9719,
+    "elev": 1631,
+    "tz": "America/Denver",
+    "state": "CO",
+    "country": "US"
+  },
+  {
+    "name": "Waco",
+    "lat": 31.5493,
+    "lon": -97.1467,
+    "elev": 143,
+    "tz": "America/Chicago",
+    "state": "TX",
+    "country": "US"
+  },
+  {
+    "name": "Visalia",
+    "lat": 36.3302,
+    "lon": -119.2921,
+    "elev": 101,
+    "tz": "America/Los_Angeles",
+    "state": "CA",
+    "country": "US"
+  },
+  {
+    "name": "Syracuse",
+    "lat": 43.0481,
+    "lon": -76.1474,
+    "elev": 121,
+    "tz": "America/New_York",
+    "state": "NY",
+    "country": "US"
+  },
+  {
+    "name": "Columbia",
+    "lat": 34.0007,
+    "lon": -81.0348,
+    "elev": 89,
+    "tz": "America/New_York",
+    "state": "SC",
+    "country": "US"
+  },
+  {
+    "name": "Midland",
+    "lat": 31.9974,
+    "lon": -102.0779,
+    "elev": 848,
+    "tz": "America/Chicago",
+    "state": "TX",
+    "country": "US"
+  },
+  {
+    "name": "Miramar",
+    "lat": 25.9873,
+    "lon": -80.2323,
+    "elev": 2,
+    "tz": "America/New_York",
+    "state": "FL",
+    "country": "US"
+  },
+  {
+    "name": "Palm Bay",
+    "lat": 28.0345,
+    "lon": -80.5887,
+    "elev": 5,
+    "tz": "America/New_York",
+    "state": "FL",
+    "country": "US"
+  },
+  {
+    "name": "Lakewood",
+    "lat": 40.0979,
+    "lon": -74.2176,
+    "elev": 23,
+    "tz": "America/New_York",
+    "state": "NJ",
+    "country": "US"
+  },
+  {
+    "name": "Jackson",
+    "lat": 32.2988,
+    "lon": -90.1848,
+    "elev": 85,
+    "tz": "America/Chicago",
+    "state": "MS",
+    "country": "US"
+  },
+  {
+    "name": "Coral Springs",
+    "lat": 26.2712,
+    "lon": -80.2706,
+    "elev": 3,
+    "tz": "America/New_York",
+    "state": "FL",
+    "country": "US"
+  },
+  {
+    "name": "Port St. Lucie",
+    "lat": 27.2939,
+    "lon": -80.3503,
+    "elev": 5,
+    "tz": "America/New_York",
+    "state": "FL",
+    "country": "US"
+  },
+  {
+    "name": "Wilmington",
+    "lat": 39.74595,
+    "lon": -75.54659,
+    "elev": 28,
+    "tz": "America/New_York",
+    "state": "DE",
+    "country": "US"
+  },
+  {
+    "name": "Portland",
+    "lat": 43.65737,
+    "lon": -70.2589,
+    "elev": 19,
+    "tz": "America/New_York",
+    "state": "ME",
+    "country": "US"
+  },
+  {
+    "name": "Billings",
+    "lat": 45.78329,
+    "lon": -108.50069,
+    "elev": 952,
+    "tz": "America/Denver",
+    "state": "MT",
+    "country": "US"
+  },
+  {
+    "name": "Manchester",
+    "lat": 42.99564,
+    "lon": -71.45479,
+    "elev": 80,
+    "tz": "America/New_York",
+    "state": "NH",
+    "country": "US"
+  },
+  {
+    "name": "Fargo",
+    "lat": 46.87719,
+    "lon": -96.7898,
+    "elev": 276,
+    "tz": "America/Chicago",
+    "state": "ND",
+    "country": "US"
+  },
+  {
+    "name": "Charleston",
+    "lat": 38.34982,
+    "lon": -81.63262,
+    "elev": 182,
+    "tz": "America/New_York",
+    "state": "WV",
+    "country": "US"
+  },
+  {
+    "name": "Cheyenne",
+    "lat": 41.13998,
+    "lon": -104.82025,
+    "elev": 1856,
+    "tz": "America/Denver",
+    "state": "WY",
+    "country": "US"
+  },
+  {
+    "name": "Andorra la Vella",
+    "lat": 42.5078,
+    "lon": 1.5211,
+    "elev": 1037,
+    "tz": "Europe/Andorra",
+    "state": null,
+    "country": "AD"
+  },
+  {
+    "name": "The Valley",
+    "lat": 18.217,
+    "lon": -63.0578,
+    "elev": 19,
+    "tz": "America/Anguilla",
+    "state": null,
+    "country": "AI"
+  },
+  {
+    "name": "Tirana",
+    "lat": 41.3275,
+    "lon": 19.8189,
+    "elev": 113,
+    "tz": "Europe/Tirane",
+    "state": null,
+    "country": "AL"
+  },
+  {
+    "name": "Yerevan",
+    "lat": 40.1811,
+    "lon": 44.5136,
+    "elev": 994,
+    "tz": "Asia/Yerevan",
+    "state": null,
+    "country": "AM"
+  },
+  {
+    "name": "Pago Pago",
+    "lat": -14.2781,
+    "lon": -170.7025,
+    "elev": 144,
+    "tz": "Pacific/Pago_Pago",
+    "state": null,
+    "country": "AS"
+  },
+  {
+    "name": "Vienna",
+    "lat": 48.2085,
+    "lon": 16.3721,
+    "elev": 193,
+    "tz": "Europe/Vienna",
+    "state": null,
+    "country": "AT"
+  },
+  {
+    "name": "Mariehamn",
+    "lat": 60.0973,
+    "lon": 19.9348,
+    "elev": 11,
+    "tz": "Europe/Mariehamn",
+    "state": null,
+    "country": "AX"
+  },
+  {
+    "name": "Baku",
+    "lat": 40.3777,
+    "lon": 49.892,
+    "elev": -23,
+    "tz": "Asia/Baku",
+    "state": null,
+    "country": "AZ"
+  },
+  {
+    "name": "Sarajevo",
+    "lat": 43.8486,
+    "lon": 18.3564,
+    "elev": 509,
+    "tz": "Europe/Sarajevo",
+    "state": null,
+    "country": "BA"
+  },
+  {
+    "name": "Bridgetown",
+    "lat": 13.1073,
+    "lon": -59.6202,
+    "elev": 10,
+    "tz": "America/Barbados",
+    "state": null,
+    "country": "BB"
+  },
+  {
+    "name": "Brussels",
+    "lat": 50.8505,
+    "lon": 4.3488,
+    "elev": 28,
+    "tz": "Europe/Brussels",
+    "state": null,
+    "country": "BE"
+  },
+  {
+    "name": "Sofia",
+    "lat": 42.6975,
+    "lon": 23.3241,
+    "elev": 562,
+    "tz": "Europe/Sofia",
+    "state": null,
+    "country": "BG"
+  },
+  {
+    "name": "Ar Rifā‘",
+    "lat": 26.13,
+    "lon": 50.555,
+    "elev": 43,
+    "tz": "Asia/Bahrain",
+    "state": null,
+    "country": "BH"
+  },
+  {
+    "name": "Bujumbura",
+    "lat": -3.3819,
+    "lon": 29.3614,
+    "elev": 807,
+    "tz": "Africa/Bujumbura",
+    "state": null,
+    "country": "BI"
+  },
+  {
+    "name": "Cotonou",
+    "lat": 6.3654,
+    "lon": 2.4183,
+    "elev": 7,
+    "tz": "Africa/Porto-Novo",
+    "state": null,
+    "country": "BJ"
+  },
+  {
+    "name": "Nassau",
+    "lat": 25.0582,
+    "lon": -77.3431,
+    "elev": 5,
+    "tz": "America/Nassau",
+    "state": null,
+    "country": "BS"
+  },
+  {
+    "name": "Gaborone",
+    "lat": -24.6545,
+    "lon": 25.9086,
+    "elev": 1011,
+    "tz": "Africa/Gaborone",
+    "state": null,
+    "country": "BW"
+  },
+  {
+    "name": "Minsk",
+    "lat": 53.9,
+    "lon": 27.5667,
+    "elev": 222,
+    "tz": "Europe/Minsk",
+    "state": null,
+    "country": "BY"
+  },
+  {
+    "name": "Belize City",
+    "lat": 17.4995,
+    "lon": -88.1976,
+    "elev": 6,
+    "tz": "America/Belize",
+    "state": null,
+    "country": "BZ"
+  },
+  {
+    "name": "Bangui",
+    "lat": 4.3612,
+    "lon": 18.555,
+    "elev": 351,
+    "tz": "Africa/Bangui",
+    "state": null,
+    "country": "CF"
+  },
+  {
+    "name": "Zürich",
+    "lat": 47.3667,
+    "lon": 8.55,
+    "elev": 429,
+    "tz": "Europe/Zurich",
+    "state": null,
+    "country": "CH"
+  },
+  {
+    "name": "Douala",
+    "lat": 4.0483,
+    "lon": 9.7043,
+    "elev": 19,
+    "tz": "Africa/Douala",
+    "state": null,
+    "country": "CM"
+  },
+  {
+    "name": "San José",
+    "lat": 9.9333,
+    "lon": -84.0833,
+    "elev": 1161,
+    "tz": "America/Costa_Rica",
+    "state": null,
+    "country": "CR"
+  },
+  {
+    "name": "Praia",
+    "lat": 14.9315,
+    "lon": -23.5125,
+    "elev": 18,
+    "tz": "Atlantic/Cape_Verde",
+    "state": null,
+    "country": "CV"
+  },
+  {
+    "name": "Nicosia",
+    "lat": 35.1753,
+    "lon": 33.3642,
+    "elev": 147,
+    "tz": "Asia/Nicosia",
+    "state": null,
+    "country": "CY"
+  },
+  {
+    "name": "Prague",
+    "lat": 50.088,
+    "lon": 14.4208,
+    "elev": 202,
+    "tz": "Europe/Prague",
+    "state": null,
+    "country": "CZ"
+  },
+  {
+    "name": "Djibouti",
+    "lat": 11.589,
+    "lon": 43.145,
+    "elev": 6,
+    "tz": "Africa/Djibouti",
+    "state": null,
+    "country": "DJ"
+  },
+  {
+    "name": "Copenhagen",
+    "lat": 55.6759,
+    "lon": 12.5655,
+    "elev": 14,
+    "tz": "Europe/Copenhagen",
+    "state": null,
+    "country": "DK"
+  },
+  {
+    "name": "Roseau",
+    "lat": 15.3017,
+    "lon": -61.3881,
+    "elev": 11,
+    "tz": "America/Dominica",
+    "state": null,
+    "country": "DM"
+  },
+  {
+    "name": "Tallinn",
+    "lat": 59.437,
+    "lon": 24.7535,
+    "elev": 12,
+    "tz": "Europe/Tallinn",
+    "state": null,
+    "country": "EE"
+  },
+  {
+    "name": "Helsinki",
+    "lat": 60.1695,
+    "lon": 24.9354,
+    "elev": 26,
+    "tz": "Europe/Helsinki",
+    "state": null,
+    "country": "FI"
+  },
+  {
+    "name": "Nasinu",
+    "lat": -18.0705,
+    "lon": 178.5131,
+    "elev": 31,
+    "tz": "Pacific/Fiji",
+    "state": null,
+    "country": "FJ"
+  },
+  {
+    "name": "Weno",
+    "lat": 7.4465,
+    "lon": 151.8414,
+    "elev": 3,
+    "tz": "Pacific/Chuuk",
+    "state": null,
+    "country": "FM"
+  },
+  {
+    "name": "Tórshavn",
+    "lat": 62.0097,
+    "lon": -6.7716,
+    "elev": 1,
+    "tz": "Atlantic/Faroe",
+    "state": null,
+    "country": "FO"
+  },
+  {
+    "name": "Libreville",
+    "lat": 0.3924,
+    "lon": 9.4536,
+    "elev": 8,
+    "tz": "Africa/Libreville",
+    "state": null,
+    "country": "GA"
+  },
+  {
+    "name": "Tbilisi",
+    "lat": 41.6941,
+    "lon": 44.8337,
+    "elev": 491,
+    "tz": "Asia/Tbilisi",
+    "state": null,
+    "country": "GE"
+  },
+  {
+    "name": "Cayenne",
+    "lat": 4.9333,
+    "lon": -52.3333,
+    "elev": 7,
+    "tz": "America/Cayenne",
+    "state": null,
+    "country": "GF"
+  },
+  {
+    "name": "Nuuk",
+    "lat": 64.1835,
+    "lon": -51.7216,
+    "elev": 1,
+    "tz": "America/Nuuk",
+    "state": null,
+    "country": "GL"
+  },
+  {
+    "name": "Serekunda",
+    "lat": 13.4383,
+    "lon": -16.6781,
+    "elev": 15,
+    "tz": "Africa/Banjul",
+    "state": null,
+    "country": "GM"
+  },
+  {
+    "name": "Les Abymes",
+    "lat": 16.273,
+    "lon": -61.5051,
+    "elev": 20,
+    "tz": "America/Guadeloupe",
+    "state": null,
+    "country": "GP"
+  },
+  {
+    "name": "Bata",
+    "lat": 1.8639,
+    "lon": 9.7658,
+    "elev": 13,
+    "tz": "Africa/Malabo",
+    "state": null,
+    "country": "GQ"
+  },
+  {
+    "name": "Athens",
+    "lat": 37.9838,
+    "lon": 23.7278,
+    "elev": 84,
+    "tz": "Europe/Athens",
+    "state": null,
+    "country": "GR"
+  },
+  {
+    "name": "Guatemala City",
+    "lat": 14.6407,
+    "lon": -90.5133,
+    "elev": 1508,
+    "tz": "America/Guatemala",
+    "state": null,
+    "country": "GT"
+  },
+  {
+    "name": "Dededo Village",
+    "lat": 13.5178,
+    "lon": 144.8391,
+    "elev": 100,
+    "tz": "Pacific/Guam",
+    "state": null,
+    "country": "GU"
+  },
+  {
+    "name": "Bissau",
+    "lat": 11.8636,
+    "lon": -15.5977,
+    "elev": 13,
+    "tz": "Africa/Bissau",
+    "state": null,
+    "country": "GW"
+  },
+  {
+    "name": "Georgetown",
+    "lat": 6.8045,
+    "lon": -58.1553,
+    "elev": 3,
+    "tz": "America/Guyana",
+    "state": null,
+    "country": "GY"
+  },
+  {
+    "name": "Tegucigalpa",
+    "lat": 14.0818,
+    "lon": -87.2068,
+    "elev": 944,
+    "tz": "America/Tegucigalpa",
+    "state": null,
+    "country": "HN"
+  },
+  {
+    "name": "Zagreb",
+    "lat": 45.8144,
+    "lon": 15.978,
+    "elev": 135,
+    "tz": "Europe/Zagreb",
+    "state": null,
+    "country": "HR"
+  },
+  {
+    "name": "Port-au-Prince",
+    "lat": 18.5435,
+    "lon": -72.3388,
+    "elev": 27,
+    "tz": "America/Port-au-Prince",
+    "state": null,
+    "country": "HT"
+  },
+  {
+    "name": "Budapest",
+    "lat": 47.4984,
+    "lon": 19.0404,
+    "elev": 104,
+    "tz": "Europe/Budapest",
+    "state": null,
+    "country": "HU"
+  },
+  {
+    "name": "Dublin",
+    "lat": 53.3331,
+    "lon": -6.2489,
+    "elev": 17,
+    "tz": "Europe/Dublin",
+    "state": null,
+    "country": "IE"
+  },
+  {
+    "name": "Jerusalem",
+    "lat": 31.769,
+    "lon": 35.2163,
+    "elev": 786,
+    "tz": "Asia/Jerusalem",
+    "state": null,
+    "country": "IL"
+  },
+  {
+    "name": "Douglas",
+    "lat": 54.15,
+    "lon": -4.4833,
+    "elev": 31,
+    "tz": "Europe/Isle_of_Man",
+    "state": null,
+    "country": "IM"
+  },
+  {
+    "name": "Kingston",
+    "lat": 17.997,
+    "lon": -76.7936,
+    "elev": 65,
+    "tz": "America/Jamaica",
+    "state": null,
+    "country": "JM"
+  },
+  {
+    "name": "Amman",
+    "lat": 31.9552,
+    "lon": 35.945,
+    "elev": 757,
+    "tz": "Asia/Amman",
+    "state": null,
+    "country": "JO"
+  },
+  {
+    "name": "Bishkek",
+    "lat": 42.87,
+    "lon": 74.59,
+    "elev": 767,
+    "tz": "Asia/Bishkek",
+    "state": null,
+    "country": "KG"
+  },
+  {
+    "name": "Phnom Penh",
+    "lat": 11.5625,
+    "lon": 104.916,
+    "elev": 20,
+    "tz": "Asia/Phnom_Penh",
+    "state": null,
+    "country": "KH"
+  },
+  {
+    "name": "Tarawa",
+    "lat": 1.3278,
+    "lon": 172.977,
+    "elev": 6,
+    "tz": "Pacific/Tarawa",
+    "state": null,
+    "country": "KI"
+  },
+  {
+    "name": "Moroni",
+    "lat": -11.7022,
+    "lon": 43.2551,
+    "elev": 27,
+    "tz": "Indian/Comoro",
+    "state": null,
+    "country": "KM"
+  },
+  {
+    "name": "Basseterre",
+    "lat": 17.2955,
+    "lon": -62.725,
+    "elev": 12,
+    "tz": "America/St_Kitts",
+    "state": null,
+    "country": "KN"
+  },
+  {
+    "name": "Al Aḩmadī",
+    "lat": 29.0769,
+    "lon": 48.0839,
+    "elev": 70,
+    "tz": "Asia/Kuwait",
+    "state": null,
+    "country": "KW"
+  },
+  {
+    "name": "Vientiane",
+    "lat": 17.9667,
+    "lon": 102.6,
+    "elev": 174,
+    "tz": "Asia/Vientiane",
+    "state": null,
+    "country": "LA"
+  },
+  {
+    "name": "Castries",
+    "lat": 13.9957,
+    "lon": -61.0061,
+    "elev": 119,
+    "tz": "America/St_Lucia",
+    "state": null,
+    "country": "LC"
+  },
+  {
+    "name": "Schaan",
+    "lat": 47.165,
+    "lon": 9.5087,
+    "elev": 453,
+    "tz": "Europe/Vaduz",
+    "state": null,
+    "country": "LI"
+  },
+  {
+    "name": "Colombo",
+    "lat": 6.9355,
+    "lon": 79.8487,
+    "elev": 7,
+    "tz": "Asia/Colombo",
+    "state": null,
+    "country": "LK"
+  },
+  {
+    "name": "Monrovia",
+    "lat": 6.3005,
+    "lon": -10.7969,
+    "elev": 32,
+    "tz": "Africa/Monrovia",
+    "state": null,
+    "country": "LR"
+  },
+  {
+    "name": "Maseru",
+    "lat": -29.3167,
+    "lon": 27.4833,
+    "elev": 1552,
+    "tz": "Africa/Maseru",
+    "state": null,
+    "country": "LS"
+  },
+  {
+    "name": "Vilnius",
+    "lat": 54.6892,
+    "lon": 25.2798,
+    "elev": 98,
+    "tz": "Europe/Vilnius",
+    "state": null,
+    "country": "LT"
+  },
+  {
+    "name": "Luxembourg",
+    "lat": 49.6117,
+    "lon": 6.13,
+    "elev": 316,
+    "tz": "Europe/Luxembourg",
+    "state": null,
+    "country": "LU"
+  },
+  {
+    "name": "Riga",
+    "lat": 56.946,
+    "lon": 24.1059,
+    "elev": 6,
+    "tz": "Europe/Riga",
+    "state": null,
+    "country": "LV"
+  },
+  {
+    "name": "Tripoli",
+    "lat": 32.8874,
+    "lon": 13.1873,
+    "elev": 15,
+    "tz": "Africa/Tripoli",
+    "state": null,
+    "country": "LY"
+  },
+  {
+    "name": "Chisinau",
+    "lat": 47.0056,
+    "lon": 28.8575,
+    "elev": 55,
+    "tz": "Europe/Chisinau",
+    "state": null,
+    "country": "MD"
+  },
+  {
+    "name": "Podgorica",
+    "lat": 42.4411,
+    "lon": 19.2636,
+    "elev": 49,
+    "tz": "Europe/Podgorica",
+    "state": null,
+    "country": "ME"
+  },
+  {
+    "name": "Antananarivo",
+    "lat": -18.9137,
+    "lon": 47.5361,
+    "elev": 1274,
+    "tz": "Indian/Antananarivo",
+    "state": null,
+    "country": "MG"
+  },
+  {
+    "name": "Majuro",
+    "lat": 7.0897,
+    "lon": 171.3803,
+    "elev": 6,
+    "tz": "Pacific/Majuro",
+    "state": null,
+    "country": "MH"
+  },
+  {
+    "name": "Skopje",
+    "lat": 41.9965,
+    "lon": 21.4314,
+    "elev": 247,
+    "tz": "Europe/Skopje",
+    "state": null,
+    "country": "MK"
+  },
+  {
+    "name": "Ulan Bator",
+    "lat": 47.9077,
+    "lon": 106.8832,
+    "elev": 1284,
+    "tz": "Asia/Ulaanbaatar",
+    "state": null,
+    "country": "MN"
+  },
+  {
+    "name": "Fort-de-France",
+    "lat": 14.6037,
+    "lon": -61.0742,
+    "elev": 5,
+    "tz": "America/Martinique",
+    "state": null,
+    "country": "MQ"
+  },
+  {
+    "name": "Nouakchott",
+    "lat": 18.0858,
+    "lon": -15.9785,
+    "elev": 10,
+    "tz": "Africa/Nouakchott",
+    "state": null,
+    "country": "MR"
+  },
+  {
+    "name": "San Pawl il-Baħar",
+    "lat": 35.9506,
+    "lon": 14.4156,
+    "elev": 22,
+    "tz": "Europe/Malta",
+    "state": null,
+    "country": "MT"
+  },
+  {
+    "name": "Port Louis",
+    "lat": -20.1619,
+    "lon": 57.4989,
+    "elev": 3,
+    "tz": "Indian/Mauritius",
+    "state": null,
+    "country": "MU"
+  },
+  {
+    "name": "Male",
+    "lat": 4.1752,
+    "lon": 73.5092,
+    "elev": 8,
+    "tz": "Indian/Maldives",
+    "state": null,
+    "country": "MV"
+  },
+  {
+    "name": "Lilongwe",
+    "lat": -13.9669,
+    "lon": 33.7873,
+    "elev": 1056,
+    "tz": "Africa/Blantyre",
+    "state": null,
+    "country": "MW"
+  },
+  {
+    "name": "Kuala Lumpur",
+    "lat": 3.1412,
+    "lon": 101.6865,
+    "elev": 56,
+    "tz": "Asia/Kuala_Lumpur",
+    "state": null,
+    "country": "MY"
+  },
+  {
+    "name": "Maputo",
+    "lat": -25.9655,
+    "lon": 32.5832,
+    "elev": 70,
+    "tz": "Africa/Maputo",
+    "state": null,
+    "country": "MZ"
+  },
+  {
+    "name": "Windhoek",
+    "lat": -22.5594,
+    "lon": 17.0832,
+    "elev": 1656,
+    "tz": "Africa/Windhoek",
+    "state": null,
+    "country": "NA"
+  },
+  {
+    "name": "Nouméa",
+    "lat": -22.2741,
+    "lon": 166.4488,
+    "elev": 26,
+    "tz": "Pacific/Noumea",
+    "state": null,
+    "country": "NC"
+  },
+  {
+    "name": "Niamey",
+    "lat": 13.5137,
+    "lon": 2.1098,
+    "elev": 206,
+    "tz": "Africa/Niamey",
+    "state": null,
+    "country": "NE"
+  },
+  {
+    "name": "Managua",
+    "lat": 12.1328,
+    "lon": -86.2504,
+    "elev": 108,
+    "tz": "America/Managua",
+    "state": null,
+    "country": "NI"
+  },
+  {
+    "name": "Amsterdam",
+    "lat": 52.374,
+    "lon": 4.8897,
+    "elev": 13,
+    "tz": "Europe/Amsterdam",
+    "state": null,
+    "country": "NL"
+  },
+  {
+    "name": "Oslo",
+    "lat": 59.9127,
+    "lon": 10.7461,
+    "elev": 26,
+    "tz": "Europe/Oslo",
+    "state": null,
+    "country": "NO"
+  },
+  {
+    "name": "Arijejen",
+    "lat": -0.5254,
+    "lon": 166.9125,
+    "elev": 7,
+    "tz": "Pacific/Nauru",
+    "state": null,
+    "country": "NR"
+  },
+  {
+    "name": "Auckland",
+    "lat": -36.8485,
+    "lon": 174.7635,
+    "elev": 43,
+    "tz": "Pacific/Auckland",
+    "state": null,
+    "country": "NZ"
+  },
+  {
+    "name": "Muscat",
+    "lat": 23.5841,
+    "lon": 58.4078,
+    "elev": 14,
+    "tz": "Asia/Muscat",
+    "state": null,
+    "country": "OM"
+  },
+  {
+    "name": "Panamá",
+    "lat": 8.9936,
+    "lon": -79.5197,
+    "elev": 17,
+    "tz": "America/Panama",
+    "state": null,
+    "country": "PA"
+  },
+  {
+    "name": "Faaa",
+    "lat": -17.5593,
+    "lon": -149.6035,
+    "elev": 72,
+    "tz": "Pacific/Tahiti",
+    "state": null,
+    "country": "PF"
+  },
+  {
+    "name": "Port Moresby",
+    "lat": -9.4772,
+    "lon": 147.1509,
+    "elev": 25,
+    "tz": "Pacific/Port_Moresby",
+    "state": null,
+    "country": "PG"
+  },
+  {
+    "name": "Warsaw",
+    "lat": 52.2298,
+    "lon": 21.0118,
+    "elev": 113,
+    "tz": "Europe/Warsaw",
+    "state": null,
+    "country": "PL"
+  },
+  {
+    "name": "San Juan",
+    "lat": 18.4663,
+    "lon": -66.1057,
+    "elev": 11,
+    "tz": "America/Puerto_Rico",
+    "state": null,
+    "country": "PR"
+  },
+  {
+    "name": "East Jerusalem",
+    "lat": 31.7834,
+    "lon": 35.2339,
+    "elev": 759,
+    "tz": "Asia/Hebron",
+    "state": null,
+    "country": "PS"
+  },
+  {
+    "name": "Lisbon",
+    "lat": 38.7167,
+    "lon": -9.1333,
+    "elev": 45,
+    "tz": "Europe/Lisbon",
+    "state": null,
+    "country": "PT"
+  },
+  {
+    "name": "Koror",
+    "lat": 7.3398,
+    "lon": 134.4733,
+    "elev": 34,
+    "tz": "Pacific/Palau",
+    "state": null,
+    "country": "PW"
+  },
+  {
+    "name": "Asunción",
+    "lat": -25.2865,
+    "lon": -57.647,
+    "elev": 113,
+    "tz": "America/Asuncion",
+    "state": null,
+    "country": "PY"
+  },
+  {
+    "name": "Doha",
+    "lat": 25.2855,
+    "lon": 51.531,
+    "elev": 11,
+    "tz": "Asia/Qatar",
+    "state": null,
+    "country": "QA"
+  },
+  {
+    "name": "Saint-Denis",
+    "lat": -20.8823,
+    "lon": 55.4504,
+    "elev": 44,
+    "tz": "Indian/Reunion",
+    "state": null,
+    "country": "RE"
+  },
+  {
+    "name": "Belgrade",
+    "lat": 44.804,
+    "lon": 20.4651,
+    "elev": 120,
+    "tz": "Europe/Belgrade",
+    "state": null,
+    "country": "RS"
+  },
+  {
+    "name": "Kigali",
+    "lat": -1.95,
+    "lon": 30.0588,
+    "elev": 1542,
+    "tz": "Africa/Kigali",
+    "state": null,
+    "country": "RW"
+  },
+  {
+    "name": "Stockholm",
+    "lat": 59.3294,
+    "lon": 18.0687,
+    "elev": 17,
+    "tz": "Europe/Stockholm",
+    "state": null,
+    "country": "SE"
+  },
+  {
+    "name": "Ljubljana",
+    "lat": 46.0511,
+    "lon": 14.5051,
+    "elev": 295,
+    "tz": "Europe/Ljubljana",
+    "state": null,
+    "country": "SI"
+  },
+  {
+    "name": "Bratislava",
+    "lat": 48.1482,
+    "lon": 17.1067,
+    "elev": 157,
+    "tz": "Europe/Bratislava",
+    "state": null,
+    "country": "SK"
+  },
+  {
+    "name": "Freetown",
+    "lat": 8.4871,
+    "lon": -13.2356,
+    "elev": 38,
+    "tz": "Africa/Freetown",
+    "state": null,
+    "country": "SL"
+  },
+  {
+    "name": "Paramaribo",
+    "lat": 5.8664,
+    "lon": -55.1668,
+    "elev": 5,
+    "tz": "America/Paramaribo",
+    "state": null,
+    "country": "SR"
+  },
+  {
+    "name": "Juba",
+    "lat": 4.8517,
+    "lon": 31.5825,
+    "elev": 518,
+    "tz": "Africa/Juba",
+    "state": null,
+    "country": "SS"
+  },
+  {
+    "name": "San Salvador",
+    "lat": 13.6893,
+    "lon": -89.1872,
+    "elev": 653,
+    "tz": "America/El_Salvador",
+    "state": null,
+    "country": "SV"
+  },
+  {
+    "name": "Manzini",
+    "lat": -26.4988,
+    "lon": 31.38,
+    "elev": 601,
+    "tz": "Africa/Mbabane",
+    "state": null,
+    "country": "SZ"
+  },
+  {
+    "name": "N'Djamena",
+    "lat": 12.1067,
+    "lon": 15.0444,
+    "elev": 299,
+    "tz": "Africa/Ndjamena",
+    "state": null,
+    "country": "TD"
+  },
+  {
+    "name": "Lomé",
+    "lat": 6.1287,
+    "lon": 1.2215,
+    "elev": 13,
+    "tz": "Africa/Lome",
+    "state": null,
+    "country": "TG"
+  },
+  {
+    "name": "Dushanbe",
+    "lat": 38.5358,
+    "lon": 68.779,
+    "elev": 767,
+    "tz": "Asia/Dushanbe",
+    "state": null,
+    "country": "TJ"
+  },
+  {
+    "name": "Dili",
+    "lat": -8.5586,
+    "lon": 125.5736,
+    "elev": 3,
+    "tz": "Asia/Dili",
+    "state": null,
+    "country": "TL"
+  },
+  {
+    "name": "Ashgabat",
+    "lat": 37.95,
+    "lon": 58.3833,
+    "elev": 219,
+    "tz": "Asia/Ashgabat",
+    "state": null,
+    "country": "TM"
+  },
+  {
+    "name": "Tunis",
+    "lat": 36.819,
+    "lon": 10.1658,
+    "elev": 23,
+    "tz": "Africa/Tunis",
+    "state": null,
+    "country": "TN"
+  },
+  {
+    "name": "Nuku‘alofa",
+    "lat": -21.1368,
+    "lon": -175.2011,
+    "elev": 1,
+    "tz": "Pacific/Tongatapu",
+    "state": null,
+    "country": "TO"
+  },
+  {
+    "name": "Chaguanas",
+    "lat": 10.5167,
+    "lon": -61.4167,
+    "elev": 18,
+    "tz": "America/Port_of_Spain",
+    "state": null,
+    "country": "TT"
+  },
+  {
+    "name": "Kampala",
+    "lat": 0.3163,
+    "lon": 32.5822,
+    "elev": 1223,
+    "tz": "Africa/Kampala",
+    "state": null,
+    "country": "UG"
+  },
+  {
+    "name": "Montevideo",
+    "lat": -34.9033,
+    "lon": -56.1882,
+    "elev": 34,
+    "tz": "America/Montevideo",
+    "state": null,
+    "country": "UY"
+  },
+  {
+    "name": "Apia",
+    "lat": -13.8333,
+    "lon": -171.7667,
+    "elev": 9,
+    "tz": "Pacific/Apia",
+    "state": null,
+    "country": "WS"
+  },
+  {
+    "name": "Pristina",
+    "lat": 42.6727,
+    "lon": 21.1669,
+    "elev": 597,
+    "tz": "Europe/Belgrade",
+    "state": null,
+    "country": "XK"
+  },
+  {
+    "name": "Mamoudzou",
+    "lat": -12.7823,
+    "lon": 45.2288,
+    "elev": 23,
+    "tz": "Indian/Mayotte",
+    "state": null,
+    "country": "YT"
+  },
+  {
+    "name": "Lusaka",
+    "lat": -15.4067,
+    "lon": 28.2871,
+    "elev": 1277,
+    "tz": "Africa/Lusaka",
+    "state": null,
+    "country": "ZM"
+  },
+  {
+    "name": "Harare",
+    "lat": -17.8277,
+    "lon": 31.0534,
+    "elev": 1494,
+    "tz": "Africa/Harare",
+    "state": null,
+    "country": "ZW"
+  }
+]
