@@ -3,7 +3,6 @@
 
 use super::*;
 use chrono::{DateTime, Duration, TimeZone, Datelike};
-use std::f64::consts::PI;
 
 /// Lunar phase types
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -41,7 +40,9 @@ pub enum LunarEvent {
 }
 
 const MOON_MEAN_RADIUS: f64 = 1737.4; // km
+#[allow(dead_code)]
 const MOON_PERIGEE_DIST: f64 = 356500.0; // km (approximate)
+#[allow(dead_code)]
 const MOON_APOGEE_DIST: f64 = 406700.0; // km (approximate)
 
 /// Calculate mean lunar longitude (Meeus formula)
@@ -120,7 +121,7 @@ fn moon_ecliptic_coords(t: f64) -> (f64, f64) {
 /// Calculate Moon's distance from Earth (km)
 fn moon_distance(t: f64) -> f64 {
     let d = moon_mean_elongation(t) * DEG_TO_RAD;
-    let m = sun_mean_anomaly_moon(t) * DEG_TO_RAD;
+    let _m = sun_mean_anomaly_moon(t) * DEG_TO_RAD;
     let m_prime = moon_mean_anomaly(t) * DEG_TO_RAD;
 
     // Main periodic terms for distance
@@ -291,20 +292,18 @@ fn lunar_phase_jde(k: f64, phase_type: LunarPhaseType) -> f64 {
     let f_rad = f * DEG_TO_RAD;
     let omega_rad = omega * DEG_TO_RAD;
 
-    let mut correction = 0.0;
-
-    match phase_type {
+    let mut correction = match phase_type {
         LunarPhaseType::NewMoon | LunarPhaseType::FullMoon => {
-            correction = -0.40720 * m_prime_rad.sin()
+            -0.40720 * m_prime_rad.sin()
                 + 0.17241 * e * m_rad.sin()
                 + 0.01608 * (2.0 * m_prime_rad).sin()
                 + 0.01039 * (2.0 * f_rad).sin()
                 + 0.00739 * e * (m_prime_rad - m_rad).sin()
                 - 0.00514 * e * (m_prime_rad + m_rad).sin()
-                + 0.00208 * e * e * (2.0 * m_rad).sin();
+                + 0.00208 * e * e * (2.0 * m_rad).sin()
         }
         LunarPhaseType::FirstQuarter | LunarPhaseType::LastQuarter => {
-            correction = -0.62801 * m_prime_rad.sin()
+            let mut corr = -0.62801 * m_prime_rad.sin()
                 + 0.17172 * e * m_rad.sin()
                 - 0.01183 * e * (m_prime_rad + m_rad).sin()
                 + 0.00862 * (2.0 * m_prime_rad).sin()
@@ -319,12 +318,13 @@ fn lunar_phase_jde(k: f64, phase_type: LunarPhaseType) -> f64 {
                 + 0.00002 * (2.0 * f_rad).cos();
 
             if phase_type == LunarPhaseType::FirstQuarter {
-                correction += w;
+                corr += w;
             } else {
-                correction -= w;
+                corr -= w;
             }
+            corr
         }
-    }
+    };
 
     // Planetary arguments correction
     let a1 = 299.77 + 0.107408 * k - 0.009173 * t * t;

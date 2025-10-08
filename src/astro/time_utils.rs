@@ -3,6 +3,7 @@
 use chrono::{DateTime, Duration, TimeZone};
 
 /// Format duration as human-readable string
+#[allow(dead_code)]
 pub fn format_duration(duration: Duration) -> String {
     let total_secs = duration.num_seconds().abs();
     let hours = total_secs / 3600;
@@ -30,6 +31,7 @@ pub fn format_duration_detailed(duration: Duration) -> String {
 }
 
 /// Format time as HH:MM string
+#[allow(dead_code)]
 pub fn format_time<T: TimeZone>(dt: &DateTime<T>) -> String
 where
     T::Offset: std::fmt::Display,
@@ -38,6 +40,7 @@ where
 }
 
 /// Format date as human-readable string
+#[allow(dead_code)]
 pub fn format_date<T: TimeZone>(dt: &DateTime<T>) -> String
 where
     T::Offset: std::fmt::Display,
@@ -54,6 +57,7 @@ where
 }
 
 /// Check if a datetime is today
+#[allow(dead_code)]
 pub fn is_today<T: TimeZone>(dt: &DateTime<T>, reference: &DateTime<T>) -> bool {
     dt.date_naive() == reference.date_naive()
 }

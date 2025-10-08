@@ -56,6 +56,7 @@ impl CityDatabase {
     }
 
     /// Filter cities by field
+    #[allow(dead_code)]
     pub fn filter(&self, field: &str, value: &str) -> Vec<&City> {
         let value_lower = value.to_lowercase();
         self.cities
@@ -70,11 +71,13 @@ impl CityDatabase {
     }
 
     /// Get all cities
+    #[allow(dead_code)]
     pub fn all(&self) -> &[City] {
         &self.cities
     }
 
     /// Get cities count
+    #[allow(dead_code)]
     pub fn count(&self) -> usize {
         self.cities.len()
     }

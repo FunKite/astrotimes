@@ -57,6 +57,7 @@ pub struct Args {
 }
 
 impl Args {
+    #[allow(dead_code)]
     pub fn has_location(&self) -> bool {
         (self.lat.is_some() && self.lon.is_some()) || self.city.is_some()
     }

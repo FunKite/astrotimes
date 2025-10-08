@@ -3,14 +3,13 @@
 use super::app::App;
 use crate::astro::*;
 use ratatui::{
-    backend::Backend,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Line, Span, Text},
     widgets::{Block, Borders, Paragraph, Wrap},
     Frame,
 };
-use chrono::{DateTime, Datelike, Local, Timelike};
+use chrono::{Datelike, Timelike};
 
 pub fn render(f: &mut Frame, app: &App) {
     match app.mode {
