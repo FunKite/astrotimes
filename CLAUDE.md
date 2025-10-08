@@ -10,7 +10,7 @@ High-precision astronomical CLI application written in Rust. Calculates sun/moon
 
 ---
 
-## Current Status (Last Updated: 2025-10-07)
+## Current Status (Last Updated: 2025-10-08)
 
 ### ✅ Fully Implemented Features
 1. **NOAA Solar Calculations**
@@ -89,6 +89,15 @@ let phase_angle = normalize_degrees(180.0 - illum_angle);
 **Cause**: City struct had `state: String` but JSON contains `"state": null`
 **Fix**: Changed to `state: Option<String>` in `src/city.rs:16`
 
+### 6. Compiler Warnings (FIXED - Oct 8, 2025)
+**Issue**: 24 compiler warnings from unused variables, dead code, and unused assignments
+**Fix**:
+- Prefixed unused variables with underscore (`_m`, `_timezone`)
+- Refactored `correction` calculation in moon.rs to use match expression that returns values
+- Added `#[allow(dead_code)]` to utility functions/constants reserved for future use
+**Result**: Zero warnings on `cargo build --release`
+**Commit**: `14225bd`
+
 ---
 
 ## File Structure
@@ -162,6 +171,16 @@ let phase_angle = normalize_degrees(180.0 - illum_angle);
 }
 ```
 
+### Distribution (`dist/`)
+Created Oct 8, 2025 for Beta 0.1 release:
+- **`astrotimes-v0.1.0-macos-arm64.tar.gz`** (1.4 MB) - Distributable package
+  - Contains: Stripped binary (3.9 MB), README.txt with installation instructions
+- **`astrotimes-v0.1.0-macos-arm64.tar.gz.sha256`** - SHA256 checksum for verification
+- **`install.sh`** - Automatic installation script (detects best install location, adds to PATH)
+- **`astrotimes-macos/`** - Unpacked directory with binary and docs
+- **`RELEASE_NOTES.md`** - Complete release documentation
+- **`GITHUB_RELEASE_INSTRUCTIONS.md`** - Manual release instructions
+
 ---
 
 ## Building and Testing
@@ -197,13 +216,14 @@ Current accuracy: ±12 seconds (tested Oct 7, 2025, Waltham MA coordinates)
 
 ### None Currently Outstanding!
 All reported issues have been fixed:
-- ✅ Timezone calculations
-- ✅ Azimuth NaN
-- ✅ Moon phase inversion
-- ✅ Alignment
-- ✅ City picker functionality
-- ✅ Refresh rate display
-- ✅ Moon size categories
+- ✅ Timezone calculations (Oct 7, 2025)
+- ✅ Azimuth NaN (Oct 7, 2025)
+- ✅ Moon phase inversion (Oct 7, 2025)
+- ✅ Alignment (Oct 8, 2025)
+- ✅ City picker functionality (Oct 7, 2025)
+- ✅ Refresh rate display (Oct 7, 2025)
+- ✅ Moon size categories (Oct 7, 2025)
+- ✅ Compiler warnings - all 24 fixed (Oct 8, 2025)
 
 ### Potential Enhancements (Not Requested)
 1. Add more cities to database (currently 570)
@@ -214,6 +234,120 @@ All reported issues have been fixed:
 6. Add altitude/azimuth grid visualization
 7. Support for DST transitions
 8. Historical date calculations (currently only supports dates with valid timezone info)
+9. Create .pkg installer (macOS native installer package)
+10. Create .dmg disk image (for drag-and-drop installation)
+
+---
+
+## Distribution & Packaging (Oct 8, 2025)
+
+### Current Distribution Format: Tarball (.tar.gz)
+
+**Created:** `dist/astrotimes-v0.1.0-macos-arm64.tar.gz` (1.4 MB)
+
+**How to create:**
+```bash
+# Build release binary
+cargo build --release
+
+# Strip debug symbols (3.9 MB stripped from 4.3 MB)
+strip ./target/release/astrotimes
+
+# Create distribution directory
+mkdir -p dist/astrotimes-macos
+cp ./target/release/astrotimes dist/astrotimes-macos/
+# Add README.txt to distribution
+
+# Create tarball
+cd dist
+tar -czf astrotimes-v0.1.0-macos-arm64.tar.gz astrotimes-macos/
+
+# Generate checksum
+shasum -a 256 astrotimes-v0.1.0-macos-arm64.tar.gz > astrotimes-v0.1.0-macos-arm64.tar.gz.sha256
+```
+
+**Installation methods:**
+1. **Automatic** - Use `install.sh` script (detects best location, adds to PATH)
+2. **Manual** - `sudo cp astrotimes /usr/local/bin/`
+
+### Future Packaging Options
+
+#### PKG (macOS Installer Package) - RECOMMENDED for CLI tools
+**Advantages:**
+- Native macOS installer with GUI wizard
+- Automatically installs to system locations (/usr/local/bin)
+- Can run pre/post-install scripts
+- Supports code signing and notarization
+- Built-in uninstaller support
+
+**How to create:**
+```bash
+pkgbuild --root dist/astrotimes-macos \
+         --identifier com.funkite.astrotimes \
+         --version 0.1.0 \
+         --install-location /usr/local/bin \
+         astrotimes-0.1.0.pkg
+```
+
+**Alternative tools:**
+- Packages.app (free GUI tool): http://s.sudre.free.fr/Software/Packages/about.html
+- cargo-bundle: `cargo install cargo-bundle && cargo bundle --release`
+
+#### DMG (Disk Image) - Better for GUI apps
+**Advantages:**
+- Simple to create
+- User controls installation location
+- Can include README/documentation
+- Custom backgrounds and styling
+
+**Disadvantages for CLI tools:**
+- User must manually copy to PATH location
+- Requires more user knowledge
+
+**How to create:**
+```bash
+# Basic DMG
+hdiutil create -volname "Astrotimes" \
+               -srcfolder dist/astrotimes-macos \
+               -ov -format UDZO \
+               astrotimes-0.1.0.dmg
+
+# Enhanced DMG with create-dmg tool
+brew install create-dmg
+create-dmg --volname "Astrotimes 0.1.0" astrotimes-0.1.0.dmg dist/astrotimes-macos/
+```
+
+**Decision:** For astrotimes (CLI tool), PKG is better than DMG because users don't need to know where to install it.
+
+### GitHub Release
+
+**Release Tag:** `v0.1.0-beta`
+**Type:** Pre-release (Beta)
+**Visibility:** Private (repo is private)
+**URL:** https://github.com/FunKite/astrotimes/releases/tag/v0.1.0-beta
+
+**How to create:**
+```bash
+# Create and push tag
+git tag -a v0.1.0-beta -m "Beta 0.1 - Initial macOS release"
+git push origin v0.1.0-beta
+
+# Create release with GitHub CLI
+gh release create v0.1.0-beta \
+  dist/astrotimes-v0.1.0-macos-arm64.tar.gz \
+  dist/astrotimes-v0.1.0-macos-arm64.tar.gz.sha256 \
+  dist/install.sh \
+  --title "Beta 0.1 - Initial macOS Release" \
+  --notes-file dist/RELEASE_NOTES.md \
+  --prerelease
+```
+
+**Files uploaded:**
+- `astrotimes-v0.1.0-macos-arm64.tar.gz`
+- `astrotimes-v0.1.0-macos-arm64.tar.gz.sha256`
+- `install.sh`
+
+**Note:** Release is private and only visible to repo owner/collaborators. To make public, change repo visibility to Public.
 
 ---
 
@@ -238,11 +372,13 @@ dirs = "5.0"              # Config directory
 ## Git Workflow
 
 ### Recent Commits
-1. `f6fd302` - Fix moon phase calculations, size categories, and alignment
-2. `a4c97ae` - Update city database support for new format with 570 cities
-3. `35685fd` - Fix critical bugs: timezone calculations, azimuth NaN, implement city picker
-4. `3e4f315` - User uploaded new urban_areas.json (570 cities)
-5. `1b229b0` - Initial release of astrotimes
+1. `14225bd` - Fix all compiler warnings - improve code quality (Oct 8, 2025)
+2. `fc4beed` - Fix position calculations and event alignment issues (Oct 8, 2025)
+3. `f6fd302` - Fix moon phase calculations, size categories, and alignment (Oct 7, 2025)
+4. `a4c97ae` - Update city database support for new format with 570 cities
+5. `35685fd` - Fix critical bugs: timezone calculations, azimuth NaN, implement city picker
+6. `3e4f315` - User uploaded new urban_areas.json (570 cities)
+7. `1b229b0` - Initial release of astrotimes
 
 ### Push/Pull
 ```bash
@@ -446,7 +582,16 @@ From conversation:
 
 ## Next Session TODO
 
-Nothing urgent! All reported bugs are fixed. Possible future work:
+### Completed (Oct 8, 2025):
+- ✅ Fixed all compiler warnings (24 warnings → 0)
+- ✅ Created distributable package (tarball with install script)
+- ✅ Created private GitHub release (v0.1.0-beta)
+- ✅ Documented PKG and DMG packaging options
+
+### Possible Future Work:
+- Create .pkg installer for easier macOS installation
+- Add code signing and notarization for Gatekeeper
+- Build Intel Mac version (x86_64)
 - Add more test cases for edge cases (polar regions, date line, leap seconds)
 - Performance profiling (currently <100ms startup is great)
 - Add unit tests for phase angle calculation
@@ -462,6 +607,7 @@ Nothing urgent! All reported bugs are fixed. Possible future work:
 
 ---
 
-*Last updated: 2025-10-07 22:35 EDT*
-*Session: Complete - All issues resolved*
-*Status: Production ready ✅*
+*Last updated: 2025-10-08 09:30 EDT*
+*Session: Distribution created - Beta release ready*
+*Status: Beta 0.1 - Private release published ✅*
+*Build: Zero warnings, 3.9 MB binary (stripped)*
