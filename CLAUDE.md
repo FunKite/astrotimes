@@ -10,7 +10,7 @@ High-precision astronomical CLI application written in Rust. Calculates sun/moon
 
 ---
 
-## Current Status (Last Updated: 2025-10-08 15:11 EDT)
+## Current Status (Last Updated: 2025-10-08 15:32 EDT)
 
 ### ✅ Fully Implemented Features
 1. **NOAA Solar Calculations**
@@ -64,6 +64,7 @@ High-precision astronomical CLI application written in Rust. Calculates sun/moon
 - Text, JSON, and TUI outputs now render an `AI Insights` section when enabled, showing model, refresh timestamp, brief bullet output, or friendly error messaging.
 - Watch mode tracks refresh state inside the app, auto-refreshing on the configured cadence and reacting to location changes.
 - Added in-app AI configuration panel (press `a` in watch mode) to toggle insights, edit Ollama server/model, and adjust refresh cadence with validation before saving.
+- Default watch refresh interval tightened to 1 s for solar/lunar updates while AI insights remain at 2 min; footer hotkey list now wraps cleanly on narrow terminals.
 
 ## Critical Bug Fixes (Recent)
 
@@ -660,7 +661,7 @@ From conversation:
 
 ---
 
-*Last updated: 2025-10-08 15:11 EDT*
-*Session: Codex (GPT-5) - AI insights hotkey configuration*
+*Last updated: 2025-10-08 15:32 EDT*
+*Session: Codex (GPT-5) - AI refresh tuning & footer wrap*
 *Status: Beta 0.1 - Significantly improved lunar calculations*
 *Accuracy: Solar ±1 min, Lunar phases 100%, Moonrise/moonset ±1-4 min (was ±4-11 min)*

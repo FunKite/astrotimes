@@ -39,8 +39,8 @@ pub struct Args {
     #[arg(long)]
     pub watch: bool,
 
-    /// Refresh interval in seconds for watch mode (default: 60)
-    #[arg(long, default_value = "60.0")]
+    /// Refresh interval in seconds for watch mode (default: 1)
+    #[arg(long, default_value = "1.0")]
     pub refresh: f64,
 
     /// Disable all interactive prompts

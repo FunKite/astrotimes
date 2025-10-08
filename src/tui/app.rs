@@ -205,7 +205,7 @@ impl App {
     }
 
     pub fn reset_refresh(&mut self) {
-        self.refresh_interval = Duration::from_secs(60);
+        self.refresh_interval = Duration::from_secs(1);
     }
 
     pub fn set_location(&mut self, city: &City) {
