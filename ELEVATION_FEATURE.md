@@ -91,9 +91,11 @@ distance = EARTH_RADIUS_KM × c
 ### Data Sources
 
 1. **ETOPO 2022**: Worldwide topographic data
-   - File: `data/ETOPO_2022_worldwide_land_only_cog.tif` (748KB)
-   - Format: Cloud Optimized GeoTIFF (COG)
+   - File: `data/ETOPO_land_ocean.tif` (978KB)
+   - Format: Standard GeoTIFF with compatible compression
    - Coverage: Global land elevation data
+   - **Encoding**: Elevations ≥1m stored as-is, elevations <1m set to 0
+   - **Note**: Does not encode below-sea-level locations (Death Valley, Dead Sea, etc.)
 
 2. **City Database**: 570 worldwide cities
    - File: `data/urban_areas.json` (88KB)
