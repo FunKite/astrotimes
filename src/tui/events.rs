@@ -1,7 +1,9 @@
 // Event handling for TUI
 
 use super::app::{AiConfigField, App, AppMode};
+use crate::city::CityDatabase;
 use crate::config::Config;
+use crate::elevation;
 use anyhow::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEvent};
 use std::time::Duration;
@@ -19,6 +21,7 @@ fn handle_key_event(app: &mut App, key: KeyEvent) -> Result<()> {
     match app.mode {
         AppMode::Watch => handle_watch_mode_keys(app, key),
         AppMode::CityPicker => handle_city_picker_keys(app, key),
+        AppMode::LocationInput => handle_location_input_keys(app, key),
         AppMode::AiConfig => handle_ai_config_keys(app, key),
     }
 }
@@ -44,6 +47,10 @@ fn handle_watch_mode_keys(app: &mut App, key: KeyEvent) -> Result<()> {
         }
         KeyCode::Char('c') | KeyCode::Char('C') => {
             app.mode = AppMode::CityPicker;
+        }
+        KeyCode::Char('l') | KeyCode::Char('L') => {
+            app.mode = AppMode::LocationInput;
+            app.location_input_draft = super::app::LocationInputDraft::new();
         }
         KeyCode::Char('a') | KeyCode::Char('A') => {
             app.open_ai_config();
@@ -85,6 +92,68 @@ fn handle_city_picker_keys(app: &mut App, key: KeyEvent) -> Result<()> {
         KeyCode::Char(c) => {
             app.city_search.push(c);
             app.update_city_search(&app.city_search.clone());
+        }
+        _ => {}
+    }
+    Ok(())
+}
+
+fn handle_location_input_keys(app: &mut App, key: KeyEvent) -> Result<()> {
+    match key.code {
+        KeyCode::Esc => {
+            app.mode = AppMode::Watch;
+            app.location_input_draft = super::app::LocationInputDraft::new();
+        }
+        KeyCode::Enter => {
+            // Validate and apply location
+            match app.location_input_draft.validate() {
+                Ok((lat, lon, elev_opt, tz_str)) => {
+                    // Parse timezone
+                    match tz_str.parse::<chrono_tz::Tz>() {
+                        Ok(tz) => {
+                            // Determine elevation
+                            let elev = if let Some(e) = elev_opt {
+                                e
+                            } else {
+                                // Auto-estimate elevation using ETOPO + ML
+                                if let Ok(db) = CityDatabase::load() {
+                                    elevation::estimate_elevation(lat, lon, db.cities())
+                                        .unwrap_or(187.0)
+                                } else {
+                                    187.0
+                                }
+                            };
+
+                            // Update app state
+                            app.location = crate::astro::Location::new(lat, lon, elev);
+                            app.timezone = tz;
+                            app.city_name = None;
+                            app.mode = AppMode::Watch;
+                            app.location_input_draft.clear_error();
+                        }
+                        Err(_) => {
+                            app.location_input_draft.set_error(
+                                format!("Invalid timezone: {}", tz_str)
+                            );
+                        }
+                    }
+                }
+                Err(e) => {
+                    app.location_input_draft.set_error(e.to_string());
+                }
+            }
+        }
+        KeyCode::Tab | KeyCode::Down => {
+            app.location_input_draft.next_field();
+        }
+        KeyCode::BackTab | KeyCode::Up => {
+            app.location_input_draft.prev_field();
+        }
+        KeyCode::Backspace | KeyCode::Delete => {
+            app.location_input_draft.backspace();
+        }
+        KeyCode::Char(c) => {
+            app.location_input_draft.input_char(c);
         }
         _ => {}
     }

@@ -1,6 +1,6 @@
 // UI rendering
 
-use super::app::{AiConfigField, AiServerStatus, App};
+use super::app::{AiConfigField, AiServerStatus, App, LocationInputField};
 use crate::astro::*;
 use crate::time_sync;
 use chrono::{Datelike, Timelike, Utc};
@@ -12,10 +12,11 @@ use ratatui::{
     Frame,
 };
 
-const FOOTER_INSTRUCTIONS: [&str; 7] = [
+const FOOTER_INSTRUCTIONS: [&str; 8] = [
     "q quit",
     "s save",
     "c city",
+    "l location",
     "a AI",
     "n night",
     "]/[ slow/fast",
@@ -42,6 +43,9 @@ pub fn render(f: &mut Frame, app: &App) {
         }
         super::app::AppMode::CityPicker => {
             render_city_picker(f, app);
+        }
+        super::app::AppMode::LocationInput => {
+            render_location_input(f, app);
         }
         super::app::AppMode::AiConfig => {
             render_ai_config(f, app);
@@ -535,6 +539,152 @@ fn render_city_picker(f: &mut Frame, app: &App) {
 
     // Footer
     let footer = Paragraph::new("↑/↓: Navigate | Enter: Select | Esc: Cancel")
+        .style(Style::default().fg(get_color(app, Color::Gray)))
+        .alignment(Alignment::Center);
+    f.render_widget(footer, chunks[3]);
+}
+
+fn render_location_input(f: &mut Frame, app: &App) {
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Length(3),  // Title
+            Constraint::Length(10), // Input fields
+            Constraint::Min(5),     // Help text
+            Constraint::Length(2),  // Footer
+        ])
+        .split(f.area());
+
+    // Title
+    let title = Paragraph::new("Manual Location Input")
+        .style(
+            Style::default()
+                .fg(get_color(app, Color::Cyan))
+                .add_modifier(Modifier::BOLD),
+        )
+        .alignment(Alignment::Center)
+        .block(Block::default().borders(Borders::ALL));
+    f.render_widget(title, chunks[0]);
+
+    // Input fields
+    let draft = &app.location_input_draft;
+    let current_field = draft.current_field();
+
+    let field_style = |field: LocationInputField| {
+        if field == current_field {
+            Style::default()
+                .fg(get_color(app, Color::Yellow))
+                .add_modifier(Modifier::BOLD)
+        } else {
+            Style::default().fg(get_color(app, Color::White))
+        }
+    };
+
+    let marker = |field: LocationInputField| {
+        if field == current_field { "► " } else { "  " }
+    };
+
+    let lat_display = if draft.latitude.is_empty() {
+        "".to_string()
+    } else {
+        draft.latitude.clone()
+    };
+
+    let lon_display = if draft.longitude.is_empty() {
+        "".to_string()
+    } else {
+        draft.longitude.clone()
+    };
+
+    let elev_display = if draft.elevation.is_empty() {
+        if draft.auto_elevation {
+            "(auto-detect)".to_string()
+        } else {
+            "".to_string()
+        }
+    } else {
+        draft.elevation.clone()
+    };
+
+    let mut input_lines = vec![
+        Line::from(vec![
+            Span::raw(marker(LocationInputField::Latitude)),
+            Span::styled("Latitude:  ", field_style(LocationInputField::Latitude)),
+            Span::styled(lat_display, field_style(LocationInputField::Latitude)),
+            Span::styled("  (-90 to 90)", Style::default().fg(get_color(app, Color::Gray))),
+        ]),
+        Line::from(""),
+        Line::from(vec![
+            Span::raw(marker(LocationInputField::Longitude)),
+            Span::styled("Longitude: ", field_style(LocationInputField::Longitude)),
+            Span::styled(lon_display, field_style(LocationInputField::Longitude)),
+            Span::styled("  (-180 to 180)", Style::default().fg(get_color(app, Color::Gray))),
+        ]),
+        Line::from(""),
+        Line::from(vec![
+            Span::raw(marker(LocationInputField::Elevation)),
+            Span::styled("Elevation: ", field_style(LocationInputField::Elevation)),
+            Span::styled(elev_display, field_style(LocationInputField::Elevation)),
+            Span::styled("  (meters, optional)", Style::default().fg(get_color(app, Color::Gray))),
+        ]),
+        Line::from(""),
+        Line::from(vec![
+            Span::raw(marker(LocationInputField::Timezone)),
+            Span::styled("Timezone:  ", field_style(LocationInputField::Timezone)),
+            Span::styled(&draft.timezone, field_style(LocationInputField::Timezone)),
+            Span::styled("  (e.g., America/New_York)", Style::default().fg(get_color(app, Color::Gray))),
+        ]),
+    ];
+
+    // Add error message if present
+    if let Some(error) = &draft.error {
+        input_lines.push(Line::from(""));
+        input_lines.push(Line::from(Span::styled(
+            format!("Error: {}", error),
+            Style::default().fg(Color::Red).add_modifier(Modifier::BOLD),
+        )));
+    }
+
+    let input_fields = Paragraph::new(input_lines)
+        .style(Style::default())
+        .block(Block::default().borders(Borders::ALL).title("Enter Location"));
+    f.render_widget(input_fields, chunks[1]);
+
+    // Help text
+    let help_text = vec![
+        Line::from(Span::styled(
+            "Smart Elevation Estimation:",
+            Style::default()
+                .fg(get_color(app, Color::Green))
+                .add_modifier(Modifier::BOLD),
+        )),
+        Line::from(""),
+        Line::from(Span::styled(
+            "If you leave elevation blank, it will be auto-estimated using:",
+            Style::default().fg(get_color(app, Color::White)),
+        )),
+        Line::from(Span::styled(
+            "  • ETOPO 2022 worldwide terrain data",
+            Style::default().fg(get_color(app, Color::Gray)),
+        )),
+        Line::from(Span::styled(
+            "  • ML-based urban correction (people tend to live at lower elevations)",
+            Style::default().fg(get_color(app, Color::Gray)),
+        )),
+        Line::from(Span::styled(
+            "  • Inverse distance weighting from 570 cities worldwide",
+            Style::default().fg(get_color(app, Color::Gray)),
+        )),
+    ];
+
+    let help = Paragraph::new(help_text)
+        .style(Style::default())
+        .block(Block::default().borders(Borders::ALL).title("ℹ Info"))
+        .wrap(Wrap { trim: true });
+    f.render_widget(help, chunks[2]);
+
+    // Footer
+    let footer = Paragraph::new("Tab/↑↓: Navigate | Enter: Confirm | Esc: Cancel")
         .style(Style::default().fg(get_color(app, Color::Gray)))
         .alignment(Alignment::Center);
     f.render_widget(footer, chunks[3]);

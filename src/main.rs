@@ -5,6 +5,7 @@ mod astro;
 mod city;
 mod cli;
 mod config;
+mod elevation;
 mod location;
 mod output;
 mod time_sync;
