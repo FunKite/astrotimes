@@ -82,6 +82,16 @@ struct OllamaResponse {
     response: String,
 }
 
+#[derive(Debug, Deserialize)]
+struct OllamaModelEntry {
+    name: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct OllamaTagsResponse {
+    models: Vec<OllamaModelEntry>,
+}
+
 #[derive(Serialize)]
 struct OllamaRequest<'a> {
     model: &'a str,
@@ -272,9 +282,9 @@ fn build_prompt(data: &AiData) -> Result<String> {
     Ok(format!(
         "You are an astronomy specialist generating concise insights.\n\
          Requirements:\n\
-         - Provide 2-3 short bullet sentences highlighting notable solar or lunar observations.\n\
-         - Use direct statements, no questions, no follow-ups, no conversation.\n\
-         - You have one response; do not request additional data.\n\
+         - Provide a single short paragraph of narrative analysis highlighting notable solar and lunar observations.\n\
+         - Do not repeat raw numbers or tables that the user can already see; focus on interpretation and context.\n\
+         - No bullet points, formatting, or questions. One response only with no follow-ups.\n\
          Data:\n{}\n\nInsights:",
         data_json
     ))
@@ -288,4 +298,39 @@ fn summarize_error(message: &str) -> String {
         truncated.push('…');
         truncated
     }
+}
+
+pub fn probe_server(server: &str) -> Result<Vec<String>> {
+    let client = Client::builder()
+        .timeout(StdDuration::from_secs(DEFAULT_TIMEOUT_SECS))
+        .build()
+        .context("failed to construct HTTP client for Ollama")?;
+
+    let endpoint = format!("{}/api/tags", server.trim_end_matches('/'));
+    let response = client
+        .get(&endpoint)
+        .header(reqwest::header::USER_AGENT, USER_AGENT)
+        .send()
+        .with_context(|| format!("failed to reach Ollama server at {}", server))?;
+
+    if !response.status().is_success() {
+        return Err(anyhow!(
+            "Ollama server returned status {} while listing models",
+            response.status()
+        ));
+    }
+
+    let tags: OllamaTagsResponse = response
+        .json()
+        .context("failed to parse Ollama model list")?;
+
+    let mut models: Vec<String> = tags.models.into_iter().map(|entry| entry.name).collect();
+    models.sort();
+    models.dedup();
+
+    if models.is_empty() {
+        return Err(anyhow!("Ollama server reported no installed models"));
+    }
+
+    Ok(models)
 }

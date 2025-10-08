@@ -71,6 +71,12 @@ High-precision astronomical CLI application written in Rust. Calculates sun/moon
 - Consolidated the footer shortcut list into a single constant shared by the renderer and sizing helper to keep layouts consistent.
 - Confirmed the build remains healthy with `cargo check`.
 
+## Session Notes (2025-10-08 Codex - Ollama UX Upgrade)
+- AI config panel now auto-probes `http://localhost:11434` when insights are enabled and surfaces a green “connected” badge or failure reason inline (`src/tui/app.rs`, `src/tui/ui.rs`).
+- Detected Ollama servers expose their available models as a scrollable carousel (←/→ or [ ]) so users can pick an installed LLM without typing (`src/tui/app.rs`, `src/tui/events.rs`, `src/tui/ui.rs`).
+- Saving AI settings validates reachability, normalizes the server URL, and keeps the chosen model synced with detection results (`src/tui/app.rs`).
+- AI prompt now asks for a single interpretive paragraph rather than bullet points, and the dashboard shows “Updated MM:SS ago” to spotlight freshness (`src/ai.rs`, `src/tui/ui.rs`).
+
 ## Critical Bug Fixes (Recent)
 
 ### 1. Timezone Bug (FIXED)

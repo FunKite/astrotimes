@@ -1,9 +1,9 @@
 // UI rendering
 
-use super::app::{AiConfigField, App};
+use super::app::{AiConfigField, AiServerStatus, App};
 use crate::astro::*;
 use crate::time_sync;
-use chrono::{Datelike, Timelike};
+use chrono::{Datelike, Timelike, Utc};
 use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
@@ -326,15 +326,18 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
 
         match &app.ai_outcome {
             Some(outcome) => {
-                let updated_local = outcome
-                    .updated_at
-                    .with_timezone(&app.timezone)
-                    .format("%Y-%m-%d %H:%M:%S %Z")
-                    .to_string();
+                let elapsed = app
+                    .current_time
+                    .with_timezone(&Utc)
+                    .signed_duration_since(outcome.updated_at);
+                let elapsed_secs = elapsed.num_seconds().max(0);
+                let minutes = elapsed_secs / 60;
+                let seconds = elapsed_secs % 60;
+                let updated_display = format!("Updated {:02}:{:02} ago", minutes, seconds);
 
                 lines.push(Line::from(vec![Span::raw(format!(
-                    "Model: {}  Updated: {}",
-                    outcome.model, updated_local
+                    "Model: {}  {}",
+                    outcome.model, updated_display
                 ))]));
 
                 if let Some(content) = &outcome.content {
@@ -546,14 +549,15 @@ fn render_ai_config(f: &mut Frame, app: &App) {
     f.render_widget(block, area);
 
     let draft = &app.ai_config_draft;
+    let current_field = draft.current_field();
 
     let server_display = if draft.server.trim().is_empty() {
-        "<default>".to_string()
+        "<default (localhost)>".to_string()
     } else {
         draft.server.clone()
     };
     let model_display = if draft.model.trim().is_empty() {
-        "<empty>".to_string()
+        "<pick a model>".to_string()
     } else {
         draft.model.clone()
     };
@@ -581,13 +585,14 @@ fn render_ai_config(f: &mut Frame, app: &App) {
 
     let mut lines = Vec::new();
     lines.push(Line::from(Span::styled(
-        "Configure the Ollama endpoint used for AI insights.",
+        "Dial in your Ollama connection, then let the AI narrate what matters.",
         Style::default().fg(get_color(app, Color::Gray)),
     )));
     lines.push(Line::from(""));
 
     for (idx, (field, label, value)) in fields.iter().enumerate() {
-        let prefix = if draft.field_index == idx { "> " } else { "  " };
+        let is_selected = draft.field_index == idx;
+        let prefix = if is_selected { "› " } else { "  " };
         let mut spans = vec![
             Span::styled(prefix, Style::default().fg(get_color(app, Color::Cyan))),
             Span::styled(
@@ -598,13 +603,19 @@ fn render_ai_config(f: &mut Frame, app: &App) {
             ),
             Span::styled(
                 value.clone(),
-                Style::default().fg(get_color(app, Color::White)),
+                Style::default()
+                    .fg(get_color(app, Color::White))
+                    .add_modifier(if is_selected {
+                        Modifier::BOLD
+                    } else {
+                        Modifier::empty()
+                    }),
             ),
         ];
 
         if *field == AiConfigField::Server && draft.server.trim().is_empty() {
             spans.push(Span::styled(
-                "  (uses http://localhost:11434)",
+                "  (auto-checks http://localhost:11434)",
                 Style::default().fg(get_color(app, Color::Gray)),
             ));
         }
@@ -612,13 +623,80 @@ fn render_ai_config(f: &mut Frame, app: &App) {
         lines.push(Line::from(spans));
     }
 
+    if draft.enabled {
+        lines.push(Line::from(""));
+        match &draft.server_status {
+            AiServerStatus::Connected { server } => {
+                lines.push(Line::from(Span::styled(
+                    format!(
+                        "✅ Connected to {} — {} model{} available",
+                        server,
+                        draft.models.len(),
+                        if draft.models.len() == 1 { "" } else { "s" }
+                    ),
+                    Style::default()
+                        .fg(Color::LightGreen)
+                        .add_modifier(Modifier::BOLD),
+                )));
+            }
+            AiServerStatus::Failed { server, message } => {
+                lines.push(Line::from(Span::styled(
+                    format!(
+                        "⚠️ Unable to reach {} ({}) — edit the server and press Tab to retry.",
+                        server,
+                        message.replace('\n', " ")
+                    ),
+                    Style::default().fg(get_color(app, Color::LightRed)),
+                )));
+            }
+            AiServerStatus::Unknown => {
+                lines.push(Line::from(Span::styled(
+                    "⏳ Edit the server field (if needed) then press Tab to scan for Ollama.",
+                    Style::default().fg(get_color(app, Color::Gray)),
+                )));
+            }
+        }
+
+        if !draft.models.is_empty() {
+            lines.push(Line::from(""));
+            lines.push(Line::from(Span::styled(
+                "Available models (←/→ or [ ] to browse instantly):",
+                Style::default()
+                    .fg(get_color(app, Color::Yellow))
+                    .add_modifier(Modifier::BOLD),
+            )));
+
+            for (idx, model_name) in draft.models.iter().enumerate() {
+                let selected = Some(idx) == draft.model_index;
+                let indicator = if selected { "▶" } else { " " };
+                let style = if selected {
+                    Style::default()
+                        .fg(get_color(app, Color::Green))
+                        .add_modifier(Modifier::BOLD)
+                } else if current_field == AiConfigField::Model {
+                    Style::default().fg(get_color(app, Color::White))
+                } else {
+                    Style::default().fg(get_color(app, Color::Gray))
+                };
+
+                lines.push(Line::from(vec![Span::styled(
+                    format!(" {} {}", indicator, model_name),
+                    style,
+                )]));
+            }
+
+            if current_field == AiConfigField::Model && draft.models.len() > 1 {
+                lines.push(Line::from(Span::styled(
+                    "Tip: Tap ←/→ to audition the models without leaving the field.",
+                    Style::default().fg(get_color(app, Color::Gray)),
+                )));
+            }
+        }
+    }
+
     lines.push(Line::from(""));
     lines.push(Line::from(Span::styled(
-        "Enter: save  Esc: cancel  ↑/↓ or Tab: move  Space: toggle enabled  +/-: adjust refresh",
-        Style::default().fg(get_color(app, Color::Gray)),
-    )));
-    lines.push(Line::from(Span::styled(
-        "Model name must match a model installed on the Ollama server.",
+        "Enter: save  Esc: cancel  ↑/↓ or Tab: move  Space: toggle enabled  ←/→ or [ ]: cycle models  +/-: adjust refresh",
         Style::default().fg(get_color(app, Color::Gray)),
     )));
 
