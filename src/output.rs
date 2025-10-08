@@ -118,8 +118,6 @@ pub struct AiInsightsData {
     pub summary: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub payload: Option<String>,
 }
 
 pub fn generate_json_output(
@@ -232,21 +230,14 @@ pub fn generate_json_output(
             &sun_pos,
             &moon_pos,
             summaries,
+            time_sync_info,
+            &phases,
         );
 
-        let payload_json = serde_json::to_string_pretty(&ai_data)
-            .unwrap_or_else(|err| format!("Unable to serialize AI payload: {}", err));
-
-        let mut outcome = match ai::fetch_insights(ai_config, &ai_data) {
+        let outcome = match ai::fetch_insights(ai_config, &ai_data) {
             Ok(outcome) => outcome,
-            Err(err) => {
-                ai::AiOutcome::from_error(&ai_config.model, err, Some(payload_json.clone()))
-            }
+            Err(err) => ai::AiOutcome::from_error(&ai_config.model, err),
         };
-
-        if outcome.payload.is_none() {
-            outcome.payload = Some(payload_json);
-        }
 
         Some(build_ai_insights(&outcome, timezone))
     } else {
@@ -348,6 +339,5 @@ fn build_ai_insights(outcome: &ai::AiOutcome, timezone: &Tz) -> AiInsightsData {
         updated_elapsed: Some(elapsed_display),
         summary: outcome.content.clone(),
         error: outcome.error.clone(),
-        payload: outcome.payload.clone(),
     }
 }

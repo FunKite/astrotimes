@@ -5,9 +5,10 @@ use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 use std::time::Duration as StdDuration;
 
-use crate::astro::moon::LunarPosition;
+use crate::astro::moon::{LunarPhase, LunarPhaseType, LunarPosition};
 use crate::astro::sun::SolarPosition;
 use crate::astro::{self, coordinates};
+use crate::time_sync::{self, TimeSyncInfo};
 
 const DEFAULT_TIMEOUT_SECS: u64 = 15;
 const USER_AGENT: &str = "AstroTimes AI Insights";
@@ -39,6 +40,8 @@ pub struct AiData {
     pub sun: AiSunData,
     pub moon: AiMoonData,
     pub events: Vec<AiEventSummary>,
+    pub time_sync: AiTimeSync,
+    pub lunar_phases: Vec<AiLunarPhase>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -69,13 +72,36 @@ pub struct AiMoonData {
     pub angular_diameter_arcmin: f64,
 }
 
+#[derive(Debug, Clone, Serialize)]
+pub struct AiTimeSync {
+    pub source: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub delta_seconds: Option<f64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub offset_display: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub direction_code: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub direction_description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct AiLunarPhase {
+    pub name: String,
+    pub emoji: String,
+    pub phase_type: String,
+    pub datetime_local: String,
+    pub datetime_utc: String,
+}
+
 #[derive(Debug, Clone)]
 pub struct AiOutcome {
     pub model: String,
     pub content: Option<String>,
     pub error: Option<String>,
     pub updated_at: DateTime<Utc>,
-    pub payload: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -149,31 +175,26 @@ impl AiConfig {
 }
 
 impl AiOutcome {
-    pub fn success(model: &str, content: String, payload: String) -> Self {
+    pub fn success(model: &str, content: String) -> Self {
         Self {
             model: model.to_string(),
             content: Some(content),
             error: None,
             updated_at: Utc::now(),
-            payload: Some(payload),
         }
     }
 
-    pub fn from_error(model: &str, err: anyhow::Error, payload: Option<String>) -> Self {
+    pub fn from_error(model: &str, err: anyhow::Error) -> Self {
         Self {
             model: model.to_string(),
             content: None,
             error: Some(summarize_error(&err.to_string())),
             updated_at: Utc::now(),
-            payload,
         }
     }
 
-    pub fn with_error_message(mut self, message: String, payload: Option<String>) -> Self {
+    pub fn with_error_message(mut self, message: String) -> Self {
         self.error = Some(summarize_error(&message));
-        if let Some(payload) = payload {
-            self.payload = Some(payload);
-        }
         self
     }
 }
@@ -205,7 +226,11 @@ pub fn build_ai_data(
     sun_pos: &SolarPosition,
     moon_pos: &LunarPosition,
     events: Vec<AiEventSummary>,
+    time_sync_info: &TimeSyncInfo,
+    lunar_phases: &[LunarPhase],
 ) -> AiData {
+    let direction = time_sync_info.direction();
+
     AiData {
         timestamp_local: dt.format("%Y-%m-%d %H:%M:%S %Z").to_string(),
         timestamp_utc: dt
@@ -235,6 +260,44 @@ pub fn build_ai_data(
             angular_diameter_arcmin: moon_pos.angular_diameter,
         },
         events,
+        time_sync: AiTimeSync {
+            source: time_sync_info.source.to_string(),
+            delta_seconds: time_sync_info.delta_seconds(),
+            offset_display: time_sync_info
+                .delta
+                .map(|delta| time_sync::format_offset(delta)),
+            direction_code: direction.map(|dir| time_sync::direction_code(dir).to_string()),
+            direction_description: direction
+                .map(|dir| time_sync::describe_direction(dir).to_string()),
+            error: time_sync_info.error.clone(),
+        },
+        lunar_phases: lunar_phases
+            .iter()
+            .map(|phase| {
+                let (name, emoji) = match phase.phase_type {
+                    LunarPhaseType::NewMoon => ("New Moon", "🌑"),
+                    LunarPhaseType::FirstQuarter => ("First Quarter", "🌓"),
+                    LunarPhaseType::FullMoon => ("Full Moon", "🌕"),
+                    LunarPhaseType::LastQuarter => ("Last Quarter", "🌗"),
+                };
+
+                AiLunarPhase {
+                    name: name.to_string(),
+                    emoji: emoji.to_string(),
+                    phase_type: format!("{:?}", phase.phase_type),
+                    datetime_local: phase
+                        .datetime
+                        .with_timezone(timezone)
+                        .format("%Y-%m-%d %H:%M:%S %Z")
+                        .to_string(),
+                    datetime_utc: phase
+                        .datetime
+                        .with_timezone(&Utc)
+                        .format("%Y-%m-%d %H:%M:%S UTC")
+                        .to_string(),
+                }
+            })
+            .collect(),
     }
 }
 
@@ -243,7 +306,7 @@ pub fn fetch_insights(config: &AiConfig, data: &AiData) -> Result<AiOutcome> {
         return Err(anyhow!("AI insights are disabled"));
     }
 
-    let (prompt, payload_json) = build_prompt(data)?;
+    let prompt = build_prompt(data)?;
     let desired_timeout = if config.refresh > StdDuration::from_secs(1) {
         config.refresh - StdDuration::from_secs(1)
     } else {
@@ -291,19 +354,17 @@ pub fn fetch_insights(config: &AiConfig, data: &AiData) -> Result<AiOutcome> {
             content: Some("No insights returned by model.".to_string()),
             error: None,
             updated_at: Utc::now(),
-            payload: Some(payload_json),
         })
     } else {
-        Ok(AiOutcome::success(&config.model, content, payload_json))
+        Ok(AiOutcome::success(&config.model, content))
     }
 }
 
-fn build_prompt(data: &AiData) -> Result<(String, String)> {
+fn build_prompt(data: &AiData) -> Result<String> {
     let data_json =
         serde_json::to_string_pretty(data).context("failed to serialize AI data payload")?;
 
-    Ok((
-        format!(
+    Ok(format!(
         "You are an astronomy specialist generating concise insights.\n\
          Requirements:\n\
          - Provide a single short paragraph of narrative analysis highlighting notable solar and lunar observations.\n\
@@ -311,8 +372,7 @@ fn build_prompt(data: &AiData) -> Result<(String, String)> {
          - No bullet points, formatting, or questions. One response only with no follow-ups.\n\
          Data:\n{}\n\nInsights:",
         data_json
-    ),
-    data_json))
+    ))
 }
 
 fn summarize_error(message: &str) -> String {

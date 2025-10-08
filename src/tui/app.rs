@@ -5,7 +5,7 @@ use crate::astro::*;
 use crate::city::City;
 use crate::time_sync::TimeSyncInfo;
 use anyhow::{anyhow, Result};
-use chrono::{DateTime, Local};
+use chrono::{DateTime, Datelike, Local};
 use chrono_tz::Tz;
 use std::time::{Duration, Instant};
 
@@ -479,6 +479,8 @@ impl App {
         let sun_pos = sun::solar_position(&self.location, &now_tz);
         let moon_pos = moon::lunar_position(&self.location, &now_tz);
 
+        let lunar_phases = moon::lunar_phases(now_tz.year(), now_tz.month());
+
         let ai_data = ai::build_ai_data(
             &self.location,
             &self.timezone,
@@ -487,6 +489,8 @@ impl App {
             &sun_pos,
             &moon_pos,
             event_summaries,
+            &self.time_sync,
+            &lunar_phases,
         );
 
         let previous_outcome = self.ai_outcome.clone();
@@ -496,19 +500,11 @@ impl App {
                 self.ai_outcome = Some(outcome);
             }
             Err(err) => {
-                let payload_json =
-                    serde_json::to_string_pretty(&ai_data).unwrap_or_else(|ser_err| {
-                        format!("Unable to serialize AI payload: {}", ser_err)
-                    });
                 let err_string = err.to_string();
                 if let Some(prev) = previous_outcome {
-                    self.ai_outcome = Some(prev.with_error_message(err_string, Some(payload_json)));
+                    self.ai_outcome = Some(prev.with_error_message(err_string));
                 } else {
-                    self.ai_outcome = Some(ai::AiOutcome::from_error(
-                        &self.ai_config.model,
-                        err,
-                        Some(payload_json),
-                    ));
+                    self.ai_outcome = Some(ai::AiOutcome::from_error(&self.ai_config.model, err));
                 }
             }
         }
