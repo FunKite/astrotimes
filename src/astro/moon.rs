@@ -176,14 +176,16 @@ pub fn lunar_position<T: TimeZone>(location: &Location, dt: &DateTime<T>) -> Lun
         + lat_rad.cos() * delta.cos() * ha_rad.cos();
     let altitude = sin_alt.asin() * RAD_TO_DEG;
 
-    let cos_az = (delta.sin() - lat_rad.sin() * sin_alt)
-        / (lat_rad.cos() * sin_alt.acos().cos());
+    // Calculate azimuth using atan2 for numerical stability
+    let altitude_rad = altitude * DEG_TO_RAD;
+    let cos_az = (delta.sin() - lat_rad.sin() * altitude_rad.sin())
+        / (lat_rad.cos() * altitude_rad.cos());
+    let sin_az = -ha_rad.sin() * delta.cos() / altitude_rad.cos();
 
-    let azimuth = if ha_rad.sin() > 0.0 {
-        normalize_degrees(cos_az.acos() * RAD_TO_DEG + 180.0)
-    } else {
-        normalize_degrees(540.0 - cos_az.acos() * RAD_TO_DEG)
-    };
+    let mut azimuth = sin_az.atan2(cos_az) * RAD_TO_DEG;
+    if azimuth < 0.0 {
+        azimuth += 360.0;
+    }
 
     // Calculate phase angle and illumination
     let (phase_angle, illumination) = calculate_phase_illumination(dt);

@@ -22,6 +22,9 @@ pub struct App {
     pub mode: AppMode,
     pub should_quit: bool,
     pub should_save: bool,
+    pub city_search: String,
+    pub city_results: Vec<City>,
+    pub city_selected: usize,
 }
 
 impl App {
@@ -41,6 +44,9 @@ impl App {
             mode: AppMode::Watch,
             should_quit: false,
             should_save: false,
+            city_search: String::new(),
+            city_results: Vec::new(),
+            city_selected: 0,
         }
     }
 
@@ -71,5 +77,39 @@ impl App {
         self.timezone = city.tz.parse().unwrap_or(chrono_tz::UTC);
         self.city_name = Some(city.name.clone());
         self.should_save = true;
+    }
+
+    pub fn update_city_search(&mut self, query: &str) {
+        self.city_search = query.to_string();
+        self.city_selected = 0;
+
+        // Load city database and search
+        if let Ok(db) = crate::city::CityDatabase::load() {
+            self.city_results = db.search(&self.city_search)
+                .into_iter()
+                .take(20)
+                .map(|(city, _score)| city.clone())
+                .collect();
+        }
+    }
+
+    pub fn select_next_city(&mut self) {
+        if !self.city_results.is_empty() && self.city_selected < self.city_results.len() - 1 {
+            self.city_selected += 1;
+        }
+    }
+
+    pub fn select_prev_city(&mut self) {
+        if self.city_selected > 0 {
+            self.city_selected -= 1;
+        }
+    }
+
+    pub fn select_current_city(&mut self) {
+        if !self.city_results.is_empty() && self.city_selected < self.city_results.len() {
+            let city = self.city_results[self.city_selected].clone();
+            self.set_location(&city);
+            self.mode = AppMode::Watch;
+        }
     }
 }

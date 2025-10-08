@@ -13,18 +13,25 @@ use ratatui::{
 use chrono::{DateTime, Datelike, Local, Timelike};
 
 pub fn render(f: &mut Frame, app: &App) {
-    let chunks = Layout::default()
-        .direction(Direction::Vertical)
-        .constraints([
-            Constraint::Length(3), // Title
-            Constraint::Min(10),   // Main content
-            Constraint::Length(3), // Footer
-        ])
-        .split(f.area());
+    match app.mode {
+        super::app::AppMode::Watch => {
+            let chunks = Layout::default()
+                .direction(Direction::Vertical)
+                .constraints([
+                    Constraint::Length(3), // Title
+                    Constraint::Min(10),   // Main content
+                    Constraint::Length(3), // Footer
+                ])
+                .split(f.area());
 
-    render_title(f, chunks[0], app);
-    render_main_content(f, chunks[1], app);
-    render_footer(f, chunks[2], app);
+            render_title(f, chunks[0], app);
+            render_main_content(f, chunks[1], app);
+            render_footer(f, chunks[2], app);
+        }
+        super::app::AppMode::CityPicker => {
+            render_city_picker(f, app);
+        }
+    }
 }
 
 fn get_color(app: &App, default_color: Color) -> Color {
@@ -82,10 +89,10 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
     ]));
     lines.push(Line::from(vec![
         Span::raw(format!("📍 Lat, Lon (WGS84): {:.5}, {:.5}  ", app.location.latitude, app.location.longitude)),
-        Span::raw(format!("⛰️  Elevation (MSL): {:.0} m", app.location.elevation)),
+        Span::raw(format!("⛰️ Elevation (MSL): {:.0} m", app.location.elevation)),
     ]));
     if let Some(ref city) = app.city_name {
-        lines.push(Line::from(vec![Span::raw(format!("🏙️  Place: {}", city))]));
+        lines.push(Line::from(vec![Span::raw(format!("🏙️ Place: {}", city))]));
     }
     lines.push(Line::from(vec![
         Span::raw(format!("📅 Date: {} {:02}:{:02}:{:02} {}  ",
@@ -110,7 +117,7 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
     // Collect and sort all events
     let mut events = Vec::new();
     if let Some(dt) = solar_noon {
-        events.push((dt, "☀️  Solar noon"));
+        events.push((dt, "☀️ Solar noon"));
     }
     if let Some(dt) = sunset {
         events.push((dt, "🌇 Sunset"));
@@ -134,7 +141,7 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
         events.push((dt, "⚓ Nautical dawn"));
     }
     if let Some(dt) = civil_dawn {
-        events.push((dt, "🏙️  Civil dawn"));
+        events.push((dt, "🏙️ Civil dawn"));
     }
     if let Some(dt) = sunrise {
         events.push((dt, "🌅 Sunrise"));
@@ -165,7 +172,7 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
         Span::styled("— Position —", Style::default().fg(get_color(app, Color::Yellow)).add_modifier(Modifier::BOLD)),
     ]));
     lines.push(Line::from(vec![
-        Span::raw(format!("☀️  Sun:  Alt {:>5.1}°, Az {:>3.0}° {}",
+        Span::raw(format!("☀️ Sun:  Alt {:>5.1}°, Az {:>3.0}° {}",
             sun_pos.altitude,
             sun_pos.azimuth,
             coordinates::azimuth_to_compass(sun_pos.azimuth)
@@ -250,8 +257,8 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
 
 fn render_footer(f: &mut Frame, area: Rect, app: &App) {
     let footer_text = format!(
-        "— System — Update: {}s (]/[ slow/fast, = reset) | Keys: q quit, s save, c city, n night",
-        app.refresh_interval.as_secs()
+        "— System — Update: {:.1}s (]/[ slow/fast, = reset) | Keys: q quit, s save, c city, n night",
+        app.refresh_interval.as_secs_f64()
     );
 
     let footer = Paragraph::new(footer_text)
@@ -260,4 +267,85 @@ fn render_footer(f: &mut Frame, area: Rect, app: &App) {
         .block(Block::default().borders(Borders::ALL));
 
     f.render_widget(footer, area);
+}
+
+fn render_city_picker(f: &mut Frame, app: &App) {
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Length(3), // Title
+            Constraint::Length(3), // Search input
+            Constraint::Min(10),   // Results list
+            Constraint::Length(2), // Footer
+        ])
+        .split(f.area());
+
+    // Title
+    let title = Paragraph::new("City Selector")
+        .style(
+            Style::default()
+                .fg(get_color(app, Color::Cyan))
+                .add_modifier(Modifier::BOLD),
+        )
+        .alignment(Alignment::Center)
+        .block(Block::default().borders(Borders::ALL));
+    f.render_widget(title, chunks[0]);
+
+    // Search input
+    let search_text = format!("Search: {}", app.city_search);
+    let search = Paragraph::new(search_text)
+        .style(Style::default().fg(get_color(app, Color::White)))
+        .block(Block::default().borders(Borders::ALL).title("Type to search"));
+    f.render_widget(search, chunks[1]);
+
+    // Results list
+    let mut lines = Vec::new();
+    if app.city_results.is_empty() {
+        if app.city_search.is_empty() {
+            lines.push(Line::from(Span::styled(
+                "Type a city name to search...",
+                Style::default().fg(get_color(app, Color::Gray)),
+            )));
+        } else {
+            lines.push(Line::from(Span::styled(
+                "No cities found",
+                Style::default().fg(get_color(app, Color::Gray)),
+            )));
+        }
+    } else {
+        for (idx, city) in app.city_results.iter().enumerate() {
+            let style = if idx == app.city_selected {
+                Style::default()
+                    .fg(get_color(app, Color::Yellow))
+                    .add_modifier(Modifier::BOLD)
+            } else {
+                Style::default().fg(get_color(app, Color::White))
+            };
+
+            let marker = if idx == app.city_selected { "> " } else { "  " };
+            let line_text = if !city.state.is_empty() {
+                format!(
+                    "{}{} ({}, {})",
+                    marker, city.name, city.country, city.state
+                )
+            } else {
+                format!(
+                    "{}{} ({})",
+                    marker, city.name, city.country
+                )
+            };
+            lines.push(Line::from(Span::styled(line_text, style)));
+        }
+    }
+
+    let results = Paragraph::new(lines)
+        .style(Style::default().fg(get_color(app, Color::White)))
+        .block(Block::default().borders(Borders::ALL).title("Results"));
+    f.render_widget(results, chunks[2]);
+
+    // Footer
+    let footer = Paragraph::new("↑/↓: Navigate | Enter: Select | Esc: Cancel")
+        .style(Style::default().fg(get_color(app, Color::Gray)))
+        .alignment(Alignment::Center);
+    f.render_widget(footer, chunks[3]);
 }

@@ -60,8 +60,27 @@ fn handle_watch_mode_keys(app: &mut App, key: KeyEvent) -> Result<()> {
 
 fn handle_city_picker_keys(app: &mut App, key: KeyEvent) -> Result<()> {
     match key.code {
-        KeyCode::Esc | KeyCode::Char('q') => {
+        KeyCode::Esc => {
             app.mode = AppMode::Watch;
+            app.city_search.clear();
+            app.city_results.clear();
+        }
+        KeyCode::Enter => {
+            app.select_current_city();
+        }
+        KeyCode::Up => {
+            app.select_prev_city();
+        }
+        KeyCode::Down => {
+            app.select_next_city();
+        }
+        KeyCode::Backspace => {
+            app.city_search.pop();
+            app.update_city_search(&app.city_search.clone());
+        }
+        KeyCode::Char(c) => {
+            app.city_search.push(c);
+            app.update_city_search(&app.city_search.clone());
         }
         _ => {}
     }
