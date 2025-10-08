@@ -1,9 +1,9 @@
 // Event handling for TUI
 
-use super::app::{App, AppMode};
+use super::app::{AiConfigField, App, AppMode};
 use crate::config::Config;
-use crossterm::event::{self, Event, KeyCode, KeyEvent};
 use anyhow::Result;
+use crossterm::event::{self, Event, KeyCode, KeyEvent};
 use std::time::Duration;
 
 pub fn handle_events(app: &mut App, timeout: Duration) -> Result<()> {
@@ -19,6 +19,7 @@ fn handle_key_event(app: &mut App, key: KeyEvent) -> Result<()> {
     match app.mode {
         AppMode::Watch => handle_watch_mode_keys(app, key),
         AppMode::CityPicker => handle_city_picker_keys(app, key),
+        AppMode::AiConfig => handle_ai_config_keys(app, key),
     }
 }
 
@@ -43,6 +44,9 @@ fn handle_watch_mode_keys(app: &mut App, key: KeyEvent) -> Result<()> {
         }
         KeyCode::Char('c') | KeyCode::Char('C') => {
             app.mode = AppMode::CityPicker;
+        }
+        KeyCode::Char('a') | KeyCode::Char('A') => {
+            app.open_ai_config();
         }
         KeyCode::Char(']') | KeyCode::Char('+') => {
             app.decrease_refresh();
@@ -82,6 +86,53 @@ fn handle_city_picker_keys(app: &mut App, key: KeyEvent) -> Result<()> {
             app.city_search.push(c);
             app.update_city_search(&app.city_search.clone());
         }
+        _ => {}
+    }
+    Ok(())
+}
+
+fn handle_ai_config_keys(app: &mut App, key: KeyEvent) -> Result<()> {
+    match key.code {
+        KeyCode::Esc => {
+            app.ai_config_draft.sync_from(&app.ai_config);
+            app.mode = AppMode::Watch;
+        }
+        KeyCode::Enter => match app.apply_ai_config_changes() {
+            Ok(_) => {
+                app.ai_config_draft.clear_error();
+                app.mode = AppMode::Watch;
+            }
+            Err(err) => {
+                app.ai_config_draft.set_error(err.to_string());
+            }
+        },
+        KeyCode::Up => app.ai_config_draft.prev_field(),
+        KeyCode::Down => app.ai_config_draft.next_field(),
+        KeyCode::Tab => app.ai_config_draft.next_field(),
+        KeyCode::BackTab => app.ai_config_draft.prev_field(),
+        KeyCode::Char(' ') => {
+            if app.ai_config_draft.current_field() == AiConfigField::Enabled {
+                app.ai_config_draft.toggle_enabled();
+            } else {
+                app.ai_config_draft.input_char(' ');
+            }
+        }
+        KeyCode::Char('+') | KeyCode::Char('=') => {
+            if app.ai_config_draft.current_field() == AiConfigField::RefreshMinutes {
+                app.ai_config_draft.bump_refresh(1);
+            } else {
+                app.ai_config_draft.input_char('+');
+            }
+        }
+        KeyCode::Char('-') | KeyCode::Char('_') => {
+            if app.ai_config_draft.current_field() == AiConfigField::RefreshMinutes {
+                app.ai_config_draft.bump_refresh(-1);
+            } else {
+                app.ai_config_draft.input_char('-');
+            }
+        }
+        KeyCode::Backspace | KeyCode::Delete => app.ai_config_draft.backspace(),
+        KeyCode::Char(c) => app.ai_config_draft.input_char(c),
         _ => {}
     }
     Ok(())

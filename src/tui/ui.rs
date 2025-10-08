@@ -1,6 +1,6 @@
 // UI rendering
 
-use super::app::App;
+use super::app::{AiConfigField, App};
 use crate::astro::*;
 use crate::time_sync;
 use chrono::{Datelike, Timelike};
@@ -30,6 +30,9 @@ pub fn render(f: &mut Frame, app: &App) {
         }
         super::app::AppMode::CityPicker => {
             render_city_picker(f, app);
+        }
+        super::app::AppMode::AiConfig => {
+            render_ai_config(f, app);
         }
     }
 }
@@ -355,13 +358,58 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
 }
 
 fn render_footer(f: &mut Frame, area: Rect, app: &App) {
-    let footer_text = format!(
-        "— System — Update: {:.1}s (]/[ slow/fast, = reset) | Keys: q quit, s save, c city, n night",
+    let instructions = vec![
+        "q quit",
+        "s save",
+        "c city",
+        "a AI",
+        "n night",
+        "]/[ slow/fast",
+        "= reset",
+    ];
+
+    let mut lines = Vec::new();
+    let header = format!(
+        "— System — Update: {:.1}s",
         app.refresh_interval.as_secs_f64()
     );
+    lines.push(Line::from(Span::styled(
+        header,
+        Style::default()
+            .fg(get_color(app, Color::Gray))
+            .add_modifier(Modifier::BOLD),
+    )));
 
-    let footer = Paragraph::new(footer_text)
-        .style(Style::default().fg(get_color(app, Color::Gray)))
+    let max_width = area.width.saturating_sub(4) as usize;
+    let mut current: Vec<String> = Vec::new();
+
+    for entry in instructions {
+        let item = format!("{}{}", if current.is_empty() { "" } else { "| " }, entry);
+        let candidate = if current.is_empty() {
+            item.clone()
+        } else {
+            format!("{} | {}", current.join(" | "), entry)
+        };
+
+        if !current.is_empty() && candidate.len() > max_width {
+            lines.push(Line::from(Span::styled(
+                current.join(" | "),
+                Style::default().fg(get_color(app, Color::Gray)),
+            )));
+            current = vec![entry.to_string()];
+        } else if current.is_empty() {
+            current.push(entry.to_string());
+        }
+    }
+
+    if !current.is_empty() {
+        lines.push(Line::from(Span::styled(
+            current.join(" | "),
+            Style::default().fg(get_color(app, Color::Gray)),
+        )));
+    }
+
+    let footer = Paragraph::new(Text::from(lines))
         .alignment(Alignment::Center)
         .block(Block::default().borders(Borders::ALL));
 
@@ -445,4 +493,100 @@ fn render_city_picker(f: &mut Frame, app: &App) {
         .style(Style::default().fg(get_color(app, Color::Gray)))
         .alignment(Alignment::Center);
     f.render_widget(footer, chunks[3]);
+}
+
+fn render_ai_config(f: &mut Frame, app: &App) {
+    let area = f.area();
+    let block = Block::default()
+        .title("AI Insights Settings")
+        .borders(Borders::ALL);
+    let inner = block.inner(area);
+    f.render_widget(block, area);
+
+    let draft = &app.ai_config_draft;
+
+    let server_display = if draft.server.trim().is_empty() {
+        "<default>".to_string()
+    } else {
+        draft.server.clone()
+    };
+    let model_display = if draft.model.trim().is_empty() {
+        "<empty>".to_string()
+    } else {
+        draft.model.clone()
+    };
+    let refresh_display = if draft.refresh_minutes.trim().is_empty() {
+        "<empty>".to_string()
+    } else {
+        draft.refresh_minutes.clone()
+    };
+    let enabled_display = if draft.enabled { "[x] On" } else { "[ ] Off" };
+
+    let fields: Vec<(AiConfigField, &str, String)> = vec![
+        (
+            AiConfigField::Enabled,
+            "Enabled",
+            enabled_display.to_string(),
+        ),
+        (AiConfigField::Server, "Server", server_display),
+        (AiConfigField::Model, "Model", model_display),
+        (
+            AiConfigField::RefreshMinutes,
+            "Refresh (min)",
+            refresh_display,
+        ),
+    ];
+
+    let mut lines = Vec::new();
+    lines.push(Line::from(Span::styled(
+        "Configure the Ollama endpoint used for AI insights.",
+        Style::default().fg(get_color(app, Color::Gray)),
+    )));
+    lines.push(Line::from(""));
+
+    for (idx, (field, label, value)) in fields.iter().enumerate() {
+        let prefix = if draft.field_index == idx { "> " } else { "  " };
+        let mut spans = vec![
+            Span::styled(prefix, Style::default().fg(get_color(app, Color::Cyan))),
+            Span::styled(
+                format!("{:<14}", label),
+                Style::default()
+                    .fg(get_color(app, Color::Yellow))
+                    .add_modifier(Modifier::BOLD),
+            ),
+            Span::styled(
+                value.clone(),
+                Style::default().fg(get_color(app, Color::White)),
+            ),
+        ];
+
+        if *field == AiConfigField::Server && draft.server.trim().is_empty() {
+            spans.push(Span::styled(
+                "  (uses http://localhost:11434)",
+                Style::default().fg(get_color(app, Color::Gray)),
+            ));
+        }
+
+        lines.push(Line::from(spans));
+    }
+
+    lines.push(Line::from(""));
+    lines.push(Line::from(Span::styled(
+        "Enter: save  Esc: cancel  ↑/↓ or Tab: move  Space: toggle enabled  +/-: adjust refresh",
+        Style::default().fg(get_color(app, Color::Gray)),
+    )));
+    lines.push(Line::from(Span::styled(
+        "Model name must match a model installed on the Ollama server.",
+        Style::default().fg(get_color(app, Color::Gray)),
+    )));
+
+    if let Some(err) = &draft.error {
+        lines.push(Line::from(Span::styled(
+            format!("⚠️ {}", err),
+            Style::default().fg(get_color(app, Color::LightRed)),
+        )));
+    }
+
+    let paragraph = Paragraph::new(Text::from(lines)).wrap(Wrap { trim: false });
+    f.render_widget(paragraph, inner);
 }

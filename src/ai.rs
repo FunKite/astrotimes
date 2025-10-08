@@ -92,13 +92,6 @@ struct OllamaRequest<'a> {
 impl AiConfig {
     pub fn from_args(args: &crate::cli::Args) -> Result<Self> {
         let enabled = args.ai_insights;
-        let mut server = args.ai_server.clone();
-        if enabled {
-            if !(server.starts_with("http://") || server.starts_with("https://")) {
-                server = format!("http://{}", server);
-            }
-        }
-
         let refresh_minutes = args.ai_refresh_minutes;
         if refresh_minutes < 1 || refresh_minutes > 60 {
             return Err(anyhow!(
@@ -109,18 +102,38 @@ impl AiConfig {
 
         Ok(Self {
             enabled,
-            server: if enabled {
-                server.trim_end_matches('/').to_string()
-            } else {
-                server
-            },
-            model: args.ai_model.clone(),
+            server: Self::normalized_server(enabled, &args.ai_server),
+            model: args.ai_model.trim().to_string(),
             refresh: StdDuration::from_secs(refresh_minutes * 60),
         })
     }
 
     pub fn endpoint(&self) -> String {
         format!("{}/api/generate", self.server)
+    }
+
+    pub fn refresh_minutes(&self) -> u64 {
+        let mins = self.refresh.as_secs() / 60;
+        if mins == 0 {
+            1
+        } else if mins > 60 {
+            60
+        } else {
+            mins
+        }
+    }
+
+    pub fn normalized_server(enabled: bool, server: &str) -> String {
+        let mut value = server.trim().to_string();
+        if value.is_empty() {
+            value = "http://localhost:11434".to_string();
+        }
+
+        if enabled && !(value.starts_with("http://") || value.starts_with("https://")) {
+            value = format!("http://{}", value);
+        }
+
+        value.trim_end_matches('/').to_string()
     }
 }
 
