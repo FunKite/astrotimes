@@ -30,6 +30,11 @@ impl CityDatabase {
         Ok(Self { cities })
     }
 
+    /// Get reference to all cities in the database
+    pub fn cities(&self) -> &[City] {
+        &self.cities
+    }
+
     /// Find a city by exact name match (case-insensitive)
     pub fn find_exact(&self, name: &str) -> Option<&City> {
         let name_lower = name.to_lowercase();

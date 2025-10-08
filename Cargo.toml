@@ -39,6 +39,10 @@ num-traits = "0.2"
 # Home directory detection
 dirs = "5.0"
 
+# GeoTIFF reading for elevation data
+geotiff = "0.1"
+geo-types = "0.7"
+
 [profile.release]
 opt-level = 3
 lto = true

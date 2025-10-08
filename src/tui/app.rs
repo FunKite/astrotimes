@@ -13,6 +13,7 @@ use std::time::{Duration, Instant};
 pub enum AppMode {
     Watch,
     CityPicker,
+    LocationInput,
     AiConfig,
 }
 
@@ -22,6 +23,150 @@ pub enum AiConfigField {
     Server,
     Model,
     RefreshMinutes,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LocationInputField {
+    Latitude,
+    Longitude,
+    Elevation,
+    Timezone,
+}
+
+#[derive(Debug, Clone)]
+pub struct LocationInputDraft {
+    pub latitude: String,
+    pub longitude: String,
+    pub elevation: String,
+    pub timezone: String,
+    pub field_index: usize,
+    pub error: Option<String>,
+    pub auto_elevation: bool,
+}
+
+impl LocationInputDraft {
+    const FIELD_COUNT: usize = 4;
+
+    pub fn new() -> Self {
+        Self {
+            latitude: String::new(),
+            longitude: String::new(),
+            elevation: String::new(),
+            timezone: "UTC".to_string(),
+            field_index: 0,
+            error: None,
+            auto_elevation: true,
+        }
+    }
+
+    pub fn current_field(&self) -> LocationInputField {
+        match self.field_index {
+            0 => LocationInputField::Latitude,
+            1 => LocationInputField::Longitude,
+            2 => LocationInputField::Elevation,
+            _ => LocationInputField::Timezone,
+        }
+    }
+
+    pub fn next_field(&mut self) {
+        self.field_index = (self.field_index + 1) % Self::FIELD_COUNT;
+        self.clear_error();
+    }
+
+    pub fn prev_field(&mut self) {
+        self.field_index = (self.field_index + Self::FIELD_COUNT - 1) % Self::FIELD_COUNT;
+        self.clear_error();
+    }
+
+    pub fn input_char(&mut self, c: char) {
+        self.clear_error();
+        match self.current_field() {
+            LocationInputField::Latitude | LocationInputField::Longitude => {
+                // Allow digits, minus sign, and decimal point
+                if c.is_ascii_digit() || c == '-' || c == '.' {
+                    let field = if self.current_field() == LocationInputField::Latitude {
+                        &mut self.latitude
+                    } else {
+                        &mut self.longitude
+                    };
+                    field.push(c);
+                }
+            }
+            LocationInputField::Elevation => {
+                // Allow digits, minus sign, and decimal point
+                if c.is_ascii_digit() || c == '-' || c == '.' {
+                    self.elevation.push(c);
+                    self.auto_elevation = false;
+                }
+            }
+            LocationInputField::Timezone => {
+                self.timezone.push(c);
+            }
+        }
+    }
+
+    pub fn backspace(&mut self) {
+        self.clear_error();
+        match self.current_field() {
+            LocationInputField::Latitude => {
+                self.latitude.pop();
+            }
+            LocationInputField::Longitude => {
+                self.longitude.pop();
+            }
+            LocationInputField::Elevation => {
+                self.elevation.pop();
+                if self.elevation.is_empty() {
+                    self.auto_elevation = true;
+                }
+            }
+            LocationInputField::Timezone => {
+                self.timezone.pop();
+            }
+        }
+    }
+
+    pub fn clear_error(&mut self) {
+        self.error = None;
+    }
+
+    pub fn set_error(&mut self, msg: String) {
+        self.error = Some(msg);
+    }
+
+    pub fn validate(&self) -> Result<(f64, f64, Option<f64>, String)> {
+        // Parse latitude
+        let lat = self.latitude.trim().parse::<f64>()
+            .map_err(|_| anyhow!("Invalid latitude"))?;
+
+        if lat < -90.0 || lat > 90.0 {
+            return Err(anyhow!("Latitude must be between -90 and 90"));
+        }
+
+        // Parse longitude
+        let lon = self.longitude.trim().parse::<f64>()
+            .map_err(|_| anyhow!("Invalid longitude"))?;
+
+        if lon < -180.0 || lon > 180.0 {
+            return Err(anyhow!("Longitude must be between -180 and 180"));
+        }
+
+        // Parse elevation (optional)
+        let elev = if self.elevation.trim().is_empty() {
+            None
+        } else {
+            Some(self.elevation.trim().parse::<f64>()
+                .map_err(|_| anyhow!("Invalid elevation"))?)
+        };
+
+        // Validate timezone
+        let tz = self.timezone.trim().to_string();
+        if tz.is_empty() {
+            return Err(anyhow!("Timezone cannot be empty"));
+        }
+
+        Ok((lat, lon, elev, tz))
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -237,6 +382,7 @@ pub struct App {
     pub city_search: String,
     pub city_results: Vec<City>,
     pub city_selected: usize,
+    pub location_input_draft: LocationInputDraft,
     pub time_sync: TimeSyncInfo,
     pub ai_config: ai::AiConfig,
     pub ai_outcome: Option<ai::AiOutcome>,
@@ -266,6 +412,7 @@ impl App {
             city_search: String::new(),
             city_results: Vec::new(),
             city_selected: 0,
+            location_input_draft: LocationInputDraft::new(),
             time_sync,
             ai_config_draft: AiConfigDraft::from_config(&ai_config),
             ai_config,

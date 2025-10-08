@@ -82,6 +82,11 @@ High-precision astronomical CLI application written in Rust. Calculates sun/moon
 - HTTP timeout now stretches to just under the configured refresh interval, reducing spurious failures for slower Ollama responses (`src/ai.rs`).
 - AI payload now includes time-sync metadata, full event/position blocks, and the month’s lunar phases, but the raw JSON is kept internal so the UI/CLI stay uncluttered (`src/ai.rs`, `src/main.rs`, `src/output.rs`, `src/tui/ui.rs`).
 
+## Session Notes (2025-10-08 Codex - Session Pause)
+- User confirmed the latest AI insight enhancements are working; no new code changes since the payload cleanup.
+- Outstanding manual verifications still pending: narrow-terminal footer wrap, TUI AI panel behaviour, and CLI/JSON `--ai-insights` flow (see TODO markers in code).
+- Next session should start by smoke-testing the watch UI with varying widths, exercising the Ollama workflow end to end, and pushing any uncommitted changes once validation is done.
+
 ## Critical Bug Fixes (Recent)
 
 ### 1. Timezone Bug (FIXED)
@@ -677,7 +682,7 @@ From conversation:
 
 ---
 
-*Last updated: 2025-10-08 15:32 EDT*
-*Session: Codex (GPT-5) - AI refresh tuning & footer wrap*
+*Last updated: 2025-10-08 18:19 EDT*
+*Session: Codex (GPT-5) - Session paused for shutdown*
 *Status: Beta 0.1 - Significantly improved lunar calculations*
 *Accuracy: Solar ±1 min, Lunar phases 100%, Moonrise/moonset ±1-4 min (was ±4-11 min)*
