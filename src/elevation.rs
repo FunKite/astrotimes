@@ -158,6 +158,24 @@ pub fn estimate_elevation(lat: f64, lon: f64, cities: &[City]) -> Result<f64> {
     let raw_elevation = get_raw_etopo_elevation(lat, lon)
         .context("Failed to read ETOPO elevation data")?;
 
+    // OCEAN DETECTION FIX:
+    // ETOPO encodes elevations < 1m as 0 (includes oceans, below sea level)
+    // If ETOPO shows ~0 and we're far from any city, this is likely ocean
+    if raw_elevation.abs() < 1.0 {
+        // Find distance to nearest city
+        let nearest_distance = cities
+            .iter()
+            .map(|city| haversine_distance(lat, lon, city.lat, city.lon))
+            .min_by(|a, b| a.partial_cmp(b).unwrap())
+            .unwrap_or(f64::INFINITY);
+
+        // If nearest city is >50km away, assume this is ocean
+        // Return 0m directly without urban correction (avoids ±40m artifacts)
+        if nearest_distance > 50.0 {
+            return Ok(0.0);
+        }
+    }
+
     // Calculate urban correction based on nearby cities
     let correction = calculate_urban_correction(lat, lon, cities)
         .unwrap_or(0.0); // If correction fails, use raw elevation
