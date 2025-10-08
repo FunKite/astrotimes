@@ -212,8 +212,8 @@ fn calculate_phase_illumination<T: TimeZone>(dt: &DateTime<T>) -> (f64, f64) {
     let m = sun_mean_anomaly_moon(t) * DEG_TO_RAD;
     let m_prime = moon_mean_anomaly(t) * DEG_TO_RAD;
 
-    // Phase angle (geocentric elongation)
-    let phase_angle = 180.0 - d * RAD_TO_DEG
+    // Illumination angle (0° = full moon, 180° = new moon)
+    let illum_angle = 180.0 - d * RAD_TO_DEG
         - 6.289 * m_prime.sin()
         + 2.100 * m.sin()
         - 1.274 * (2.0 * d - m_prime).sin()
@@ -221,11 +221,14 @@ fn calculate_phase_illumination<T: TimeZone>(dt: &DateTime<T>) -> (f64, f64) {
         - 0.214 * (2.0 * m_prime).sin()
         - 0.110 * d.sin();
 
-    let phase_angle = normalize_degrees(phase_angle);
+    let illum_angle = normalize_degrees(illum_angle);
 
     // Illumination fraction
-    let i = phase_angle * DEG_TO_RAD;
+    let i = illum_angle * DEG_TO_RAD;
     let illumination = (1.0 + i.cos()) / 2.0;
+
+    // Convert to orbital phase angle (0° = new moon, 180° = full moon)
+    let phase_angle = normalize_degrees(180.0 - illum_angle);
 
     (phase_angle, illumination)
 }

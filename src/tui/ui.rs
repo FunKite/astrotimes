@@ -135,13 +135,13 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
         events.push((dt, "🌠 Astro dusk"));
     }
     if let Some(dt) = astro_dawn {
-        events.push((dt, "🔭 Astro dawn"));
+        events.push((dt, "🔭  Astro dawn"));
     }
     if let Some(dt) = nautical_dawn {
         events.push((dt, "⚓ Nautical dawn"));
     }
     if let Some(dt) = civil_dawn {
-        events.push((dt, "🏙️ Civil dawn"));
+        events.push((dt, "🏙️  Civil dawn"));
     }
     if let Some(dt) = sunrise {
         events.push((dt, "🌅 Sunrise"));
@@ -193,12 +193,16 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
     ]));
 
     // Classify moon size
-    let size_class = if moon_pos.angular_diameter > 33.5 {
-        "(Supermoon)"
-    } else if moon_pos.angular_diameter < 29.5 {
-        "(Micromoon)"
+    let size_class = if moon_pos.angular_diameter > 33.0 {
+        "Near Perigee"
+    } else if moon_pos.angular_diameter > 32.0 {
+        "Larger than Average"
+    } else if moon_pos.angular_diameter > 30.5 {
+        "Average"
+    } else if moon_pos.angular_diameter > 29.5 {
+        "Smaller than Average"
     } else {
-        "(Typical)"
+        "Near Apogee"
     };
 
     lines.push(Line::from(vec![
@@ -212,7 +216,7 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
         Span::raw(format!("💡 Fraction Illum.: {:.0}%", moon_pos.illumination * 100.0)),
     ]));
     lines.push(Line::from(vec![
-        Span::raw(format!("🔭 Apparent size:   {:.1}' {}", moon_pos.angular_diameter, size_class)),
+        Span::raw(format!("🔭 Apparent size:   {:.1}' ({})", moon_pos.angular_diameter, size_class)),
     ]));
     lines.push(Line::from(""));
 
