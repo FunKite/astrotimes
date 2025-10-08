@@ -1,2 +1,0 @@
-# astrotimes
-Astrotimes in Rust
