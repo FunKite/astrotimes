@@ -1,6 +1,7 @@
 // JSON output module
 
 use crate::astro::*;
+use crate::time_sync;
 use serde::Serialize;
 use chrono::{DateTime, Datelike};
 use anyhow::Result;
@@ -28,6 +29,7 @@ pub struct DateTimeData {
     pub local: String,
     pub utc: String,
     pub timezone_offset: String,
+    pub time_sync: TimeSyncData,
 }
 
 #[derive(Serialize)]
@@ -93,12 +95,22 @@ pub struct LunarPhaseData {
     pub datetime: String,
 }
 
+#[derive(Serialize)]
+pub struct TimeSyncData {
+    pub source: String,
+    pub delta_seconds: Option<f64>,
+    pub offset_display: Option<String>,
+    pub status: String,
+    pub error: Option<String>,
+}
+
 pub fn generate_json_output<T: chrono::TimeZone>(
     location: &Location,
     _timezone: &T,
     city_name: Option<String>,
     dt: &DateTime<T>,
     timezone_name: &str,
+    time_sync_info: &time_sync::TimeSyncInfo,
 ) -> Result<String>
 where
     T::Offset: std::fmt::Display,
@@ -167,6 +179,7 @@ where
             local: dt.format("%Y-%m-%d %H:%M:%S %Z").to_string(),
             utc: dt.with_timezone(&chrono::Utc).format("%Y-%m-%d %H:%M:%S UTC").to_string(),
             timezone_offset: dt.format("%:z").to_string(),
+            time_sync: build_time_sync_data(time_sync_info),
         },
         sun: SunData {
             position: PositionData {
@@ -196,4 +209,34 @@ where
     };
 
     Ok(serde_json::to_string_pretty(&output)?)
+}
+
+fn build_time_sync_data(time_sync_info: &time_sync::TimeSyncInfo) -> TimeSyncData {
+    match (time_sync_info.delta, time_sync_info.direction()) {
+        (Some(delta), Some(direction)) => TimeSyncData {
+            source: time_sync_info.source.to_string(),
+            delta_seconds: time_sync_info.delta_seconds(),
+            offset_display: Some(time_sync::format_offset(delta)),
+            status: time_sync::direction_code(direction).to_string(),
+            error: None,
+        },
+        (Some(delta), None) => TimeSyncData {
+            source: time_sync_info.source.to_string(),
+            delta_seconds: time_sync_info.delta_seconds(),
+            offset_display: Some(time_sync::format_offset(delta)),
+            status: "measurable".to_string(),
+            error: None,
+        },
+        _ => TimeSyncData {
+            source: time_sync_info.source.to_string(),
+            delta_seconds: None,
+            offset_display: None,
+            status: if time_sync_info.error.is_some() {
+                "error".to_string()
+            } else {
+                "unavailable".to_string()
+            },
+            error: time_sync_info.error.clone(),
+        },
+    }
 }

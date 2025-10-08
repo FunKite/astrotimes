@@ -2,6 +2,7 @@
 
 use super::app::App;
 use crate::astro::*;
+use crate::time_sync;
 use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
@@ -106,6 +107,17 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
             now_tz.format("UTC%:z")
         )),
     ]));
+    let time_sync_text = match (app.time_sync.delta, app.time_sync.direction(), app.time_sync.error_summary()) {
+        (Some(delta), Some(direction), _) => format!(
+            "🕒 Time sync: {} ({})",
+            time_sync::format_offset(delta),
+            time_sync::describe_direction(direction)
+        ),
+        (Some(delta), None, _) => format!("🕒 Time sync: {}", time_sync::format_offset(delta)),
+        (None, _, Some(err)) => format!("🕒 Time sync: unavailable ({})", err),
+        _ => "🕒 Time sync: unavailable".to_string(),
+    };
+    lines.push(Line::from(vec![Span::raw(time_sync_text)]));
     lines.push(Line::from(""));
 
     // Events section
