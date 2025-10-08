@@ -489,12 +489,30 @@ impl App {
             event_summaries,
         );
 
-        let outcome = match ai::fetch_insights(&self.ai_config, &ai_data) {
-            Ok(outcome) => outcome,
-            Err(err) => ai::AiOutcome::from_error(&self.ai_config.model, err),
-        };
+        let previous_outcome = self.ai_outcome.clone();
 
-        self.ai_outcome = Some(outcome);
+        match ai::fetch_insights(&self.ai_config, &ai_data) {
+            Ok(outcome) => {
+                self.ai_outcome = Some(outcome);
+            }
+            Err(err) => {
+                let payload_json =
+                    serde_json::to_string_pretty(&ai_data).unwrap_or_else(|ser_err| {
+                        format!("Unable to serialize AI payload: {}", ser_err)
+                    });
+                let err_string = err.to_string();
+                if let Some(prev) = previous_outcome {
+                    self.ai_outcome = Some(prev.with_error_message(err_string, Some(payload_json)));
+                } else {
+                    self.ai_outcome = Some(ai::AiOutcome::from_error(
+                        &self.ai_config.model,
+                        err,
+                        Some(payload_json),
+                    ));
+                }
+            }
+        }
+
         self.ai_last_refresh = Some(Instant::now());
     }
 

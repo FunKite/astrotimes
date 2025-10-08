@@ -458,10 +458,17 @@ fn print_text_output(
             &moon_pos,
             ai_events,
         );
+        let payload_json = serde_json::to_string_pretty(&ai_data)
+            .unwrap_or_else(|err| format!("Unable to serialize AI payload: {}", err));
+
         let ai_outcome = match ai::fetch_insights(ai_config, &ai_data) {
             Ok(outcome) => outcome,
-            Err(err) => ai::AiOutcome::from_error(&ai_config.model, err),
+            Err(err) => {
+                ai::AiOutcome::from_error(&ai_config.model, err, Some(payload_json.clone()))
+            }
         };
+
+        let payload_display = ai_outcome.payload.clone().unwrap_or(payload_json);
 
         println!("— AI Insights —");
 
@@ -477,14 +484,19 @@ fn print_text_output(
             println!("⚠️ {}", err);
         }
 
+        let elapsed = chrono::Utc::now().signed_duration_since(ai_outcome.updated_at);
+        let elapsed_secs = elapsed.num_seconds().max(0);
+        let minutes = elapsed_secs / 60;
+        let seconds = elapsed_secs % 60;
         println!(
-            "Model: {}  Updated: {}",
-            ai_outcome.model,
-            ai_outcome
-                .updated_at
-                .with_timezone(timezone)
-                .format("%Y-%m-%d %H:%M:%S %Z")
+            "Model: {}  Updated {:02}:{:02} ago",
+            ai_outcome.model, minutes, seconds
         );
+
+        println!("Data sent to model:");
+        for line in payload_display.lines() {
+            println!("  {}", line.trim_end());
+        }
     }
 
     Ok(())
