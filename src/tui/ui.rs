@@ -12,7 +12,7 @@ use ratatui::{
     Frame,
 };
 
-const FOOTER_INSTRUCTIONS: [&str; 7] = [
+const FOOTER_INSTRUCTIONS: [&str; 12] = [
     "q quit",
     "s save",
     "c city",
@@ -20,6 +20,11 @@ const FOOTER_INSTRUCTIONS: [&str; 7] = [
     "g calendar",
     "a AI",
     "n night",
+    "d toggle date",
+    "e toggle events",
+    "p toggle position",
+    "m toggle moon",
+    "L toggle lunar phases",
 ];
 
 pub fn render(f: &mut Frame, app: &App) {
@@ -85,206 +90,237 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
 
     // Build the display text
     let mut lines = Vec::new();
+    let mut sections_rendered = 0usize;
 
-    // Location & Date section
-    lines.push(Line::from(vec![Span::styled(
-        "— Location & Date —",
-        Style::default()
-            .fg(get_color(app, Color::Yellow))
-            .add_modifier(Modifier::BOLD),
-    )]));
-    lines.push(Line::from(vec![
-        Span::raw(format!(
-            "📍 Lat, Lon (WGS84): {:.5}, {:.5}  ",
-            app.location.latitude, app.location.longitude
-        )),
-        Span::raw(format!(
-            "⛰️ Elevation (MSL): {:.0} m",
-            app.location.elevation
-        )),
-    ]));
-    if let Some(ref city) = app.city_name {
-        lines.push(Line::from(vec![Span::raw(format!("🏙️ Place: {}", city))]));
-    }
-    lines.push(Line::from(vec![
-        Span::raw(format!(
-            "📅 Date: {} {:02}:{:02}:{:02} {}  ",
-            now_tz.format("%b %d"),
-            now_tz.hour(),
-            now_tz.minute(),
-            now_tz.second(),
-            now_tz.format("%Z")
-        )),
-        Span::raw(format!(
-            "⏰ Timezone: {} ({})",
-            app.timezone.name(),
-            now_tz.format("UTC%:z")
-        )),
-    ]));
-    let time_sync_text = match (
-        app.time_sync.delta,
-        app.time_sync.direction(),
-        app.time_sync.error_summary(),
-    ) {
-        (Some(delta), Some(direction), _) => format!(
-            "🕒 Time sync: {} ({})",
-            time_sync::format_offset(delta),
-            time_sync::describe_direction(direction)
-        ),
-        (Some(delta), None, _) => format!("🕒 Time sync: {}", time_sync::format_offset(delta)),
-        (None, _, Some(err)) => format!("🕒 Time sync: unavailable ({})", err),
-        _ => "🕒 Time sync: unavailable".to_string(),
-    };
-    lines.push(Line::from(vec![Span::raw(time_sync_text)]));
-    if let Some(status) = app.current_status() {
+    if app.show_location_date {
         lines.push(Line::from(vec![Span::styled(
-            format!("✓ {}", status),
+            "— Location & (D)ate —",
             Style::default()
-                .fg(get_color(app, Color::Green))
+                .fg(get_color(app, Color::Yellow))
                 .add_modifier(Modifier::BOLD),
         )]));
-    }
-    lines.push(Line::from(""));
-
-    // Events section
-    lines.push(Line::from(vec![Span::styled(
-        "— Events —",
-        Style::default()
-            .fg(get_color(app, Color::Yellow))
-            .add_modifier(Modifier::BOLD),
-    )]));
-
-    // Use cached events
-    let timed_events = &app.events_cache.entries;
-    let next_event_idx = timed_events.iter().position(|(dt, _)| *dt > now_tz);
-
-    for (idx, (event_time, event_name)) in timed_events.iter().enumerate() {
-        let time_diff = time_utils::time_until(&now_tz, event_time);
-        let time_str = format!("{}", event_time.format("%H:%M:%S"));
-        let mut diff_str = time_utils::format_duration_detailed(time_diff);
-
-        // Add leading space for events with wide emojis to maintain alignment
-        if event_name.contains("Civil dawn") || event_name.contains("Solar noon") {
-            diff_str = format!(" {}", diff_str);
+        lines.push(Line::from(vec![
+            Span::raw(format!(
+                "📍 Lat, Lon (WGS84): {:.5}, {:.5}  ",
+                app.location.latitude, app.location.longitude
+            )),
+            Span::raw(format!(
+                "⛰️ Elevation (MSL): {:.0} m",
+                app.location.elevation
+            )),
+        ]));
+        if let Some(ref city) = app.city_name {
+            lines.push(Line::from(vec![Span::raw(format!("🏙️ Place: {}", city))]));
         }
-
-        let marker = if Some(idx) == next_event_idx {
-            " (*next*)"
-        } else {
-            ""
+        lines.push(Line::from(vec![
+            Span::raw(format!(
+                "📅 Date: {} {:02}:{:02}:{:02} {}  ",
+                now_tz.format("%b %d"),
+                now_tz.hour(),
+                now_tz.minute(),
+                now_tz.second(),
+                now_tz.format("%Z")
+            )),
+            Span::raw(format!(
+                "⏰ Timezone: {} ({})",
+                app.timezone.name(),
+                now_tz.format("UTC%:z")
+            )),
+        ]));
+        let time_sync_text = match (
+            app.time_sync.delta,
+            app.time_sync.direction(),
+            app.time_sync.error_summary(),
+        ) {
+            (Some(delta), Some(direction), _) => format!(
+                "🕒 Time sync: {} ({})",
+                time_sync::format_offset(delta),
+                time_sync::describe_direction(direction)
+            ),
+            (Some(delta), None, _) => format!("🕒 Time sync: {}", time_sync::format_offset(delta)),
+            (None, _, Some(err)) => format!("🕒 Time sync: unavailable ({})", err),
+            _ => "🕒 Time sync: unavailable".to_string(),
         };
-
-        lines.push(Line::from(vec![Span::raw(format!(
-            "{}  {:<18}  {:<18}{}",
-            time_str, event_name, diff_str, marker
-        ))]));
+        lines.push(Line::from(vec![Span::raw(time_sync_text)]));
+        if let Some(status) = app.current_status() {
+            lines.push(Line::from(vec![Span::styled(
+                format!("✓ {}", status),
+                Style::default()
+                    .fg(get_color(app, Color::Green))
+                    .add_modifier(Modifier::BOLD),
+            )]));
+        }
+        sections_rendered += 1;
     }
-    lines.push(Line::from(""));
 
-    // Position section
-    lines.push(Line::from(vec![Span::styled(
-        "— Position —",
-        Style::default()
-            .fg(get_color(app, Color::Yellow))
-            .add_modifier(Modifier::BOLD),
-    )]));
-    lines.push(Line::from(vec![Span::raw(format!(
-        "☀️ Sun:  Alt {:>5.1}°, Az {:>3.0}° {}",
-        sun_pos.altitude,
-        sun_pos.azimuth,
-        coordinates::azimuth_to_compass(sun_pos.azimuth)
-    ))]));
-    lines.push(Line::from(vec![Span::raw(format!(
-        "🌕 Moon: Alt {:>5.1}°, Az {:>3.0}° {}",
-        moon_pos_position.altitude,
-        moon_pos_position.azimuth,
-        coordinates::azimuth_to_compass(moon_pos_position.azimuth)
-    ))]));
-    lines.push(Line::from(""));
-
-    // Moon section
-    lines.push(Line::from(vec![Span::styled(
-        "— Moon —",
-        Style::default()
-            .fg(get_color(app, Color::Yellow))
-            .add_modifier(Modifier::BOLD),
-    )]));
-
-    // Classify moon size
-    let size_class = if moon_overview.angular_diameter > 33.0 {
-        "Near Perigee"
-    } else if moon_overview.angular_diameter > 32.0 {
-        "Larger than Average"
-    } else if moon_overview.angular_diameter > 30.5 {
-        "Average"
-    } else if moon_overview.angular_diameter > 29.5 {
-        "Smaller than Average"
-    } else {
-        "Near Apogee"
-    };
-
-    lines.push(Line::from(vec![Span::raw(format!(
-        "{} Phase:           {} (Age {:.1} days)",
-        moon::phase_emoji(moon_overview.phase_angle),
-        moon::phase_name(moon_overview.phase_angle),
-        (moon_overview.phase_angle / 360.0 * 29.53)
-    ))]));
-    lines.push(Line::from(vec![Span::raw(format!(
-        "💡 Fraction Illum.: {:.0}%",
-        moon_overview.illumination * 100.0
-    ))]));
-    lines.push(Line::from(vec![Span::raw(format!(
-        "🔭 Apparent size:   {:.1}' ({})",
-        moon_overview.angular_diameter, size_class
-    ))]));
-    lines.push(Line::from(""));
-
-    // Lunar phases section
-    if !lunar_phases.is_empty() {
+    if app.show_events {
+        if sections_rendered > 0 {
+            lines.push(Line::from(""));
+        }
         lines.push(Line::from(vec![Span::styled(
-            "— Lunar Phases —",
+            "— (E)vents —",
             Style::default()
                 .fg(get_color(app, Color::Yellow))
                 .add_modifier(Modifier::BOLD),
         )]));
 
-        let now_utc = now_tz.with_timezone(&Utc);
-        let future_start = lunar_phases
-            .iter()
-            .position(|phase| phase.datetime > now_utc)
-            .unwrap_or(lunar_phases.len());
-        let mut display_phases: Vec<&moon::LunarPhase> = Vec::new();
+        let timed_events = &app.events_cache.entries;
+        let next_event_idx = timed_events.iter().position(|(dt, _)| *dt > now_tz);
 
-        let prev_start = future_start.saturating_sub(2);
-        display_phases.extend(&lunar_phases[prev_start..future_start]);
+        for (idx, (event_time, event_name)) in timed_events.iter().enumerate() {
+            let time_diff = time_utils::time_until(&now_tz, event_time);
+            let time_str = format!("{}", event_time.format("%H:%M:%S"));
+            let mut diff_str = time_utils::format_duration_detailed(time_diff);
 
-        let future_end = (future_start + 2).min(lunar_phases.len());
-        display_phases.extend(&lunar_phases[future_start..future_end]);
+            if event_name.contains("Civil dawn") || event_name.contains("Solar noon") {
+                diff_str = format!(" {}", diff_str);
+            }
 
-        for phase in display_phases {
-            let phase_emoji = match phase.phase_type {
-                moon::LunarPhaseType::NewMoon => "🌑",
-                moon::LunarPhaseType::FirstQuarter => "🌓",
-                moon::LunarPhaseType::FullMoon => "🌕",
-                moon::LunarPhaseType::LastQuarter => "🌗",
+            let marker = if Some(idx) == next_event_idx {
+                " (*next*)"
+            } else {
+                ""
             };
-            let phase_name = match phase.phase_type {
-                moon::LunarPhaseType::NewMoon => "New:",
-                moon::LunarPhaseType::FirstQuarter => "First quarter:",
-                moon::LunarPhaseType::FullMoon => "Full:",
-                moon::LunarPhaseType::LastQuarter => "Last quarter:",
-            };
-            let phase_dt = phase.datetime.with_timezone(&app.timezone);
+
             lines.push(Line::from(vec![Span::raw(format!(
-                "{} {:<18} {}",
-                phase_emoji,
-                phase_name,
-                phase_dt.format("%b %d %H:%M")
+                "{}  {:<18}  {:<18}{}",
+                time_str, event_name, diff_str, marker
             ))]));
         }
+        sections_rendered += 1;
+    }
+
+    if app.show_positions {
+        if sections_rendered > 0 {
+            lines.push(Line::from(""));
+        }
+        lines.push(Line::from(vec![Span::styled(
+            "— (P)osition —",
+            Style::default()
+                .fg(get_color(app, Color::Yellow))
+                .add_modifier(Modifier::BOLD),
+        )]));
+        lines.push(Line::from(vec![Span::raw(format!(
+            "☀️ Sun:  Alt {:>5.1}°, Az {:>3.0}° {}",
+            sun_pos.altitude,
+            sun_pos.azimuth,
+            coordinates::azimuth_to_compass(sun_pos.azimuth)
+        ))]));
+        lines.push(Line::from(vec![Span::raw(format!(
+            "🌕 Moon: Alt {:>5.1}°, Az {:>3.0}° {}",
+            moon_pos_position.altitude,
+            moon_pos_position.azimuth,
+            coordinates::azimuth_to_compass(moon_pos_position.azimuth)
+        ))]));
+        sections_rendered += 1;
+    }
+
+    if app.show_moon {
+        if sections_rendered > 0 {
+            lines.push(Line::from(""));
+        }
+        lines.push(Line::from(vec![Span::styled(
+            "— (M)oon —",
+            Style::default()
+                .fg(get_color(app, Color::Yellow))
+                .add_modifier(Modifier::BOLD),
+        )]));
+
+        let size_class = if moon_overview.angular_diameter > 33.0 {
+            "Near Perigee"
+        } else if moon_overview.angular_diameter > 32.0 {
+            "Larger than Average"
+        } else if moon_overview.angular_diameter > 30.5 {
+            "Average"
+        } else if moon_overview.angular_diameter > 29.5 {
+            "Smaller than Average"
+        } else {
+            "Near Apogee"
+        };
+
+        lines.push(Line::from(vec![Span::raw(format!(
+            "{} Phase:           {} (Age {:.1} days)",
+            moon::phase_emoji(moon_overview.phase_angle),
+            moon::phase_name(moon_overview.phase_angle),
+            (moon_overview.phase_angle / 360.0 * 29.53)
+        ))]));
+        lines.push(Line::from(vec![Span::raw(format!(
+            "💡 Fraction Illum.: {:.0}%",
+            moon_overview.illumination * 100.0
+        ))]));
+        lines.push(Line::from(vec![Span::raw(format!(
+            "🔭 Apparent size:   {:.1}' ({})",
+            moon_overview.angular_diameter, size_class
+        ))]));
+        sections_rendered += 1;
+    }
+
+    if app.show_lunar_phases {
+        if sections_rendered > 0 {
+            lines.push(Line::from(""));
+        }
+        lines.push(Line::from(vec![Span::styled(
+            "— (L)unar Phases —",
+            Style::default()
+                .fg(get_color(app, Color::Yellow))
+                .add_modifier(Modifier::BOLD),
+        )]));
+
+        if lunar_phases.is_empty() {
+            lines.push(Line::from(vec![Span::raw(
+                "No lunar phase data available.",
+            )]));
+        } else {
+            let now_utc = now_tz.with_timezone(&Utc);
+            let future_start = lunar_phases
+                .iter()
+                .position(|phase| phase.datetime > now_utc)
+                .unwrap_or(lunar_phases.len());
+            let mut display_phases: Vec<&moon::LunarPhase> = Vec::new();
+
+            let prev_start = future_start.saturating_sub(2);
+            display_phases.extend(&lunar_phases[prev_start..future_start]);
+
+            let future_end = (future_start + 2).min(lunar_phases.len());
+            display_phases.extend(&lunar_phases[future_start..future_end]);
+
+            for phase in display_phases {
+                let phase_emoji = match phase.phase_type {
+                    moon::LunarPhaseType::NewMoon => "🌑",
+                    moon::LunarPhaseType::FirstQuarter => "🌓",
+                    moon::LunarPhaseType::FullMoon => "🌕",
+                    moon::LunarPhaseType::LastQuarter => "🌗",
+                };
+                let phase_name = match phase.phase_type {
+                    moon::LunarPhaseType::NewMoon => "New:",
+                    moon::LunarPhaseType::FirstQuarter => "First quarter:",
+                    moon::LunarPhaseType::FullMoon => "Full:",
+                    moon::LunarPhaseType::LastQuarter => "Last quarter:",
+                };
+                let phase_dt = phase.datetime.with_timezone(&app.timezone);
+                lines.push(Line::from(vec![Span::raw(format!(
+                    "{} {:<18} {}",
+                    phase_emoji,
+                    phase_name,
+                    phase_dt.format("%b %d %H:%M")
+                ))]));
+            }
+        }
+        sections_rendered += 1;
+    }
+
+    if sections_rendered == 0 {
+        lines.push(Line::from(vec![Span::styled(
+            "All panels hidden. Press D/E/P/M/L to re-enable.",
+            Style::default().fg(get_color(app, Color::Gray)),
+        )]));
+        sections_rendered += 1;
     }
 
     if app.ai_config.enabled {
+        if sections_rendered > 0 {
+            lines.push(Line::from(""));
+        }
         lines.push(Line::from(vec![Span::styled(
             "— AI Insights —",
             Style::default()
@@ -342,14 +378,6 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
 
 fn render_footer(f: &mut Frame, area: Rect, app: &App) {
     let mut lines = Vec::new();
-    let header = "— System — Time 1s • Position 10s • Moon 60m • Phases midnight";
-    lines.push(Line::from(Span::styled(
-        header,
-        Style::default()
-            .fg(get_color(app, Color::Gray))
-            .add_modifier(Modifier::BOLD),
-    )));
-
     let max_width = area.width.saturating_sub(4) as usize;
     let mut current_line = String::new();
 
@@ -391,12 +419,12 @@ fn render_footer(f: &mut Frame, area: Rect, app: &App) {
 }
 
 fn footer_line_count(width: u16) -> u16 {
-    if width <= 4 {
+    let max_width = width.saturating_sub(4) as usize;
+    if max_width == 0 {
         return 3;
     }
 
-    let max_width = width.saturating_sub(4) as usize;
-    let mut line_count = 1; // Header line
+    let mut line_count = 0usize;
     let mut current_len = 0usize;
 
     for entry in FOOTER_INSTRUCTIONS {

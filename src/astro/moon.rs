@@ -5,7 +5,7 @@ use super::*;
 use chrono::{DateTime, Datelike, Duration, LocalResult, TimeZone};
 
 /// Lunar phase types
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum LunarPhaseType {
     NewMoon,
     FirstQuarter,
@@ -234,29 +234,26 @@ fn calculate_phase_illumination<T: TimeZone>(dt: &DateTime<T>) -> (f64, f64) {
 
 /// Calculate lunar phase times using Meeus algorithm
 pub fn lunar_phases(year: i32, month: u32) -> Vec<LunarPhase> {
+    let approx_k = (year as f64 + (month as f64 - 0.5) / 12.0 - 2000.0) * 12.3685;
+    let phase_offsets = [
+        (LunarPhaseType::NewMoon, 0.0),
+        (LunarPhaseType::FirstQuarter, 0.25),
+        (LunarPhaseType::FullMoon, 0.5),
+        (LunarPhaseType::LastQuarter, 0.75),
+    ];
+
     let mut phases = Vec::new();
 
-    // Calculate approximate k value
-    let k_base = (year as f64 + (month as f64 - 0.5) / 12.0 - 2000.0) * 12.3685;
-
-    for offset in -1..=2 {
-        for (i, phase_type) in [
-            LunarPhaseType::NewMoon,
-            LunarPhaseType::FirstQuarter,
-            LunarPhaseType::FullMoon,
-            LunarPhaseType::LastQuarter,
-        ]
-        .iter()
-        .enumerate()
-        {
-            let k = k_base + offset as f64 + i as f64 * 0.25;
-            let jde = lunar_phase_jde(k, *phase_type);
-
+    for offset in -2..=2 {
+        let k_integer = (approx_k + offset as f64).round();
+        for &(phase_type, fraction) in &phase_offsets {
+            let k = k_integer + fraction;
+            let jde = lunar_phase_jde(k, phase_type);
             let dt = jd_to_datetime(jde);
 
             if dt.year() == year && dt.month() == month {
                 phases.push(LunarPhase {
-                    phase_type: *phase_type,
+                    phase_type,
                     datetime: dt,
                 });
             }
@@ -264,6 +261,7 @@ pub fn lunar_phases(year: i32, month: u32) -> Vec<LunarPhase> {
     }
 
     phases.sort_by(|a, b| a.datetime.cmp(&b.datetime));
+    phases.dedup_by(|a, b| a.datetime == b.datetime && a.phase_type == b.phase_type);
     phases
 }
 
@@ -573,5 +571,57 @@ pub fn phase_emoji(phase_angle: f64) -> &'static str {
         a if a < 281.25 => "🌗",
         a if a < 348.75 => "🌘",
         _ => "🌑",
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use chrono::{TimeZone, Utc};
+    use std::collections::HashSet;
+
+    #[test]
+    fn oct_2025_full_moon_matches_usno() {
+        let phases = lunar_phases(2025, 10);
+        let full = phases
+            .iter()
+            .find(|phase| matches!(phase.phase_type, LunarPhaseType::FullMoon))
+            .expect("full moon not returned for October 2025");
+
+        let expected = Utc.with_ymd_and_hms(2025, 10, 7, 3, 47, 0).unwrap();
+
+        let diff = full
+            .datetime
+            .signed_duration_since(expected)
+            .num_seconds()
+            .abs();
+        assert!(
+            diff <= 300,
+            "Full Moon differs by {diff} seconds (expected {expected:?}, got {:?})",
+            full.datetime
+        );
+    }
+
+    #[test]
+    fn oct_2025_phase_set_complete_and_sorted() {
+        let phases = lunar_phases(2025, 10);
+        assert!(
+            phases
+                .windows(2)
+                .all(|pair| pair[0].datetime < pair[1].datetime),
+            "phases are not strictly increasing chronologically"
+        );
+
+        assert!(
+            phases.len() >= 4,
+            "expected at least four phase entries for October 2025"
+        );
+
+        let types: HashSet<LunarPhaseType> = phases.iter().map(|phase| phase.phase_type).collect();
+        assert_eq!(
+            types.len(),
+            4,
+            "expected one instance of each primary phase for October 2025"
+        );
     }
 }

@@ -35,6 +35,21 @@ fn handle_watch_mode_keys(app: &mut App, key: KeyEvent) -> Result<()> {
         KeyCode::Char('n') | KeyCode::Char('N') => {
             app.toggle_night_mode();
         }
+        KeyCode::Char('d') | KeyCode::Char('D') => {
+            app.toggle_location_date();
+        }
+        KeyCode::Char('e') | KeyCode::Char('E') => {
+            app.toggle_events();
+        }
+        KeyCode::Char('p') | KeyCode::Char('P') => {
+            app.toggle_positions();
+        }
+        KeyCode::Char('m') | KeyCode::Char('M') => {
+            app.toggle_moon();
+        }
+        KeyCode::Char('L') => {
+            app.toggle_lunar_phases();
+        }
         KeyCode::Char('s') | KeyCode::Char('S') => {
             // Save configuration
             let config = Config::new(
@@ -49,7 +64,7 @@ fn handle_watch_mode_keys(app: &mut App, key: KeyEvent) -> Result<()> {
         KeyCode::Char('c') | KeyCode::Char('C') => {
             app.mode = AppMode::CityPicker;
         }
-        KeyCode::Char('l') | KeyCode::Char('L') => {
+        KeyCode::Char('l') => {
             app.mode = AppMode::LocationInput;
             app.location_input_draft = super::app::LocationInputDraft::new();
         }
