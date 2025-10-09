@@ -11,6 +11,7 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph, Wrap},
     Frame,
 };
+use std::borrow::Cow;
 
 const FOOTER_INSTRUCTIONS: [&str; 12] = [
     "q quit",
@@ -68,6 +69,52 @@ fn get_color(app: &App, default_color: Color) -> Color {
     }
 }
 
+fn border_style(app: &App) -> Style {
+    if app.night_mode {
+        Style::default().fg(Color::Red)
+    } else {
+        Style::default().fg(Color::White)
+    }
+}
+
+fn bordered_block<'a>(app: &App) -> Block<'a> {
+    Block::default()
+        .borders(Borders::ALL)
+        .border_style(border_style(app))
+}
+
+fn label_with_symbol(app: &App, symbol: &str, text: String) -> String {
+    if app.night_mode || symbol.is_empty() {
+        text
+    } else {
+        format!("{} {}", symbol, text)
+    }
+}
+
+fn symbol_prefix<'a>(app: &App, symbol: &'a str) -> &'a str {
+    if app.night_mode {
+        ""
+    } else {
+        symbol
+    }
+}
+
+fn strip_symbolic_prefix<'a>(text: &'a str) -> &'a str {
+    if let Some((_, rest)) = text.split_once(' ') {
+        rest.trim_start()
+    } else {
+        text
+    }
+}
+
+fn sanitized_event_label<'a>(app: &App, label: &'a str) -> Cow<'a, str> {
+    if app.night_mode {
+        Cow::Owned(strip_symbolic_prefix(label).to_string())
+    } else {
+        Cow::Borrowed(label)
+    }
+}
+
 fn render_title(f: &mut Frame, area: Rect, app: &App) {
     let title = Paragraph::new("Astro Times — Sunrise, Sunset, Moonrise, Moonset")
         .style(
@@ -76,7 +123,7 @@ fn render_title(f: &mut Frame, area: Rect, app: &App) {
                 .add_modifier(Modifier::BOLD),
         )
         .alignment(Alignment::Center)
-        .block(Block::default().borders(Borders::ALL));
+        .block(bordered_block(app));
 
     f.render_widget(title, area);
 }
@@ -100,29 +147,46 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
                 .fg(get_color(app, Color::Yellow))
                 .add_modifier(Modifier::BOLD),
         )]));
-        lines.push(Line::from(vec![Span::raw(format!(
-            "📍 Lat,Lon(WGS84): {:.5},{:.5}",
-            app.location.latitude, app.location.longitude
+        lines.push(Line::from(vec![Span::raw(label_with_symbol(
+            app,
+            "📍",
+            format!(
+                "Lat,Lon(WGS84): {:.5},{:.5}",
+                app.location.latitude, app.location.longitude
+            ),
         ))]));
-        lines.push(Line::from(vec![Span::raw(format!(
-            "⛰️ Elevation (MSL): {:.0} m",
-            app.location.elevation
+        lines.push(Line::from(vec![Span::raw(label_with_symbol(
+            app,
+            "⛰️",
+            format!("Elevation (MSL): {:.0} m", app.location.elevation),
         ))]));
         if let Some(ref city) = app.city_name {
-            lines.push(Line::from(vec![Span::raw(format!("🏙️ Place: {}", city))]));
+            lines.push(Line::from(vec![Span::raw(label_with_symbol(
+                app,
+                "🏙️",
+                format!("Place: {}", city),
+            ))]));
         }
-        lines.push(Line::from(vec![Span::raw(format!(
-            "📅 Date: {} {:02}:{:02}:{:02} {}",
-            now_tz.format("%b %d"),
-            now_tz.hour(),
-            now_tz.minute(),
-            now_tz.second(),
-            now_tz.format("%Z")
+        lines.push(Line::from(vec![Span::raw(label_with_symbol(
+            app,
+            "📅",
+            format!(
+                "Date: {} {:02}:{:02}:{:02} {}",
+                now_tz.format("%b %d"),
+                now_tz.hour(),
+                now_tz.minute(),
+                now_tz.second(),
+                now_tz.format("%Z")
+            ),
         ))]));
-        lines.push(Line::from(vec![Span::raw(format!(
-            "⏰ Timezone: {} ({})",
-            app.timezone.name(),
-            now_tz.format("UTC%:z")
+        lines.push(Line::from(vec![Span::raw(label_with_symbol(
+            app,
+            "⏰",
+            format!(
+                "Timezone: {} ({})",
+                app.timezone.name(),
+                now_tz.format("UTC%:z")
+            ),
         ))]));
         let time_sync_text = match (
             app.time_sync.delta,
@@ -130,18 +194,22 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
             app.time_sync.error_summary(),
         ) {
             (Some(delta), Some(direction), _) => format!(
-                "🕒 Time sync: {} ({})",
+                "Time sync: {} ({})",
                 time_sync::format_offset(delta),
                 time_sync::describe_direction(direction)
             ),
-            (Some(delta), None, _) => format!("🕒 Time sync: {}", time_sync::format_offset(delta)),
-            (None, _, Some(err)) => format!("🕒 Time sync: unavailable ({})", err),
-            _ => "🕒 Time sync: unavailable".to_string(),
+            (Some(delta), None, _) => format!("Time sync: {}", time_sync::format_offset(delta)),
+            (None, _, Some(err)) => format!("Time sync: unavailable ({})", err),
+            _ => "Time sync: unavailable".to_string(),
         };
-        lines.push(Line::from(vec![Span::raw(time_sync_text)]));
+        lines.push(Line::from(vec![Span::raw(label_with_symbol(
+            app,
+            "🕒",
+            time_sync_text,
+        ))]));
         if let Some(status) = app.current_status() {
             lines.push(Line::from(vec![Span::styled(
-                format!("✓ {}", status),
+                format!("{}{}", symbol_prefix(app, "✓ "), status),
                 Style::default()
                     .fg(get_color(app, Color::Green))
                     .add_modifier(Modifier::BOLD),
@@ -169,7 +237,9 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
             let time_str = format!("{}", event_time.format("%H:%M:%S"));
             let mut diff_str = time_utils::format_duration_detailed(time_diff);
 
-            if event_name.contains("Civil dawn") || event_name.contains("Solar noon") {
+            if (event_name.contains("Civil dawn") || event_name.contains("Solar noon"))
+                && !app.night_mode
+            {
                 diff_str = format!(" {}", diff_str);
             }
 
@@ -181,7 +251,10 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
 
             lines.push(Line::from(vec![Span::raw(format!(
                 "{}  {:<16}{:<17}{}",
-                time_str, event_name, diff_str, marker
+                time_str,
+                sanitized_event_label(app, event_name),
+                diff_str,
+                marker
             ))]));
         }
         sections_rendered += 1;
@@ -197,17 +270,25 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
                 .fg(get_color(app, Color::Yellow))
                 .add_modifier(Modifier::BOLD),
         )]));
-        lines.push(Line::from(vec![Span::raw(format!(
-            "☀️ Sun:  Alt {:>5.1}°, Az {:>3.0}° {}",
-            sun_pos.altitude,
-            sun_pos.azimuth,
-            coordinates::azimuth_to_compass(sun_pos.azimuth)
+        lines.push(Line::from(vec![Span::raw(label_with_symbol(
+            app,
+            "☀️",
+            format!(
+                "Sun:  Alt {:>5.1}°, Az {:>3.0}° {}",
+                sun_pos.altitude,
+                sun_pos.azimuth,
+                coordinates::azimuth_to_compass(sun_pos.azimuth)
+            ),
         ))]));
-        lines.push(Line::from(vec![Span::raw(format!(
-            "🌕 Moon: Alt {:>5.1}°, Az {:>3.0}° {}",
-            moon_pos_position.altitude,
-            moon_pos_position.azimuth,
-            coordinates::azimuth_to_compass(moon_pos_position.azimuth)
+        lines.push(Line::from(vec![Span::raw(label_with_symbol(
+            app,
+            "🌕",
+            format!(
+                "Moon: Alt {:>5.1}°, Az {:>3.0}° {}",
+                moon_pos_position.altitude,
+                moon_pos_position.azimuth,
+                coordinates::azimuth_to_compass(moon_pos_position.azimuth)
+            ),
         ))]));
         sections_rendered += 1;
     }
@@ -235,11 +316,14 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
             "Near Apogee"
         };
 
-        lines.push(Line::from(vec![Span::raw(format!(
-            "{} Phase:           {} (Age {:.1} days)",
+        lines.push(Line::from(vec![Span::raw(label_with_symbol(
+            app,
             moon::phase_emoji(moon_overview.phase_angle),
-            moon::phase_name(moon_overview.phase_angle),
-            (moon_overview.phase_angle / 360.0 * 29.53)
+            format!(
+                "Phase:           {} (Age {:.1} days)",
+                moon::phase_name(moon_overview.phase_angle),
+                (moon_overview.phase_angle / 360.0 * 29.53)
+            ),
         ))]));
         let trend_label = match moon_overview_details.altitude_trend {
             super::app::MoonAltitudeTrend::Down => "Down",
@@ -247,14 +331,22 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
             super::app::MoonAltitudeTrend::Setting => "Setting",
             super::app::MoonAltitudeTrend::Up => "Up",
         };
-        lines.push(Line::from(vec![Span::raw(format!(
-            "💡 Fraction Illum.: {:.0}% ({})",
-            moon_overview.illumination * 100.0,
-            trend_label
+        lines.push(Line::from(vec![Span::raw(label_with_symbol(
+            app,
+            "💡",
+            format!(
+                "Fraction Illum.: {:.0}% ({})",
+                moon_overview.illumination * 100.0,
+                trend_label
+            ),
         ))]));
-        lines.push(Line::from(vec![Span::raw(format!(
-            "🔭 Apparent size:   {:.1}' ({})",
-            moon_overview.angular_diameter, size_class
+        lines.push(Line::from(vec![Span::raw(label_with_symbol(
+            app,
+            "🔭",
+            format!(
+                "Apparent size:   {:.1}' ({})",
+                moon_overview.angular_diameter, size_class
+            ),
         ))]));
         sections_rendered += 1;
     }
@@ -302,12 +394,17 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
                     moon::LunarPhaseType::LastQuarter => "Last quarter:",
                 };
                 let phase_dt = phase.datetime.with_timezone(&app.timezone);
-                lines.push(Line::from(vec![Span::raw(format!(
-                    "{} {:<16} {}",
-                    phase_emoji,
-                    phase_name,
-                    phase_dt.format("%b %d %H:%M")
-                ))]));
+                let line_text = if app.night_mode {
+                    format!("{:<16} {}", phase_name, phase_dt.format("%b %d %H:%M"))
+                } else {
+                    format!(
+                        "{} {:<16} {}",
+                        phase_emoji,
+                        phase_name,
+                        phase_dt.format("%b %d %H:%M")
+                    )
+                };
+                lines.push(Line::from(vec![Span::raw(line_text)]));
             }
         }
         sections_rendered += 1;
@@ -358,7 +455,7 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
 
                 if let Some(err) = &outcome.error {
                     lines.push(Line::from(Span::styled(
-                        format!("⚠️ {}", err),
+                        format!("{}{}", symbol_prefix(app, "⚠️ "), err),
                         Style::default().fg(get_color(app, Color::LightRed)),
                     )));
                 }
@@ -375,7 +472,7 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
     let paragraph = Paragraph::new(text)
         .style(Style::default().fg(get_color(app, Color::White)))
         .wrap(Wrap { trim: true })
-        .block(Block::default().borders(Borders::ALL));
+        .block(bordered_block(app));
 
     f.render_widget(paragraph, area);
 }
@@ -417,7 +514,7 @@ fn render_footer(f: &mut Frame, area: Rect, app: &App) {
 
     let footer = Paragraph::new(Text::from(lines))
         .alignment(Alignment::Center)
-        .block(Block::default().borders(Borders::ALL));
+        .block(bordered_block(app));
 
     f.render_widget(footer, area);
 }
@@ -477,18 +574,14 @@ fn render_city_picker(f: &mut Frame, app: &App) {
                 .add_modifier(Modifier::BOLD),
         )
         .alignment(Alignment::Center)
-        .block(Block::default().borders(Borders::ALL));
+        .block(bordered_block(app));
     f.render_widget(title, chunks[0]);
 
     // Search input
     let search_text = format!("Search: {}", app.city_search);
     let search = Paragraph::new(search_text)
         .style(Style::default().fg(get_color(app, Color::White)))
-        .block(
-            Block::default()
-                .borders(Borders::ALL)
-                .title("Type to search"),
-        );
+        .block(bordered_block(app).title("Type to search"));
     f.render_widget(search, chunks[1]);
 
     // Results list
@@ -527,7 +620,7 @@ fn render_city_picker(f: &mut Frame, app: &App) {
 
     let results = Paragraph::new(lines)
         .style(Style::default().fg(get_color(app, Color::White)))
-        .block(Block::default().borders(Borders::ALL).title("Results"));
+        .block(bordered_block(app).title("Results"));
     f.render_widget(results, chunks[2]);
 
     // Footer
@@ -556,7 +649,7 @@ fn render_location_input(f: &mut Frame, app: &App) {
                 .add_modifier(Modifier::BOLD),
         )
         .alignment(Alignment::Center)
-        .block(Block::default().borders(Borders::ALL));
+        .block(bordered_block(app));
     f.render_widget(title, chunks[0]);
 
     // Input fields
@@ -654,11 +747,9 @@ fn render_location_input(f: &mut Frame, app: &App) {
         )));
     }
 
-    let input_fields = Paragraph::new(input_lines).style(Style::default()).block(
-        Block::default()
-            .borders(Borders::ALL)
-            .title("Enter Location"),
-    );
+    let input_fields = Paragraph::new(input_lines)
+        .style(Style::default().fg(get_color(app, Color::White)))
+        .block(bordered_block(app).title("Enter Location"));
     f.render_widget(input_fields, chunks[1]);
 
     // Help text
@@ -689,8 +780,8 @@ fn render_location_input(f: &mut Frame, app: &App) {
     ];
 
     let help = Paragraph::new(help_text)
-        .style(Style::default())
-        .block(Block::default().borders(Borders::ALL).title("ℹ Info"))
+        .style(Style::default().fg(get_color(app, Color::White)))
+        .block(bordered_block(app).title(if app.night_mode { "Info" } else { "ℹ Info" }))
         .wrap(Wrap { trim: true });
     f.render_widget(help, chunks[2]);
 
@@ -719,7 +810,7 @@ fn render_calendar_generator(f: &mut Frame, app: &App) {
                 .add_modifier(Modifier::BOLD),
         )
         .alignment(Alignment::Center)
-        .block(Block::default().borders(Borders::ALL));
+        .block(bordered_block(app));
     f.render_widget(title, chunks[0]);
 
     let draft = &app.calendar_draft;
@@ -816,11 +907,9 @@ fn render_calendar_generator(f: &mut Frame, app: &App) {
         )));
     }
 
-    let form = Paragraph::new(lines).style(Style::default()).block(
-        Block::default()
-            .borders(Borders::ALL)
-            .title("Calendar Parameters"),
-    );
+    let form = Paragraph::new(lines)
+        .style(Style::default().fg(get_color(app, Color::White)))
+        .block(bordered_block(app).title("Calendar Parameters"));
     f.render_widget(form, chunks[1]);
 
     let guidance_text = vec![
@@ -838,7 +927,7 @@ fn render_calendar_generator(f: &mut Frame, app: &App) {
     let guidance = Paragraph::new(guidance_text)
         .style(Style::default().fg(get_color(app, Color::Gray)))
         .wrap(Wrap { trim: false })
-        .block(Block::default().borders(Borders::ALL).title("Tips"));
+        .block(bordered_block(app).title("Tips"));
     f.render_widget(guidance, chunks[2]);
 
     let footer = Paragraph::new("Enter: Generate | Esc: Cancel | Tab/Shift+Tab: Move")
@@ -849,9 +938,7 @@ fn render_calendar_generator(f: &mut Frame, app: &App) {
 
 fn render_ai_config(f: &mut Frame, app: &App) {
     let area = f.area();
-    let block = Block::default()
-        .title("AI Insights Settings")
-        .borders(Borders::ALL);
+    let block = bordered_block(app).title("AI Insights Settings");
     let inner = block.inner(area);
     f.render_widget(block, area);
 
@@ -936,20 +1023,22 @@ fn render_ai_config(f: &mut Frame, app: &App) {
             AiServerStatus::Connected { server } => {
                 lines.push(Line::from(Span::styled(
                     format!(
-                        "✅ Connected to {} — {} model{} available",
+                        "{}Connected to {} — {} model{} available",
+                        symbol_prefix(app, "✅ "),
                         server,
                         draft.models.len(),
                         if draft.models.len() == 1 { "" } else { "s" }
                     ),
                     Style::default()
-                        .fg(Color::LightGreen)
+                        .fg(get_color(app, Color::LightGreen))
                         .add_modifier(Modifier::BOLD),
                 )));
             }
             AiServerStatus::Failed { server, message } => {
                 lines.push(Line::from(Span::styled(
                     format!(
-                        "⚠️ Unable to reach {} ({}) — edit the server and press Tab to retry.",
+                        "{}Unable to reach {} ({}) — edit the server and press Tab to retry.",
+                        symbol_prefix(app, "⚠️ "),
                         server,
                         message.replace('\n', " ")
                     ),
@@ -958,7 +1047,10 @@ fn render_ai_config(f: &mut Frame, app: &App) {
             }
             AiServerStatus::Unknown => {
                 lines.push(Line::from(Span::styled(
-                    "⏳ Edit the server field (if needed) then press Tab to scan for Ollama.",
+                    format!(
+                        "{}Edit the server field (if needed) then press Tab to scan for Ollama.",
+                        symbol_prefix(app, "⏳ ")
+                    ),
                     Style::default().fg(get_color(app, Color::Gray)),
                 )));
             }
@@ -1009,11 +1101,13 @@ fn render_ai_config(f: &mut Frame, app: &App) {
 
     if let Some(err) = &draft.error {
         lines.push(Line::from(Span::styled(
-            format!("⚠️ {}", err),
+            format!("{}{}", symbol_prefix(app, "⚠️ "), err),
             Style::default().fg(get_color(app, Color::LightRed)),
         )));
     }
 
-    let paragraph = Paragraph::new(Text::from(lines)).wrap(Wrap { trim: false });
+    let paragraph = Paragraph::new(Text::from(lines))
+        .style(Style::default().fg(get_color(app, Color::White)))
+        .wrap(Wrap { trim: false });
     f.render_widget(paragraph, inner);
 }
