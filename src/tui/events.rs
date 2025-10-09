@@ -2,7 +2,6 @@
 
 use super::app::{AiConfigField, App, AppMode, CalendarField};
 use crate::city::CityDatabase;
-use crate::config::Config;
 use crate::elevation;
 use anyhow::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEvent};
@@ -49,14 +48,10 @@ fn handle_watch_mode_keys(app: &mut App, key: KeyEvent) -> Result<()> {
         }
         KeyCode::Char('s') | KeyCode::Char('S') => {
             // Save configuration
-            let config = Config::new(
-                app.location.latitude,
-                app.location.longitude,
-                app.location.elevation,
-                app.timezone.name().to_string(),
-                app.city_name.clone(),
-            );
+            let config = app.build_config();
             let _ = config.save();
+            app.should_save = false;
+            app.set_status_message("Preferences saved");
         }
         KeyCode::Char('c') | KeyCode::Char('C') => {
             app.mode = AppMode::CityPicker;

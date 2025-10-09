@@ -106,6 +106,7 @@ fn main() -> Result<()> {
             city_name.clone(),
             time_sync_info.clone(),
             ai_config.clone(),
+            config.as_ref().map(|cfg| cfg.watch.clone()),
         )?;
     } else {
         // Single output mode (text)
@@ -120,7 +121,7 @@ fn main() -> Result<()> {
     }
 
     // Save config if requested
-    if !args.no_save {
+    if !args.should_watch() && !args.no_save {
         if let Some(cfg) = config {
             let _ = cfg.save();
         } else {
@@ -217,6 +218,7 @@ fn run_watch_mode(
     city_name: Option<String>,
     time_sync_info: time_sync::TimeSyncInfo,
     ai_config: ai::AiConfig,
+    watch_prefs: Option<config::WatchPreferences>,
 ) -> Result<()> {
     // Setup terminal
     enable_raw_mode()?;
@@ -226,7 +228,14 @@ fn run_watch_mode(
     let mut terminal = Terminal::new(backend)?;
 
     // Create app
-    let mut app = tui::App::new(location, timezone, city_name, time_sync_info, ai_config);
+    let mut app = tui::App::new(
+        location,
+        timezone,
+        city_name,
+        time_sync_info,
+        ai_config,
+        watch_prefs,
+    );
 
     if app.ai_config.enabled {
         app.refresh_ai_insights();
@@ -255,22 +264,16 @@ fn run_watch_mode(
         // Handle events
         tui::handle_events(&mut app, tick_rate)?;
 
+        // Save if requested
+        if app.should_save {
+            let config = app.build_config();
+            let _ = config.save();
+            app.should_save = false;
+        }
+
         // Check if should quit
         if app.should_quit {
             break;
-        }
-
-        // Save if requested
-        if app.should_save {
-            let config = config::Config::new(
-                app.location.latitude,
-                app.location.longitude,
-                app.location.elevation,
-                app.timezone.name().to_string(),
-                app.city_name.clone(),
-            );
-            let _ = config.save();
-            app.should_save = false;
         }
     }
 

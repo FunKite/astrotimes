@@ -4,6 +4,7 @@ use crate::ai;
 use crate::astro::*;
 use crate::calendar::{self, CalendarFormat};
 use crate::city::City;
+use crate::config::{self, WatchPreferences};
 use crate::events;
 use crate::time_sync::TimeSyncInfo;
 use anyhow::{anyhow, Context, Result};
@@ -716,6 +717,7 @@ impl App {
         city_name: Option<String>,
         time_sync: TimeSyncInfo,
         ai_config: ai::AiConfig,
+        watch_prefs: Option<WatchPreferences>,
     ) -> Self {
         let now = Local::now();
         let now_tz = now.with_timezone(&timezone);
@@ -728,13 +730,14 @@ impl App {
         let moon_overview_cache = CachedMoonDetails::from_positions(&location, &positions_cache);
         let lunar_phases_cache = Self::collect_lunar_phases(&now_tz);
         let lunar_phases_generated_for = now_tz.date_naive();
+        let prefs = watch_prefs.unwrap_or_default();
 
         Self {
             location,
             timezone,
             city_name,
             current_time: now,
-            night_mode: false,
+            night_mode: prefs.night_mode,
             mode: AppMode::Watch,
             should_quit: false,
             should_save: false,
@@ -760,11 +763,11 @@ impl App {
             moon_overview_last_refresh: Instant::now(),
             lunar_phases_cache,
             lunar_phases_generated_for,
-            show_location_date: true,
-            show_events: true,
-            show_positions: true,
-            show_moon: true,
-            show_lunar_phases: true,
+            show_location_date: prefs.show_location_date,
+            show_events: prefs.show_events,
+            show_positions: prefs.show_positions,
+            show_moon: prefs.show_moon,
+            show_lunar_phases: prefs.show_lunar_phases,
         }
     }
 
@@ -881,6 +884,29 @@ impl App {
         self.lunar_phases_generated_for = now_tz.date_naive();
     }
 
+    pub fn watch_preferences(&self) -> WatchPreferences {
+        WatchPreferences {
+            show_location_date: self.show_location_date,
+            show_events: self.show_events,
+            show_positions: self.show_positions,
+            show_moon: self.show_moon,
+            show_lunar_phases: self.show_lunar_phases,
+            night_mode: self.night_mode,
+        }
+    }
+
+    pub fn build_config(&self) -> config::Config {
+        let mut cfg = config::Config::new(
+            self.location.latitude,
+            self.location.longitude,
+            self.location.elevation,
+            self.timezone.name().to_string(),
+            self.city_name.clone(),
+        );
+        cfg.watch = self.watch_preferences();
+        cfg
+    }
+
     fn expire_status_if_needed(&mut self) {
         if let Some(timestamp) = self.status_timestamp {
             if timestamp.elapsed() >= STATUS_TTL {
@@ -901,26 +927,32 @@ impl App {
 
     pub fn toggle_night_mode(&mut self) {
         self.night_mode = !self.night_mode;
+        self.should_save = true;
     }
 
     pub fn toggle_location_date(&mut self) {
         self.show_location_date = !self.show_location_date;
+        self.should_save = true;
     }
 
     pub fn toggle_events(&mut self) {
         self.show_events = !self.show_events;
+        self.should_save = true;
     }
 
     pub fn toggle_positions(&mut self) {
         self.show_positions = !self.show_positions;
+        self.should_save = true;
     }
 
     pub fn toggle_moon(&mut self) {
         self.show_moon = !self.show_moon;
+        self.should_save = true;
     }
 
     pub fn toggle_lunar_phases(&mut self) {
         self.show_lunar_phases = !self.show_lunar_phases;
+        self.should_save = true;
     }
 
     pub fn open_calendar_generator(&mut self) {
