@@ -26,6 +26,7 @@ A blazing-fast, standalone CLI that shows accurate sun and moon information for 
 - **City Database**: Built-in database of 50+ major cities worldwide
 - **Auto Location Detection**: Optional IP-based location detection
 - **JSON Output**: Machine-readable output for scripts and automation
+- **Calendar Exports**: Generate HTML or JSON calendars (1000 BCE–3000 CE) with daily solar and lunar data
 - **Night Mode**: Red text mode to preserve night vision (press `n` in watch mode)
 - **Configuration**: Remembers your location for quick subsequent runs
 
@@ -78,6 +79,7 @@ The default mode is a live-updating display:
 | `q` | Quit the application |
 | `n` | Toggle Night Mode (red text) |
 | `s` | Save current location |
+| `g` | Open calendar generator (HTML/JSON export) |
 | `]` / `+` | Decrease refresh interval (faster) |
 | `[` / `-` | Increase refresh interval (slower) |
 | `=` / `0` | Reset refresh interval (60s) |
@@ -87,6 +89,31 @@ The default mode is a live-updating display:
 ```bash
 astrotimes --city "Tokyo" --json
 ```
+
+### Calendar Generation
+
+Produce full-range astronomical calendars with daily sunrise, sunset, twilight, moonrise, moonset, and phase data.
+
+```bash
+# Generate an HTML calendar for January 2026
+astrotimes --city "Lisbon" \
+  --calendar \
+  --calendar-start 2026-01-01 \
+  --calendar-end 2026-01-31 \
+  --calendar-format html \
+  --calendar-output lisbon-jan-2026.html
+
+# JSON calendar spanning the Apollo 11 mission window
+astrotimes --lat 28.5721 --lon -80.6480 \
+  --calendar \
+  --calendar-start 1969-07-15 \
+  --calendar-end 1969-07-27 \
+  --calendar-format json
+```
+
+Calendars can cover any range between astronomical years `-0999` (1000 BCE) and `3000`. BCE dates use the proleptic Gregorian format with a leading minus (e.g. `-0032-11-01`).
+
+In watch mode, press `g` to open an interactive calendar generator: adjust the range, toggle HTML/JSON, and export directly from the TUI.
 
 ### Command-Line Options
 
@@ -99,6 +126,11 @@ astrotimes --city "Tokyo" --json
 | `--city <CITY>` | Select city from database |
 | `--date <DATE>` | Date in YYYY-MM-DD format (default: today) |
 | `--json` | Output in JSON format |
+| `--calendar` | Generate a calendar instead of standard output |
+| `--calendar-format <html\|json>` | Calendar output format (default: html) |
+| `--calendar-start <DATE>` | Calendar start date (requires `--calendar`) |
+| `--calendar-end <DATE>` | Calendar end date (requires `--calendar`) |
+| `--calendar-output <PATH>` | Optional file path for the calendar |
 | `--refresh <SECS>` | Refresh interval for watch mode (default: 60) |
 | `--no-prompt` | Disable interactive prompts |
 | `--no-save` | Don't save configuration |

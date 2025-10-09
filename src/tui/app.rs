@@ -2,13 +2,20 @@
 
 use crate::ai;
 use crate::astro::*;
+use crate::calendar::{self, CalendarFormat};
 use crate::city::City;
 use crate::events;
 use crate::time_sync::TimeSyncInfo;
-use anyhow::{anyhow, Result};
-use chrono::{DateTime, Datelike, Local};
+use anyhow::{anyhow, Context, Result};
+use chrono::{DateTime, Datelike, Local, NaiveDate};
 use chrono_tz::Tz;
-use std::time::{Duration, Instant};
+use std::{
+    fs,
+    path::PathBuf,
+    time::{Duration, Instant},
+};
+
+const STATUS_TTL: Duration = Duration::from_secs(10);
 
 #[derive(Debug, Clone, Copy)]
 pub enum AppMode {
@@ -16,6 +23,7 @@ pub enum AppMode {
     CityPicker,
     LocationInput,
     AiConfig,
+    Calendar,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -177,6 +185,216 @@ impl LocationInputDraft {
         }
 
         Ok((lat, lon, elev, tz))
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CalendarField {
+    StartDate,
+    EndDate,
+    Format,
+    OutputPath,
+}
+
+#[derive(Debug, Clone)]
+pub struct CalendarDraft {
+    pub start: String,
+    pub end: String,
+    pub output_path: String,
+    pub field_index: usize,
+    pub format_index: usize,
+    pub error: Option<String>,
+}
+
+impl CalendarDraft {
+    const FIELD_COUNT: usize = 4;
+    const FORMATS: [CalendarFormat; 2] = [CalendarFormat::Html, CalendarFormat::Json];
+
+    pub fn new(now: DateTime<Local>) -> Self {
+        let today = now.date_naive();
+        let start = NaiveDate::from_ymd_opt(today.year(), today.month(), 1).unwrap_or(today);
+        let (next_year, next_month) = if today.month() == 12 {
+            (today.year() + 1, 1)
+        } else {
+            (today.year(), today.month() + 1)
+        };
+        let next_month_start = NaiveDate::from_ymd_opt(next_year, next_month, 1).unwrap_or(today);
+        let end = next_month_start.pred_opt().unwrap_or(next_month_start);
+
+        Self {
+            start: start.format("%Y-%m-%d").to_string(),
+            end: end.format("%Y-%m-%d").to_string(),
+            output_path: Self::default_output_filename(CalendarFormat::Html, start, end),
+            field_index: 0,
+            format_index: 0,
+            error: None,
+        }
+    }
+
+    pub fn reset(&mut self, now: DateTime<Local>) {
+        *self = Self::new(now);
+    }
+
+    pub fn current_field(&self) -> CalendarField {
+        match self.field_index {
+            0 => CalendarField::StartDate,
+            1 => CalendarField::EndDate,
+            2 => CalendarField::Format,
+            _ => CalendarField::OutputPath,
+        }
+    }
+
+    pub fn next_field(&mut self) {
+        self.field_index = (self.field_index + 1) % Self::FIELD_COUNT;
+        self.clear_error();
+    }
+
+    pub fn prev_field(&mut self) {
+        self.field_index = (self.field_index + Self::FIELD_COUNT - 1) % Self::FIELD_COUNT;
+        self.clear_error();
+    }
+
+    pub fn current_format(&self) -> CalendarFormat {
+        Self::FORMATS[self.format_index]
+    }
+
+    pub fn current_format_label(&self) -> &'static str {
+        match self.current_format() {
+            CalendarFormat::Html => "HTML",
+            CalendarFormat::Json => "JSON",
+        }
+    }
+
+    pub fn cycle_format(&mut self, delta: isize) {
+        let len = Self::FORMATS.len() as isize;
+        let mut next = self.format_index as isize + delta;
+        if next < 0 {
+            next = (next % len + len) % len;
+        } else {
+            next %= len;
+        }
+        self.format_index = next as usize;
+        self.sync_output_extension();
+        self.clear_error();
+    }
+
+    pub fn set_format(&mut self, format: CalendarFormat) {
+        if let Some(idx) = Self::FORMATS
+            .iter()
+            .position(|candidate| *candidate == format)
+        {
+            self.format_index = idx;
+            self.sync_output_extension();
+            self.clear_error();
+        }
+    }
+
+    pub fn input_char(&mut self, c: char) {
+        self.clear_error();
+        match self.current_field() {
+            CalendarField::StartDate => {
+                if c.is_ascii_digit() || c == '-' {
+                    self.start.push(c);
+                }
+            }
+            CalendarField::EndDate => {
+                if c.is_ascii_digit() || c == '-' {
+                    self.end.push(c);
+                }
+            }
+            CalendarField::Format => {}
+            CalendarField::OutputPath => {
+                self.output_path.push(c);
+            }
+        }
+    }
+
+    pub fn backspace(&mut self) {
+        self.clear_error();
+        match self.current_field() {
+            CalendarField::StartDate => {
+                self.start.pop();
+            }
+            CalendarField::EndDate => {
+                self.end.pop();
+            }
+            CalendarField::Format => {}
+            CalendarField::OutputPath => {
+                self.output_path.pop();
+            }
+        }
+    }
+
+    pub fn clear_error(&mut self) {
+        self.error = None;
+    }
+
+    pub fn set_error<S: Into<String>>(&mut self, msg: S) {
+        self.error = Some(msg.into());
+    }
+
+    pub fn validate(&self) -> Result<(NaiveDate, NaiveDate, CalendarFormat, String)> {
+        let start_str = self.start.trim();
+        if start_str.is_empty() {
+            return Err(anyhow!("Start date is required"));
+        }
+        let end_str = self.end.trim();
+        if end_str.is_empty() {
+            return Err(anyhow!("End date is required"));
+        }
+
+        let start = NaiveDate::parse_from_str(start_str, "%Y-%m-%d")
+            .with_context(|| format!("Invalid start date '{}'", start_str))?;
+        let end = NaiveDate::parse_from_str(end_str, "%Y-%m-%d")
+            .with_context(|| format!("Invalid end date '{}'", end_str))?;
+
+        if start > end {
+            return Err(anyhow!("Start date must be on or before the end date"));
+        }
+
+        let format = self.current_format();
+
+        let output_trim = self.output_path.trim();
+        let output = if output_trim.is_empty() {
+            Self::default_output_filename(format, start, end)
+        } else {
+            output_trim.to_string()
+        };
+
+        Ok((start, end, format, output))
+    }
+
+    fn sync_output_extension(&mut self) {
+        let extension = Self::format_extension(self.current_format());
+        if self.output_path.trim().is_empty() {
+            if let (Ok(start), Ok(end)) = (
+                NaiveDate::parse_from_str(self.start.trim(), "%Y-%m-%d"),
+                NaiveDate::parse_from_str(self.end.trim(), "%Y-%m-%d"),
+            ) {
+                self.output_path = Self::default_output_filename(self.current_format(), start, end);
+            }
+            return;
+        }
+
+        let mut path = PathBuf::from(self.output_path.trim());
+        path.set_extension(extension);
+        self.output_path = path.to_string_lossy().to_string();
+    }
+
+    fn default_output_filename(format: CalendarFormat, start: NaiveDate, end: NaiveDate) -> String {
+        format!(
+            "astrotimes-calendar-{}-{}.{}",
+            start.format("%Y%m%d"),
+            end.format("%Y%m%d"),
+            Self::format_extension(format)
+        )
+    }
+
+    fn format_extension(format: CalendarFormat) -> &'static str {
+        match format {
+            CalendarFormat::Html => "html",
+            CalendarFormat::Json => "json",
+        }
     }
 }
 
@@ -394,11 +612,14 @@ pub struct App {
     pub city_results: Vec<City>,
     pub city_selected: usize,
     pub location_input_draft: LocationInputDraft,
+    pub calendar_draft: CalendarDraft,
     pub time_sync: TimeSyncInfo,
     pub ai_config: ai::AiConfig,
     pub ai_outcome: Option<ai::AiOutcome>,
     pub ai_last_refresh: Option<Instant>,
     pub ai_config_draft: AiConfigDraft,
+    pub status_message: Option<String>,
+    pub status_timestamp: Option<Instant>,
 }
 
 impl App {
@@ -410,11 +631,13 @@ impl App {
         time_sync: TimeSyncInfo,
         ai_config: ai::AiConfig,
     ) -> Self {
+        let now = Local::now();
+
         Self {
             location,
             timezone,
             city_name,
-            current_time: Local::now(),
+            current_time: now,
             refresh_interval: Duration::from_secs_f64(refresh_interval),
             night_mode: false,
             mode: AppMode::Watch,
@@ -424,16 +647,38 @@ impl App {
             city_results: Vec::new(),
             city_selected: 0,
             location_input_draft: LocationInputDraft::new(),
+            calendar_draft: CalendarDraft::new(now),
             time_sync,
             ai_config_draft: AiConfigDraft::from_config(&ai_config),
             ai_config,
             ai_outcome: None,
             ai_last_refresh: None,
+            status_message: None,
+            status_timestamp: None,
         }
     }
 
     pub fn update_time(&mut self) {
         self.current_time = Local::now();
+        self.expire_status_if_needed();
+    }
+
+    fn expire_status_if_needed(&mut self) {
+        if let Some(timestamp) = self.status_timestamp {
+            if timestamp.elapsed() >= STATUS_TTL {
+                self.status_message = None;
+                self.status_timestamp = None;
+            }
+        }
+    }
+
+    pub fn set_status_message<S: Into<String>>(&mut self, message: S) {
+        self.status_message = Some(message.into());
+        self.status_timestamp = Some(Instant::now());
+    }
+
+    pub fn current_status(&self) -> Option<&str> {
+        self.status_message.as_deref()
     }
 
     pub fn toggle_night_mode(&mut self) {
@@ -452,6 +697,44 @@ impl App {
 
     pub fn reset_refresh(&mut self) {
         self.refresh_interval = Duration::from_secs(1);
+    }
+
+    pub fn open_calendar_generator(&mut self) {
+        self.calendar_draft.reset(self.current_time);
+        self.calendar_draft.clear_error();
+        self.mode = AppMode::Calendar;
+    }
+
+    pub fn apply_calendar_generation(&mut self) -> Result<String> {
+        let (start, end, format, output_path) = self.calendar_draft.validate()?;
+
+        let contents = calendar::generate_calendar(
+            &self.location,
+            &self.timezone,
+            self.city_name.as_deref(),
+            start,
+            end,
+            format,
+        )?;
+
+        let path = PathBuf::from(&output_path);
+        if let Some(parent) = path.parent() {
+            if !parent.as_os_str().is_empty() {
+                fs::create_dir_all(parent).with_context(|| {
+                    format!(
+                        "Unable to create calendar output directory {}",
+                        parent.display()
+                    )
+                })?;
+            }
+        }
+
+        fs::write(&path, contents)
+            .with_context(|| format!("Failed to write calendar output to {}", path.display()))?;
+
+        let normalized = path.to_string_lossy().to_string();
+        self.calendar_draft.output_path = normalized.clone();
+        Ok(normalized)
     }
 
     pub fn set_location(&mut self, city: &City) {

@@ -1,6 +1,6 @@
 // Event handling for TUI
 
-use super::app::{AiConfigField, App, AppMode};
+use super::app::{AiConfigField, App, AppMode, CalendarField};
 use crate::city::CityDatabase;
 use crate::config::Config;
 use crate::elevation;
@@ -23,6 +23,7 @@ fn handle_key_event(app: &mut App, key: KeyEvent) -> Result<()> {
         AppMode::CityPicker => handle_city_picker_keys(app, key),
         AppMode::LocationInput => handle_location_input_keys(app, key),
         AppMode::AiConfig => handle_ai_config_keys(app, key),
+        AppMode::Calendar => handle_calendar_keys(app, key),
     }
 }
 
@@ -54,6 +55,9 @@ fn handle_watch_mode_keys(app: &mut App, key: KeyEvent) -> Result<()> {
         }
         KeyCode::Char('a') | KeyCode::Char('A') => {
             app.open_ai_config();
+        }
+        KeyCode::Char('g') | KeyCode::Char('G') => {
+            app.open_calendar_generator();
         }
         KeyCode::Char(']') | KeyCode::Char('+') => {
             app.decrease_refresh();
@@ -132,9 +136,8 @@ fn handle_location_input_keys(app: &mut App, key: KeyEvent) -> Result<()> {
                             app.location_input_draft.clear_error();
                         }
                         Err(_) => {
-                            app.location_input_draft.set_error(
-                                format!("Invalid timezone: {}", tz_str)
-                            );
+                            app.location_input_draft
+                                .set_error(format!("Invalid timezone: {}", tz_str));
                         }
                     }
                 }
@@ -154,6 +157,71 @@ fn handle_location_input_keys(app: &mut App, key: KeyEvent) -> Result<()> {
         }
         KeyCode::Char(c) => {
             app.location_input_draft.input_char(c);
+        }
+        _ => {}
+    }
+    Ok(())
+}
+
+fn handle_calendar_keys(app: &mut App, key: KeyEvent) -> Result<()> {
+    match key.code {
+        KeyCode::Esc => {
+            app.calendar_draft.reset(app.current_time);
+            app.calendar_draft.clear_error();
+            app.mode = AppMode::Watch;
+        }
+        KeyCode::Enter => match app.apply_calendar_generation() {
+            Ok(path) => {
+                app.calendar_draft.clear_error();
+                app.mode = AppMode::Watch;
+                app.set_status_message(format!("Calendar saved → {}", path));
+            }
+            Err(err) => {
+                app.calendar_draft.set_error(err.to_string());
+            }
+        },
+        KeyCode::Tab | KeyCode::Down => {
+            app.calendar_draft.next_field();
+        }
+        KeyCode::BackTab | KeyCode::Up => {
+            app.calendar_draft.prev_field();
+        }
+        KeyCode::Left => {
+            if app.calendar_draft.current_field() == CalendarField::Format {
+                app.calendar_draft.cycle_format(-1);
+            }
+        }
+        KeyCode::Right => {
+            if app.calendar_draft.current_field() == CalendarField::Format {
+                app.calendar_draft.cycle_format(1);
+            }
+        }
+        KeyCode::Char(' ') => {
+            if app.calendar_draft.current_field() == CalendarField::Format {
+                app.calendar_draft.cycle_format(1);
+            } else {
+                app.calendar_draft.input_char(' ');
+            }
+        }
+        KeyCode::Backspace | KeyCode::Delete => {
+            app.calendar_draft.backspace();
+        }
+        KeyCode::Char(c) => {
+            if app.calendar_draft.current_field() == CalendarField::Format {
+                match c {
+                    'h' | 'H' => {
+                        app.calendar_draft
+                            .set_format(crate::calendar::CalendarFormat::Html);
+                    }
+                    'j' | 'J' => {
+                        app.calendar_draft
+                            .set_format(crate::calendar::CalendarFormat::Json);
+                    }
+                    _ => {}
+                }
+            } else {
+                app.calendar_draft.input_char(c);
+            }
         }
         _ => {}
     }
