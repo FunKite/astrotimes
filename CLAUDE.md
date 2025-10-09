@@ -91,6 +91,11 @@ High-precision astronomical CLI application written in Rust. Calculates sun/moon
 - Centralized sun/moon event harvesting in `src/events.rs`, reusing it across CLI, TUI, and AI pipelines.
 - Events section now shows occurrences within ±12 hours of “now,” capturing late-night/early-morning transitions while keeping chronological ordering.
 
+## Session Notes (2025-10-08 Codex - Lunar Rise/Set Refinement)
+- Replaced the lunar rise/set solver with a 5-minute sweep plus binary refinement to 1-second precision (`src/astro/moon.rs`).
+- Moonrise and moonset now agree with USNO within ±1 minute across the accuracy harness cities; `accuracy_report.html` shows all moon events passing.
+- Maintained the transit finder by scanning for the peak altitude and refining in a narrow window so TUI summaries stay consistent.
+
 ## Critical Bug Fixes (Recent)
 
 ### 1. Timezone Bug (FIXED)
@@ -686,7 +691,7 @@ From conversation:
 
 ---
 
-*Last updated: 2025-10-08 19:05 EDT*
-*Session: Codex (GPT-5) - Event window refinement*
+*Last updated: 2025-10-08 19:32 EDT*
+*Session: Codex (GPT-5) - Lunar rise/set refinement*
 *Status: Beta 0.1 - Significantly improved lunar calculations*
-*Accuracy: Solar ±1 min, Lunar phases 100%, Moonrise/moonset ±1-4 min (was ±4-11 min)*
+*Accuracy: Solar ±1–2 min (Anchorage sunset +2), Lunar phases 100%, Moonrise/moonset ±1 min*

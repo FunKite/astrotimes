@@ -2,7 +2,7 @@
 // Based on "Astronomical Algorithms" by Jean Meeus
 
 use super::*;
-use chrono::{DateTime, Datelike, Duration, TimeZone};
+use chrono::{DateTime, Datelike, Duration, LocalResult, TimeZone};
 
 /// Lunar phase types
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -375,84 +375,177 @@ fn jd_to_datetime(jd: f64) -> DateTime<chrono::Utc> {
     .unwrap()
 }
 
+fn resolve_local_datetime<T: TimeZone>(
+    timezone: &T,
+    naive: &chrono::NaiveDateTime,
+) -> Option<DateTime<T>> {
+    match timezone.from_local_datetime(naive) {
+        LocalResult::Single(dt) => Some(dt),
+        LocalResult::Ambiguous(early, _) => Some(early),
+        LocalResult::None => {
+            // Fall back by nudging forward one hour to recover from DST gaps
+            let adjusted = *naive + Duration::hours(1);
+            match timezone.from_local_datetime(&adjusted) {
+                LocalResult::Single(dt) => Some(dt),
+                LocalResult::Ambiguous(early, _) => Some(early),
+                LocalResult::None => None,
+            }
+        }
+    }
+}
+
+fn refine_crossing<T: TimeZone>(
+    location: &Location,
+    mut low: DateTime<T>,
+    mut high: DateTime<T>,
+    threshold: f64,
+    seek_rising: bool,
+) -> DateTime<T> {
+    // Binary search until we reach one-second resolution.
+    while (high.timestamp() - low.timestamp()).abs() > 1 {
+        let span_secs = high.timestamp() - low.timestamp();
+        let mid = low
+            .clone()
+            .checked_add_signed(Duration::seconds(span_secs / 2))
+            .unwrap();
+        let mid_alt = lunar_position(location, &mid).altitude - threshold;
+
+        if seek_rising {
+            if mid_alt >= 0.0 {
+                high = mid;
+            } else {
+                low = mid;
+            }
+        } else if mid_alt <= 0.0 {
+            high = mid;
+        } else {
+            low = mid;
+        }
+    }
+
+    high
+}
+
+fn search_rise_or_set<T: TimeZone>(
+    location: &Location,
+    date: &DateTime<T>,
+    threshold: f64,
+    seek_rising: bool,
+) -> Option<DateTime<T>> {
+    let tz = date.timezone();
+    let start_naive = date.date_naive().and_hms_opt(0, 0, 0)?;
+    let start = resolve_local_datetime(&tz, &start_naive)?;
+    let end = start.clone() + Duration::hours(24);
+
+    let step = Duration::minutes(5);
+    let mut prev_dt = start.clone();
+    let mut prev_alt = lunar_position(location, &prev_dt).altitude - threshold;
+
+    while let Some(current) = prev_dt.clone().checked_add_signed(step) {
+        if current > end {
+            break;
+        }
+        let alt = lunar_position(location, &current).altitude - threshold;
+        let crossing = if seek_rising {
+            prev_alt <= 0.0 && alt >= 0.0
+        } else {
+            prev_alt >= 0.0 && alt <= 0.0
+        };
+
+        if crossing {
+            return Some(refine_crossing(
+                location,
+                prev_dt.clone(),
+                current.clone(),
+                threshold,
+                seek_rising,
+            ));
+        }
+
+        prev_dt = current;
+        prev_alt = alt;
+    }
+
+    None
+}
+
 /// Find moonrise or moonset time for a given date
 pub fn lunar_event_time<T: TimeZone>(
     location: &Location,
     date: &DateTime<T>,
     event: LunarEvent,
 ) -> Option<DateTime<T>> {
-    // Use bisection method to find the event
-    let start = date.date_naive().and_hms_opt(0, 0, 0).unwrap();
-    let tz = date.timezone();
-
-    let mut t1: f64 = 0.0; // hours from start
-    let mut t2: f64 = 24.0;
-
-    // Altitude threshold for moon rise/set: refraction (34') + semi-diameter (~16')
-    // ≈ 0.567° + 0.267° = 0.834° below geometric horizon
+    // Altitude threshold accounts for refraction (34') + lunar semi-diameter (~16')
     let altitude_threshold = -0.834;
 
-    for _ in 0..30 {
-        let t_mid = (t1 + t2) / 2.0;
-        let dt_mid = tz
-            .from_local_datetime(&(start + Duration::seconds((t_mid * 3600.0) as i64)))
-            .unwrap();
+    match event {
+        LunarEvent::Moonrise => search_rise_or_set(location, date, altitude_threshold, true),
+        LunarEvent::Moonset => search_rise_or_set(location, date, altitude_threshold, false),
+        LunarEvent::Transit => {
+            // Coarse scan to locate maximum altitude, then refine with smaller steps.
+            let tz = date.timezone();
+            let start_naive = date.date_naive().and_hms_opt(0, 0, 0)?;
+            let start = resolve_local_datetime(&tz, &start_naive)?;
+            let end = start.clone() + Duration::hours(24);
+            let step = Duration::minutes(10);
 
-        let pos = lunar_position(location, &dt_mid);
+            let mut iter_dt = start.clone();
+            let mut best_dt = iter_dt.clone();
+            let mut best_alt = lunar_position(location, &best_dt).altitude;
 
-        let dt_before = tz
-            .from_local_datetime(&(start + Duration::seconds(((t_mid - 0.1) * 3600.0) as i64)))
-            .unwrap();
-        let pos_before = lunar_position(location, &dt_before);
+            loop {
+                let next_dt = match iter_dt.clone().checked_add_signed(step) {
+                    Some(dt) if dt <= end => dt,
+                    _ => break,
+                };
 
-        match event {
-            LunarEvent::Moonrise => {
-                if pos.altitude > altitude_threshold && pos_before.altitude <= altitude_threshold {
-                    return Some(dt_mid);
+                let alt = lunar_position(location, &next_dt).altitude;
+                if alt > best_alt {
+                    best_alt = alt;
+                    best_dt = next_dt.clone();
                 }
-                if pos_before.altitude > altitude_threshold {
-                    t2 = t_mid;
-                } else {
-                    t1 = t_mid;
+
+                iter_dt = next_dt;
+            }
+
+            // Refine around the best altitude with a smaller window
+            let window = Duration::minutes(20);
+            let low = best_dt
+                .clone()
+                .checked_sub_signed(window)
+                .map(|dt| dt.max(start.clone()))
+                .unwrap_or(start.clone());
+            let high = best_dt
+                .clone()
+                .checked_add_signed(window)
+                .map(|dt| dt.min(end.clone()))
+                .unwrap_or(end.clone());
+
+            let mut peak_dt = best_dt.clone();
+            let mut max_alt = best_alt;
+            let mut current_dt = low;
+            let fine_step = Duration::minutes(1);
+
+            loop {
+                if current_dt > high {
+                    break;
+                }
+
+                let alt = lunar_position(location, &current_dt).altitude;
+                if alt > max_alt {
+                    max_alt = alt;
+                    peak_dt = current_dt.clone();
+                }
+
+                match current_dt.clone().checked_add_signed(fine_step) {
+                    Some(next) => current_dt = next,
+                    None => break,
                 }
             }
-            LunarEvent::Moonset => {
-                if pos.altitude < altitude_threshold && pos_before.altitude >= altitude_threshold {
-                    return Some(dt_mid);
-                }
-                if pos_before.altitude < altitude_threshold {
-                    t2 = t_mid;
-                } else {
-                    t1 = t_mid;
-                }
-            }
-            LunarEvent::Transit => {
-                // Find maximum altitude
-                let dt_after = tz
-                    .from_local_datetime(
-                        &(start + Duration::seconds(((t_mid + 0.1) * 3600.0) as i64)),
-                    )
-                    .unwrap();
-                let pos_after = lunar_position(location, &dt_after);
 
-                if pos.altitude > pos_before.altitude && pos.altitude > pos_after.altitude {
-                    return Some(dt_mid);
-                }
-                if pos_before.altitude > pos.altitude {
-                    t2 = t_mid;
-                } else {
-                    t1 = t_mid;
-                }
-            }
-        }
-
-        if (t2 - t1).abs() < 1.0_f64 / 3600.0 {
-            // 1 second precision
-            break;
+            Some(peak_dt)
         }
     }
-
-    None
 }
 
 /// Get phase name from phase angle
