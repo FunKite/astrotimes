@@ -47,9 +47,6 @@ fn handle_watch_mode_keys(app: &mut App, key: KeyEvent) -> Result<()> {
         KeyCode::Char('m') | KeyCode::Char('M') => {
             app.toggle_moon();
         }
-        KeyCode::Char('L') => {
-            app.toggle_lunar_phases();
-        }
         KeyCode::Char('s') | KeyCode::Char('S') => {
             // Save configuration
             let config = Config::new(
@@ -64,14 +61,17 @@ fn handle_watch_mode_keys(app: &mut App, key: KeyEvent) -> Result<()> {
         KeyCode::Char('c') | KeyCode::Char('C') => {
             app.mode = AppMode::CityPicker;
         }
-        KeyCode::Char('l') => {
+        KeyCode::Char('g') | KeyCode::Char('G') => {
             app.mode = AppMode::LocationInput;
             app.location_input_draft = super::app::LocationInputDraft::new();
+        }
+        KeyCode::Char('l') | KeyCode::Char('L') => {
+            app.toggle_lunar_phases();
         }
         KeyCode::Char('a') | KeyCode::Char('A') => {
             app.open_ai_config();
         }
-        KeyCode::Char('g') | KeyCode::Char('G') => {
+        KeyCode::Char('k') | KeyCode::Char('K') => {
             app.open_calendar_generator();
         }
         _ => {}

@@ -16,15 +16,15 @@ const FOOTER_INSTRUCTIONS: [&str; 12] = [
     "q quit",
     "s save",
     "c city",
-    "l location",
-    "g calendar",
+    "g location",
+    "k calendar",
     "a AI",
     "n night",
     "d toggle date",
     "e toggle events",
     "p toggle position",
     "m toggle moon",
-    "L toggle lunar phases",
+    "l toggle lunar phases",
 ];
 
 pub fn render(f: &mut Frame, app: &App) {
@@ -185,7 +185,7 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
             };
 
             lines.push(Line::from(vec![Span::raw(format!(
-                "{}  {:<18}{:<17}{}",
+                "{}  {:<16}{:<17}{}",
                 time_str, event_name, diff_str, marker
             ))]));
         }
@@ -308,7 +308,7 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
                 };
                 let phase_dt = phase.datetime.with_timezone(&app.timezone);
                 lines.push(Line::from(vec![Span::raw(format!(
-                    "{} {:<18} {}",
+                    "{} {:<16} {}",
                     phase_emoji,
                     phase_name,
                     phase_dt.format("%b %d %H:%M")
