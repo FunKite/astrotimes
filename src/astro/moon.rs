@@ -40,10 +40,6 @@ pub enum LunarEvent {
 }
 
 const MOON_MEAN_RADIUS: f64 = 1737.4; // km
-#[allow(dead_code)]
-const MOON_PERIGEE_DIST: f64 = 356500.0; // km (approximate)
-#[allow(dead_code)]
-const MOON_APOGEE_DIST: f64 = 406700.0; // km (approximate)
 
 /// Calculate mean lunar longitude (Meeus formula)
 fn moon_mean_longitude(t: f64) -> f64 {
@@ -253,7 +249,7 @@ pub fn lunar_phases(year: i32, month: u32) -> Vec<LunarPhase> {
         .iter()
         .enumerate()
         {
-            let k = (k_base + offset as f64 + i as f64 * 0.25).floor();
+            let k = k_base + offset as f64 + i as f64 * 0.25;
             let jde = lunar_phase_jde(k, *phase_type);
 
             let dt = jd_to_datetime(jde);

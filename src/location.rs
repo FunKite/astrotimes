@@ -6,22 +6,11 @@ use serde::Deserialize;
 use crate::city::CityDatabase;
 use crate::elevation;
 
-#[derive(Debug, Deserialize)]
-#[allow(dead_code)]
-struct IpApiResponse {
-    lat: f64,
-    lon: f64,
-    #[serde(default)]
-    timezone: String,
-}
-
 #[derive(Debug, Clone)]
 pub struct DetectedLocation {
     pub latitude: f64,
     pub longitude: f64,
     pub timezone: String,
-    #[allow(dead_code)]
-    pub elevation: f64,
 }
 
 /// Detect location from IP address
@@ -54,7 +43,6 @@ fn try_service(url: &str) -> Result<DetectedLocation> {
             latitude: data.latitude,
             longitude: data.longitude,
             timezone: data.timezone,
-            elevation: 0.0, // Will be fetched separately
         })
     } else if url.contains("ip-api.com") {
         #[derive(Deserialize)]
@@ -69,7 +57,6 @@ fn try_service(url: &str) -> Result<DetectedLocation> {
             latitude: data.lat,
             longitude: data.lon,
             timezone: data.timezone,
-            elevation: 0.0,
         })
     } else {
         Err(anyhow!("Unknown service"))

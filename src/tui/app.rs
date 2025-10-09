@@ -7,7 +7,7 @@ use crate::city::City;
 use crate::events;
 use crate::time_sync::TimeSyncInfo;
 use anyhow::{anyhow, Context, Result};
-use chrono::{DateTime, Datelike, Local, NaiveDate};
+use chrono::{DateTime, Datelike, Duration as ChronoDuration, Local, NaiveDate};
 use chrono_tz::Tz;
 use std::{
     fs,
@@ -16,6 +16,39 @@ use std::{
 };
 
 const STATUS_TTL: Duration = Duration::from_secs(10);
+const EVENT_WINDOW_HOURS: i64 = 12;
+const EVENT_REFRESH_THRESHOLD_HOURS: i64 = 6;
+const POSITION_REFRESH_INTERVAL: Duration = Duration::from_secs(10);
+const MOON_REFRESH_INTERVAL: Duration = Duration::from_secs(3600);
+
+#[derive(Debug, Clone)]
+pub struct CachedEvents {
+    pub reference: DateTime<Tz>,
+    pub entries: Vec<(DateTime<Tz>, &'static str)>,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct CachedPositions {
+    pub timestamp: DateTime<Tz>,
+    pub sun: sun::SolarPosition,
+    pub moon: moon::LunarPosition,
+}
+
+impl CachedPositions {
+    fn new(location: &Location, timestamp: &DateTime<Tz>) -> Self {
+        Self {
+            timestamp: timestamp.clone(),
+            sun: sun::solar_position(location, timestamp),
+            moon: moon::lunar_position(location, timestamp),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct CachedMoonDetails {
+    pub timestamp: DateTime<Tz>,
+    pub moon: moon::LunarPosition,
+}
 
 #[derive(Debug, Clone, Copy)]
 pub enum AppMode {
@@ -603,7 +636,6 @@ pub struct App {
     pub timezone: Tz,
     pub city_name: Option<String>,
     pub current_time: DateTime<Local>,
-    pub refresh_interval: Duration,
     pub night_mode: bool,
     pub mode: AppMode,
     pub should_quit: bool,
@@ -620,6 +652,13 @@ pub struct App {
     pub ai_config_draft: AiConfigDraft,
     pub status_message: Option<String>,
     pub status_timestamp: Option<Instant>,
+    pub events_cache: CachedEvents,
+    pub positions_cache: CachedPositions,
+    pub positions_last_refresh: Instant,
+    pub moon_overview_cache: CachedMoonDetails,
+    pub moon_overview_last_refresh: Instant,
+    pub lunar_phases_cache: Vec<moon::LunarPhase>,
+    pub lunar_phases_generated_for: NaiveDate,
 }
 
 impl App {
@@ -627,18 +666,29 @@ impl App {
         location: Location,
         timezone: Tz,
         city_name: Option<String>,
-        refresh_interval: f64,
         time_sync: TimeSyncInfo,
         ai_config: ai::AiConfig,
     ) -> Self {
         let now = Local::now();
+        let now_tz = now.with_timezone(&timezone);
+        let events_entries = events::collect_events_within_window(
+            &location,
+            &now_tz,
+            ChronoDuration::hours(EVENT_WINDOW_HOURS),
+        );
+        let positions_cache = CachedPositions::new(&location, &now_tz);
+        let moon_overview_cache = CachedMoonDetails {
+            timestamp: positions_cache.timestamp,
+            moon: positions_cache.moon,
+        };
+        let lunar_phases_cache = Self::collect_lunar_phases(&now_tz);
+        let lunar_phases_generated_for = now_tz.date_naive();
 
         Self {
             location,
             timezone,
             city_name,
             current_time: now,
-            refresh_interval: Duration::from_secs_f64(refresh_interval),
             night_mode: false,
             mode: AppMode::Watch,
             should_quit: false,
@@ -655,12 +705,134 @@ impl App {
             ai_last_refresh: None,
             status_message: None,
             status_timestamp: None,
+            events_cache: CachedEvents {
+                reference: now_tz,
+                entries: events_entries,
+            },
+            positions_cache,
+            positions_last_refresh: Instant::now(),
+            moon_overview_cache,
+            moon_overview_last_refresh: Instant::now(),
+            lunar_phases_cache,
+            lunar_phases_generated_for,
         }
     }
 
     pub fn update_time(&mut self) {
         self.current_time = Local::now();
         self.expire_status_if_needed();
+    }
+
+    fn collect_lunar_phases(now_tz: &DateTime<Tz>) -> Vec<moon::LunarPhase> {
+        use chrono::Datelike;
+
+        let year = now_tz.year();
+        let month = now_tz.month();
+
+        let (prev_year, prev_month) = if month == 1 {
+            (year - 1, 12)
+        } else {
+            (year, month - 1)
+        };
+
+        let (next_year, next_month) = if month == 12 {
+            (year + 1, 1)
+        } else {
+            (year, month + 1)
+        };
+
+        let mut phases = Vec::new();
+        phases.extend(moon::lunar_phases(prev_year, prev_month));
+        phases.extend(moon::lunar_phases(year, month));
+        phases.extend(moon::lunar_phases(next_year, next_month));
+        phases.sort_by(|a, b| a.datetime.cmp(&b.datetime));
+        phases.dedup_by(|a, b| a.datetime == b.datetime && a.phase_type == b.phase_type);
+        phases
+    }
+
+    fn regenerate_events(&mut self) {
+        let now_tz = self.current_time.with_timezone(&self.timezone);
+        self.events_cache = CachedEvents {
+            reference: now_tz,
+            entries: events::collect_events_within_window(
+                &self.location,
+                &now_tz,
+                ChronoDuration::hours(EVENT_WINDOW_HOURS),
+            ),
+        };
+    }
+
+    pub fn refresh_events_if_needed(&mut self) {
+        let now_tz = self.current_time.with_timezone(&self.timezone);
+        let reference = self.events_cache.reference;
+        let threshold = ChronoDuration::hours(EVENT_REFRESH_THRESHOLD_HOURS);
+        let delta = now_tz.signed_duration_since(reference);
+        let need_refresh = self.events_cache.entries.is_empty()
+            || delta.num_seconds().abs() >= threshold.num_seconds()
+            || reference.date_naive() != now_tz.date_naive();
+
+        if need_refresh {
+            self.regenerate_events();
+        }
+    }
+
+    fn recompute_positions(&mut self) {
+        let now_tz = self.current_time.with_timezone(&self.timezone);
+        self.positions_cache = CachedPositions::new(&self.location, &now_tz);
+        self.positions_last_refresh = Instant::now();
+    }
+
+    pub fn refresh_positions_if_needed(&mut self) {
+        if self.positions_last_refresh.elapsed() >= POSITION_REFRESH_INTERVAL {
+            self.recompute_positions();
+        }
+    }
+
+    pub fn refresh_moon_overview_if_needed(&mut self) {
+        let now_tz = self.current_time.with_timezone(&self.timezone);
+        let needs_update = self.moon_overview_last_refresh.elapsed() >= MOON_REFRESH_INTERVAL
+            || self.moon_overview_cache.timestamp.date_naive() != now_tz.date_naive();
+
+        if needs_update {
+            if self.positions_last_refresh.elapsed() >= POSITION_REFRESH_INTERVAL {
+                self.recompute_positions();
+            }
+            self.moon_overview_cache = CachedMoonDetails {
+                timestamp: self.positions_cache.timestamp,
+                moon: self.positions_cache.moon,
+            };
+            self.moon_overview_last_refresh = Instant::now();
+        }
+    }
+
+    pub fn refresh_lunar_phases_if_needed(&mut self) {
+        let now_tz = self.current_time.with_timezone(&self.timezone);
+        if self.lunar_phases_cache.is_empty()
+            || self.lunar_phases_generated_for != now_tz.date_naive()
+        {
+            self.lunar_phases_cache = Self::collect_lunar_phases(&now_tz);
+            self.lunar_phases_generated_for = now_tz.date_naive();
+        }
+    }
+
+    pub fn refresh_scheduled_data(&mut self) {
+        self.refresh_events_if_needed();
+        self.refresh_positions_if_needed();
+        self.refresh_moon_overview_if_needed();
+        self.refresh_lunar_phases_if_needed();
+    }
+
+    pub fn reset_cached_data(&mut self) {
+        self.regenerate_events();
+        self.recompute_positions();
+        self.moon_overview_cache = CachedMoonDetails {
+            timestamp: self.positions_cache.timestamp,
+            moon: self.positions_cache.moon,
+        };
+        self.moon_overview_last_refresh = Instant::now();
+        let now_tz = self.current_time.with_timezone(&self.timezone);
+        self.lunar_phases_cache = Self::collect_lunar_phases(&now_tz);
+        self.lunar_phases_generated_for = now_tz.date_naive();
     }
 
     fn expire_status_if_needed(&mut self) {
@@ -683,20 +855,6 @@ impl App {
 
     pub fn toggle_night_mode(&mut self) {
         self.night_mode = !self.night_mode;
-    }
-
-    pub fn increase_refresh(&mut self) {
-        let secs = self.refresh_interval.as_secs_f64();
-        self.refresh_interval = Duration::from_secs_f64((secs + 10.0).min(600.0));
-    }
-
-    pub fn decrease_refresh(&mut self) {
-        let secs = self.refresh_interval.as_secs_f64();
-        self.refresh_interval = Duration::from_secs_f64((secs - 10.0).max(1.0));
-    }
-
-    pub fn reset_refresh(&mut self) {
-        self.refresh_interval = Duration::from_secs(1);
     }
 
     pub fn open_calendar_generator(&mut self) {
@@ -742,6 +900,8 @@ impl App {
         self.timezone = city.tz.parse().unwrap_or(chrono_tz::UTC);
         self.city_name = Some(city.name.clone());
         self.should_save = true;
+        self.update_time();
+        self.reset_cached_data();
         self.ai_last_refresh = None;
         self.ai_outcome = None;
     }
@@ -863,20 +1023,15 @@ impl App {
             return;
         }
 
+        self.refresh_scheduled_data();
         let now_tz = self.current_time.with_timezone(&self.timezone);
 
-        let timed_events = events::collect_events_within_window(
-            &self.location,
-            &now_tz,
-            chrono::Duration::hours(12),
-        );
+        let timed_events = self.events_cache.entries.clone();
         let next_idx = timed_events.iter().position(|(time, _)| *time > now_tz);
         let event_summaries = ai::prepare_event_summaries(&timed_events, &now_tz, next_idx);
 
-        let sun_pos = sun::solar_position(&self.location, &now_tz);
-        let moon_pos = moon::lunar_position(&self.location, &now_tz);
-
-        let lunar_phases = moon::lunar_phases(now_tz.year(), now_tz.month());
+        let sun_pos = self.positions_cache.sun;
+        let moon_pos = self.positions_cache.moon;
 
         let ai_data = ai::build_ai_data(
             &self.location,
@@ -887,7 +1042,7 @@ impl App {
             &moon_pos,
             event_summaries,
             &self.time_sync,
-            &lunar_phases,
+            &self.lunar_phases_cache,
         );
 
         let previous_outcome = self.ai_outcome.clone();
