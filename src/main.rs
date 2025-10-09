@@ -305,7 +305,7 @@ fn print_text_output(
     time_sync_info: &time_sync::TimeSyncInfo,
     ai_config: &ai::AiConfig,
 ) -> Result<()> {
-    println!("Astro Times — Sunrise, Sunset, Moonrise, Moonset");
+    println!("AstroTimes Beta 0.1.0 — github.com/FunKite/astrotimes");
 
     // Location
     println!("— Location & Date —");

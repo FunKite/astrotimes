@@ -116,7 +116,7 @@ fn sanitized_event_label<'a>(app: &App, label: &'a str) -> Cow<'a, str> {
 }
 
 fn render_title(f: &mut Frame, area: Rect, app: &App) {
-    let title = Paragraph::new("Astro Times — Sunrise, Sunset, Moonrise, Moonset")
+    let title = Paragraph::new("AstroTimes Beta 0.1.0 — github.com/FunKite/astrotimes")
         .style(
             Style::default()
                 .fg(get_color(app, Color::Cyan))
