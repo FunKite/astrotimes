@@ -22,7 +22,7 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use ratatui::{backend::CrosstermBackend, Terminal};
-use std::{fs, io};
+use std::{env, fs, io};
 
 fn main() -> Result<()> {
     let args = cli::Args::parse();
@@ -30,8 +30,16 @@ fn main() -> Result<()> {
     // Load or create configuration
     let mut config = config::Config::load().ok().flatten();
 
-    // Check system clock against authoritative source
-    let time_sync_info = time_sync::check_time_sync();
+    // Check system clock against authoritative source (unless explicitly skipped)
+    let time_sync_info = if env::var("ASTROTIMES_SKIP_TIME_SYNC").is_ok() {
+        time_sync::TimeSyncInfo {
+            source: time_sync::TIME_SOURCE,
+            delta: None,
+            error: Some("time sync skipped by ASTROTIMES_SKIP_TIME_SYNC".into()),
+        }
+    } else {
+        time_sync::check_time_sync()
+    };
 
     let ai_config = ai::AiConfig::from_args(&args)?;
 

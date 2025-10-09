@@ -4,7 +4,7 @@ use reqwest::blocking::Client;
 use serde::Deserialize;
 use std::time::Duration as StdDuration;
 
-const TIME_SOURCE: &str = "worldtimeapi.org (UTC)";
+pub const TIME_SOURCE: &str = "worldtimeapi.org (UTC)";
 const TIME_ENDPOINT: &str = "https://worldtimeapi.org/api/timezone/Etc/UTC";
 const SYNC_THRESHOLD_MICROS: i64 = 50_000; // 50 ms tolerance treated as in sync
 

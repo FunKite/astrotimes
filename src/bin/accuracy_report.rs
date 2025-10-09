@@ -235,6 +235,7 @@ fn run_astrotimes<'a>(date: &str, city: &City<'a>) -> Result<std::process::Outpu
         .arg(format!("--date={}", date))
         .arg("--elev=0")
         .arg("--json")
+        .env("ASTROTIMES_SKIP_TIME_SYNC", "1")
         .output()
 }
 
