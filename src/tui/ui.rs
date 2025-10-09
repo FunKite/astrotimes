@@ -188,20 +188,43 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
                 now_tz.format("UTC%:z")
             ),
         ))]));
-        let time_sync_text = match (
+        let countdown_text = app.time_sync_countdown().map(|remaining| {
+            let total_secs = remaining.as_secs();
+            let minutes = total_secs / 60;
+            let seconds = total_secs % 60;
+            format!("{:02}:{:02}", minutes, seconds)
+        });
+        let mut time_sync_text = format!("Sync {}:", app.time_sync.source);
+        match (
             app.time_sync.delta,
             app.time_sync.direction(),
             app.time_sync.error_summary(),
         ) {
-            (Some(delta), Some(direction), _) => format!(
-                "Time sync: {} ({})",
-                time_sync::format_offset(delta),
-                time_sync::describe_direction(direction)
-            ),
-            (Some(delta), None, _) => format!("Time sync: {}", time_sync::format_offset(delta)),
-            (None, _, Some(err)) => format!("Time sync: unavailable ({})", err),
-            _ => "Time sync: unavailable".to_string(),
-        };
+            (Some(delta), Some(direction), _) => {
+                let dir_symbol = match direction {
+                    time_sync::TimeSyncDirection::Ahead => "↑",
+                    time_sync::TimeSyncDirection::Behind => "↓",
+                    time_sync::TimeSyncDirection::InSync => "✓",
+                };
+                time_sync_text.push_str(&format!(
+                    " {} {}",
+                    time_sync::format_offset(delta),
+                    dir_symbol
+                ));
+            }
+            (Some(delta), None, _) => {
+                time_sync_text.push_str(&format!(" {}", time_sync::format_offset(delta)));
+            }
+            (None, _, Some(err)) => {
+                time_sync_text.push_str(&format!(" err {}", err));
+            }
+            _ => {
+                time_sync_text.push_str(" n/a");
+            }
+        }
+        if let Some(countdown) = countdown_text {
+            time_sync_text.push_str(&format!(" ↻{}", countdown));
+        }
         lines.push(Line::from(vec![Span::raw(label_with_symbol(
             app,
             "🕒",

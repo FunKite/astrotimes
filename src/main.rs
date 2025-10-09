@@ -31,9 +31,10 @@ fn main() -> Result<()> {
     let mut config = config::Config::load().ok().flatten();
 
     // Check system clock against authoritative source (unless explicitly skipped)
-    let time_sync_info = if env::var("ASTROTIMES_SKIP_TIME_SYNC").is_ok() {
+    let skip_time_sync = env::var("ASTROTIMES_SKIP_TIME_SYNC").is_ok();
+    let time_sync_info = if skip_time_sync {
         time_sync::TimeSyncInfo {
-            source: time_sync::TIME_SOURCE,
+            source: time_sync::PRIMARY_SOURCE_LABEL,
             delta: None,
             error: Some("time sync skipped by ASTROTIMES_SKIP_TIME_SYNC".into()),
         }
@@ -113,6 +114,7 @@ fn main() -> Result<()> {
             timezone,
             city_name.clone(),
             time_sync_info.clone(),
+            skip_time_sync,
             ai_config.clone(),
             config.as_ref().map(|cfg| cfg.watch.clone()),
         )?;
@@ -225,6 +227,7 @@ fn run_watch_mode(
     timezone: Tz,
     city_name: Option<String>,
     time_sync_info: time_sync::TimeSyncInfo,
+    time_sync_disabled: bool,
     ai_config: ai::AiConfig,
     watch_prefs: Option<config::WatchPreferences>,
 ) -> Result<()> {
@@ -241,6 +244,7 @@ fn run_watch_mode(
         timezone,
         city_name,
         time_sync_info,
+        time_sync_disabled,
         ai_config,
         watch_prefs,
     );
@@ -326,19 +330,27 @@ fn print_text_output(
     ) {
         (Some(delta), Some(direction), _) => {
             println!(
-                "🕒 Time sync: {} ({})",
+                "🕒 Time sync ({}): {} ({})",
+                time_sync_info.source,
                 time_sync::format_offset(delta),
                 time_sync::describe_direction(direction)
             );
         }
         (Some(delta), None, _) => {
-            println!("🕒 Time sync: {}", time_sync::format_offset(delta));
+            println!(
+                "🕒 Time sync ({}): {}",
+                time_sync_info.source,
+                time_sync::format_offset(delta)
+            );
         }
         (None, _, Some(err)) => {
-            println!("🕒 Time sync: unavailable ({})", err);
+            println!(
+                "🕒 Time sync ({}): unavailable ({})",
+                time_sync_info.source, err
+            );
         }
         _ => {
-            println!("🕒 Time sync: unavailable");
+            println!("🕒 Time sync ({}): unavailable", time_sync_info.source);
         }
     }
 

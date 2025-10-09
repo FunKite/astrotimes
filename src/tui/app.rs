@@ -21,6 +21,7 @@ const EVENT_WINDOW_HOURS: i64 = 12;
 const EVENT_REFRESH_THRESHOLD_HOURS: i64 = 6;
 const POSITION_REFRESH_INTERVAL: Duration = Duration::from_secs(10);
 const MOON_REFRESH_INTERVAL: Duration = Duration::from_secs(3600);
+const TIME_SYNC_REFRESH_INTERVAL: Duration = Duration::from_secs(900);
 // Allow a small buffer below the horizon before calling the Moon "Rising" so we
 // do not report rising while it is still deep below the horizon.
 #[derive(Debug, Clone)]
@@ -699,6 +700,8 @@ pub struct App {
     pub show_positions: bool,
     pub show_moon: bool,
     pub show_lunar_phases: bool,
+    pub time_sync_last_check: Instant,
+    pub time_sync_disabled: bool,
 }
 
 impl App {
@@ -707,6 +710,7 @@ impl App {
         timezone: Tz,
         city_name: Option<String>,
         time_sync: TimeSyncInfo,
+        time_sync_disabled: bool,
         ai_config: ai::AiConfig,
         watch_prefs: Option<WatchPreferences>,
     ) -> Self {
@@ -759,6 +763,8 @@ impl App {
             show_positions: prefs.show_positions,
             show_moon: prefs.show_moon,
             show_lunar_phases: prefs.show_lunar_phases,
+            time_sync_last_check: Instant::now(),
+            time_sync_disabled,
         }
     }
 
@@ -858,6 +864,7 @@ impl App {
     }
 
     pub fn refresh_scheduled_data(&mut self) {
+        self.refresh_time_sync_if_needed();
         self.refresh_events_if_needed();
         self.refresh_positions_if_needed();
         self.refresh_moon_overview_if_needed();
@@ -914,6 +921,27 @@ impl App {
 
     pub fn current_status(&self) -> Option<&str> {
         self.status_message.as_deref()
+    }
+
+    pub fn refresh_time_sync_if_needed(&mut self) {
+        if self.time_sync_disabled {
+            return;
+        }
+        if self.time_sync_last_check.elapsed() >= TIME_SYNC_REFRESH_INTERVAL {
+            self.time_sync = crate::time_sync::check_time_sync();
+            self.time_sync_last_check = Instant::now();
+        }
+    }
+
+    pub fn time_sync_countdown(&self) -> Option<Duration> {
+        if self.time_sync_disabled {
+            return None;
+        }
+        let elapsed = self.time_sync_last_check.elapsed();
+        let remaining = TIME_SYNC_REFRESH_INTERVAL
+            .checked_sub(elapsed)
+            .unwrap_or_else(|| Duration::from_secs(0));
+        Some(remaining)
     }
 
     pub fn toggle_night_mode(&mut self) {

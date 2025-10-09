@@ -1,11 +1,13 @@
 use anyhow::{anyhow, Context};
-use chrono::{DateTime, Duration as ChronoDuration, Utc};
-use reqwest::blocking::Client;
-use serde::Deserialize;
+use chrono::{Duration as ChronoDuration, TimeZone, Utc};
+use std::net::UdpSocket;
 use std::time::Duration as StdDuration;
 
-pub const TIME_SOURCE: &str = "worldtimeapi.org (UTC)";
-const TIME_ENDPOINT: &str = "https://worldtimeapi.org/api/timezone/Etc/UTC";
+const TIME_SERVERS: [(&str, &str); 2] = [
+    ("time.google.com:123", "time.google.com (NTP)"),
+    ("pool.ntp.org:123", "pool.ntp.org (NTP)"),
+];
+pub const PRIMARY_SOURCE_LABEL: &str = TIME_SERVERS[0].1;
 const SYNC_THRESHOLD_MICROS: i64 = 50_000; // 50 ms tolerance treated as in sync
 
 #[derive(Debug, Clone)]
@@ -22,20 +24,15 @@ pub enum TimeSyncDirection {
     InSync,
 }
 
-#[derive(Debug, Deserialize)]
-struct WorldTimeApiResponse {
-    datetime: String,
-}
-
 pub fn check_time_sync() -> TimeSyncInfo {
     match fetch_delta() {
-        Ok(delta) => TimeSyncInfo {
-            source: TIME_SOURCE,
+        Ok((delta, source)) => TimeSyncInfo {
+            source,
             delta: Some(delta),
             error: None,
         },
         Err(err) => TimeSyncInfo {
-            source: TIME_SOURCE,
+            source: PRIMARY_SOURCE_LABEL,
             delta: None,
             error: Some(err.to_string()),
         },
@@ -80,41 +77,66 @@ pub fn direction_code(direction: TimeSyncDirection) -> &'static str {
     }
 }
 
-fn fetch_delta() -> anyhow::Result<ChronoDuration> {
-    let client = Client::builder()
-        .timeout(StdDuration::from_secs(3))
-        .build()
-        .context("failed to construct HTTP client")?;
+fn fetch_delta() -> anyhow::Result<(ChronoDuration, &'static str)> {
+    let mut last_err: Option<anyhow::Error> = None;
 
-    let response = client
-        .get(TIME_ENDPOINT)
-        .header(
-            reqwest::header::USER_AGENT,
-            format!(
-                "AstroTimes/{} (+https://github.com/FunKite/astrotimes)",
-                env!("CARGO_PKG_VERSION")
-            ),
-        )
-        .send()
-        .context("failed to contact worldtimeapi.org")?;
-
-    if !response.status().is_success() {
-        return Err(anyhow!(
-            "worldtimeapi.org responded with status {}",
-            response.status()
-        ));
+    for (server, label) in TIME_SERVERS.iter() {
+        match query_ntp(server) {
+            Ok(server_time) => {
+                let system_time = Utc::now();
+                let delta = system_time.signed_duration_since(server_time);
+                return Ok((delta, *label));
+            }
+            Err(err) => {
+                last_err = Some(anyhow!("{} query failed: {}", label, err));
+            }
+        }
     }
 
-    let payload: WorldTimeApiResponse = response
-        .json()
-        .context("failed to decode worldtimeapi.org response")?;
+    Err(last_err.unwrap_or_else(|| anyhow!("all time sources failed")))
+}
 
-    let server_time = DateTime::parse_from_rfc3339(&payload.datetime)
-        .context("invalid datetime from worldtimeapi.org")?
-        .with_timezone(&Utc);
-    let system_time = Utc::now();
+fn query_ntp(server: &str) -> anyhow::Result<chrono::DateTime<Utc>> {
+    let socket =
+        UdpSocket::bind("0.0.0.0:0").context("failed to bind local UDP socket for time sync")?;
+    socket
+        .set_read_timeout(Some(StdDuration::from_secs(3)))
+        .context("failed to set read timeout")?;
+    socket
+        .set_write_timeout(Some(StdDuration::from_secs(3)))
+        .context("failed to set write timeout")?;
 
-    Ok(system_time.signed_duration_since(server_time))
+    let mut packet = [0u8; 48];
+    packet[0] = 0b00_100_011; // LI = 0, VN = 4, Mode = 3 (client)
+
+    socket
+        .send_to(&packet, server)
+        .with_context(|| format!("failed to send request to {}", server))?;
+
+    let mut response = [0u8; 48];
+    let (len, _) = socket
+        .recv_from(&mut response)
+        .with_context(|| format!("failed to receive response from {}", server))?;
+
+    if len < 48 {
+        return Err(anyhow!("incomplete NTP response ({} bytes)", len));
+    }
+
+    let seconds = u32::from_be_bytes([response[40], response[41], response[42], response[43]]);
+    let fraction = u32::from_be_bytes([response[44], response[45], response[46], response[47]]);
+
+    const NTP_UNIX_OFFSET: i64 = 2_208_988_800; // Seconds between 1900-01-01 and 1970-01-01
+    let unix_seconds = seconds as i64 - NTP_UNIX_OFFSET;
+
+    if unix_seconds < 0 {
+        return Err(anyhow!("invalid NTP timestamp (pre-1970)"));
+    }
+
+    let nanos = ((fraction as u128) * 1_000_000_000u128 / (1u128 << 32)) as u32;
+
+    Utc.timestamp_opt(unix_seconds, nanos)
+        .single()
+        .ok_or_else(|| anyhow!("invalid timestamp from {}", server))
 }
 
 impl TimeSyncInfo {
