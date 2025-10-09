@@ -2,6 +2,7 @@
 
 use crate::ai;
 use crate::astro::*;
+use crate::events;
 use crate::time_sync;
 use anyhow::Result;
 use chrono::{DateTime, Datelike, Utc};
@@ -183,42 +184,8 @@ pub fn generate_json_output(
 
     let city_name_ref = city_name.as_ref().map(|name| name.as_str());
     let ai_insights = if ai_config.enabled {
-        let mut events = Vec::new();
-        if let Some(e) = sun::solar_event_time(location, dt, sun::SolarEvent::SolarNoon) {
-            events.push((e, "☀️ Solar noon"));
-        }
-        if let Some(e) = sun::solar_event_time(location, dt, sun::SolarEvent::Sunset) {
-            events.push((e, "🌇 Sunset"));
-        }
-        if let Some(e) = moon::lunar_event_time(location, dt, moon::LunarEvent::Moonrise) {
-            events.push((e, "🌕 Moonrise"));
-        }
-        if let Some(e) = sun::solar_event_time(location, dt, sun::SolarEvent::CivilDusk) {
-            events.push((e, "🌆 Civil dusk"));
-        }
-        if let Some(e) = sun::solar_event_time(location, dt, sun::SolarEvent::NauticalDusk) {
-            events.push((e, "⛵ Nautical dusk"));
-        }
-        if let Some(e) = sun::solar_event_time(location, dt, sun::SolarEvent::AstronomicalDusk) {
-            events.push((e, "🌠 Astro dusk"));
-        }
-        if let Some(e) = sun::solar_event_time(location, dt, sun::SolarEvent::AstronomicalDawn) {
-            events.push((e, "🔭 Astro dawn"));
-        }
-        if let Some(e) = sun::solar_event_time(location, dt, sun::SolarEvent::NauticalDawn) {
-            events.push((e, "⚓ Nautical dawn"));
-        }
-        if let Some(e) = sun::solar_event_time(location, dt, sun::SolarEvent::CivilDawn) {
-            events.push((e, "🏙️ Civil dawn"));
-        }
-        if let Some(e) = sun::solar_event_time(location, dt, sun::SolarEvent::Sunrise) {
-            events.push((e, "🌅 Sunrise"));
-        }
-        if let Some(e) = moon::lunar_event_time(location, dt, moon::LunarEvent::Moonset) {
-            events.push((e, "🌑 Moonset"));
-        }
-
-        events.sort_by_key(|(time, _)| *time);
+        let events =
+            events::collect_events_within_window(location, dt, chrono::Duration::hours(12));
         let next_idx = events.iter().position(|(time, _)| *time > *dt);
         let summaries = ai::prepare_event_summaries(&events, dt, next_idx);
 

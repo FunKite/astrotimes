@@ -6,13 +6,14 @@ mod city;
 mod cli;
 mod config;
 mod elevation;
+mod events;
 mod location;
 mod output;
 mod time_sync;
 mod tui;
 
 use anyhow::{anyhow, Context, Result};
-use chrono::{Datelike, Local, NaiveDate, TimeZone};
+use chrono::{Datelike, Duration, Local, NaiveDate, TimeZone};
 use chrono_tz::Tz;
 use clap::Parser;
 use crossterm::{
@@ -304,51 +305,7 @@ fn print_text_output(
     // Events
     println!("— Events —");
 
-    let mut events = Vec::new();
-    if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::SolarNoon) {
-        events.push((e, "☀️ Solar noon"));
-    }
-    if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::Sunset) {
-        events.push((e, "🌇 Sunset"));
-    }
-    if let Some(e) = astro::moon::lunar_event_time(location, dt, astro::moon::LunarEvent::Moonrise)
-    {
-        events.push((e, "🌕 Moonrise"));
-    }
-    if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::CivilDusk) {
-        events.push((e, "🌆 Civil dusk"));
-    }
-    if let Some(e) =
-        astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::NauticalDusk)
-    {
-        events.push((e, "⛵ Nautical dusk"));
-    }
-    if let Some(e) =
-        astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::AstronomicalDusk)
-    {
-        events.push((e, "🌠 Astro dusk"));
-    }
-    if let Some(e) =
-        astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::AstronomicalDawn)
-    {
-        events.push((e, "🔭 Astro dawn"));
-    }
-    if let Some(e) =
-        astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::NauticalDawn)
-    {
-        events.push((e, "⚓ Nautical dawn"));
-    }
-    if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::CivilDawn) {
-        events.push((e, "🏙️ Civil dawn"));
-    }
-    if let Some(e) = astro::sun::solar_event_time(location, dt, astro::sun::SolarEvent::Sunrise) {
-        events.push((e, "🌅 Sunrise"));
-    }
-    if let Some(e) = astro::moon::lunar_event_time(location, dt, astro::moon::LunarEvent::Moonset) {
-        events.push((e, "🌑 Moonset"));
-    }
-
-    events.sort_by_key(|(time, _)| *time);
+    let events = events::collect_events_within_window(location, dt, Duration::hours(12));
 
     let next_idx = events.iter().position(|(time, _)| *time > *dt);
     let precomputed_ai_events = if ai_config.enabled {
