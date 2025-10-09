@@ -48,6 +48,49 @@ impl CachedPositions {
 pub struct CachedMoonDetails {
     pub timestamp: DateTime<Tz>,
     pub moon: moon::LunarPosition,
+    pub altitude_trend: MoonAltitudeTrend,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum MoonAltitudeTrend {
+    Down,
+    Rising,
+    Setting,
+    Up,
+}
+
+impl CachedMoonDetails {
+    fn from_positions(location: &Location, positions: &CachedPositions) -> Self {
+        let altitude_trend = determine_moon_trend(location, &positions.timestamp, positions.moon);
+        Self {
+            timestamp: positions.timestamp,
+            moon: positions.moon,
+            altitude_trend,
+        }
+    }
+}
+
+fn determine_moon_trend(
+    location: &Location,
+    timestamp: &DateTime<Tz>,
+    base: moon::LunarPosition,
+) -> MoonAltitudeTrend {
+    let future_dt = timestamp.clone() + ChronoDuration::minutes(10);
+    let future = moon::lunar_position(location, &future_dt);
+    let delta = future.altitude - base.altitude;
+
+    let threshold = 0.01;
+    if base.altitude >= 0.0 {
+        if delta <= -threshold {
+            MoonAltitudeTrend::Setting
+        } else {
+            MoonAltitudeTrend::Up
+        }
+    } else if delta >= threshold {
+        MoonAltitudeTrend::Rising
+    } else {
+        MoonAltitudeTrend::Down
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -682,10 +725,7 @@ impl App {
             ChronoDuration::hours(EVENT_WINDOW_HOURS),
         );
         let positions_cache = CachedPositions::new(&location, &now_tz);
-        let moon_overview_cache = CachedMoonDetails {
-            timestamp: positions_cache.timestamp,
-            moon: positions_cache.moon,
-        };
+        let moon_overview_cache = CachedMoonDetails::from_positions(&location, &positions_cache);
         let lunar_phases_cache = Self::collect_lunar_phases(&now_tz);
         let lunar_phases_generated_for = now_tz.date_naive();
 
@@ -807,10 +847,8 @@ impl App {
             if self.positions_last_refresh.elapsed() >= POSITION_REFRESH_INTERVAL {
                 self.recompute_positions();
             }
-            self.moon_overview_cache = CachedMoonDetails {
-                timestamp: self.positions_cache.timestamp,
-                moon: self.positions_cache.moon,
-            };
+            self.moon_overview_cache =
+                CachedMoonDetails::from_positions(&self.location, &self.positions_cache);
             self.moon_overview_last_refresh = Instant::now();
         }
     }
@@ -835,10 +873,8 @@ impl App {
     pub fn reset_cached_data(&mut self) {
         self.regenerate_events();
         self.recompute_positions();
-        self.moon_overview_cache = CachedMoonDetails {
-            timestamp: self.positions_cache.timestamp,
-            moon: self.positions_cache.moon,
-        };
+        self.moon_overview_cache =
+            CachedMoonDetails::from_positions(&self.location, &self.positions_cache);
         self.moon_overview_last_refresh = Instant::now();
         let now_tz = self.current_time.with_timezone(&self.timezone);
         self.lunar_phases_cache = Self::collect_lunar_phases(&now_tz);

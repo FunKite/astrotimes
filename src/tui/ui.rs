@@ -85,7 +85,8 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
     let now_tz = app.current_time.with_timezone(&app.timezone);
     let sun_pos = app.positions_cache.sun;
     let moon_pos_position = app.positions_cache.moon;
-    let moon_overview = app.moon_overview_cache.moon;
+    let moon_overview_details = app.moon_overview_cache;
+    let moon_overview = moon_overview_details.moon;
     let lunar_phases = &app.lunar_phases_cache;
 
     // Build the display text
@@ -101,9 +102,10 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
         )]));
         lines.push(Line::from(vec![
             Span::raw(format!(
-                "📍 Lat, Lon (WGS84): {:.5}, {:.5}  ",
+                "📍 Lat,Lon(WGS84): {:.5},{:.5}",
                 app.location.latitude, app.location.longitude
             )),
+            Span::raw("  "),
             Span::raw(format!(
                 "⛰️ Elevation (MSL): {:.0} m",
                 app.location.elevation
@@ -183,7 +185,7 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
             };
 
             lines.push(Line::from(vec![Span::raw(format!(
-                "{}  {:<18}  {:<18}{}",
+                "{}  {:<18}{:<17}{}",
                 time_str, event_name, diff_str, marker
             ))]));
         }
@@ -244,9 +246,16 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
             moon::phase_name(moon_overview.phase_angle),
             (moon_overview.phase_angle / 360.0 * 29.53)
         ))]));
+        let trend_label = match moon_overview_details.altitude_trend {
+            super::app::MoonAltitudeTrend::Down => "Down",
+            super::app::MoonAltitudeTrend::Rising => "Rising",
+            super::app::MoonAltitudeTrend::Setting => "Setting",
+            super::app::MoonAltitudeTrend::Up => "Up",
+        };
         lines.push(Line::from(vec![Span::raw(format!(
-            "💡 Fraction Illum.: {:.0}%",
-            moon_overview.illumination * 100.0
+            "💡 Fraction Illum.: {:.0}% ({})",
+            moon_overview.illumination * 100.0,
+            trend_label
         ))]));
         lines.push(Line::from(vec![Span::raw(format!(
             "🔭 Apparent size:   {:.1}' ({})",
