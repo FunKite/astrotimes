@@ -1,6 +1,6 @@
 // UI rendering
 
-use super::app::{AiConfigField, AiServerStatus, App, LocationInputField};
+use super::app::{AiConfigField, AiServerStatus, App, CalendarField, LocationInputField};
 use crate::astro::*;
 use crate::events;
 use crate::time_sync;
@@ -13,11 +13,12 @@ use ratatui::{
     Frame,
 };
 
-const FOOTER_INSTRUCTIONS: [&str; 8] = [
+const FOOTER_INSTRUCTIONS: [&str; 9] = [
     "q quit",
     "s save",
     "c city",
     "l location",
+    "g calendar",
     "a AI",
     "n night",
     "]/[ slow/fast",
@@ -50,6 +51,9 @@ pub fn render(f: &mut Frame, app: &App) {
         }
         super::app::AppMode::AiConfig => {
             render_ai_config(f, app);
+        }
+        super::app::AppMode::Calendar => {
+            render_calendar_generator(f, app);
         }
     }
 }
@@ -138,6 +142,14 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
         _ => "🕒 Time sync: unavailable".to_string(),
     };
     lines.push(Line::from(vec![Span::raw(time_sync_text)]));
+    if let Some(status) = app.current_status() {
+        lines.push(Line::from(vec![Span::styled(
+            format!("✓ {}", status),
+            Style::default()
+                .fg(get_color(app, Color::Green))
+                .add_modifier(Modifier::BOLD),
+        )]));
+    }
     lines.push(Line::from(""));
 
     // Events section
@@ -649,6 +661,152 @@ fn render_location_input(f: &mut Frame, app: &App) {
 
     // Footer
     let footer = Paragraph::new("Tab/↑↓: Navigate | Enter: Confirm | Esc: Cancel")
+        .style(Style::default().fg(get_color(app, Color::Gray)))
+        .alignment(Alignment::Center);
+    f.render_widget(footer, chunks[3]);
+}
+
+fn render_calendar_generator(f: &mut Frame, app: &App) {
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Length(3),  // Title
+            Constraint::Length(11), // Form
+            Constraint::Min(5),     // Guidance
+            Constraint::Length(2),  // Footer
+        ])
+        .split(f.area());
+
+    let title = Paragraph::new("Generate Astronomical Calendar")
+        .style(
+            Style::default()
+                .fg(get_color(app, Color::Cyan))
+                .add_modifier(Modifier::BOLD),
+        )
+        .alignment(Alignment::Center)
+        .block(Block::default().borders(Borders::ALL));
+    f.render_widget(title, chunks[0]);
+
+    let draft = &app.calendar_draft;
+    let current_field = draft.current_field();
+
+    let field_style = |field: CalendarField| {
+        if field == current_field {
+            Style::default()
+                .fg(get_color(app, Color::Yellow))
+                .add_modifier(Modifier::BOLD)
+        } else {
+            Style::default().fg(get_color(app, Color::White))
+        }
+    };
+
+    let marker = |field: CalendarField| if field == current_field { "► " } else { "  " };
+
+    let start_value = if draft.start.is_empty() {
+        Span::styled(
+            "YYYY-MM-DD",
+            Style::default().fg(get_color(app, Color::Gray)),
+        )
+    } else {
+        Span::styled(draft.start.as_str(), field_style(CalendarField::StartDate))
+    };
+
+    let end_value = if draft.end.is_empty() {
+        Span::styled(
+            "YYYY-MM-DD",
+            Style::default().fg(get_color(app, Color::Gray)),
+        )
+    } else {
+        Span::styled(draft.end.as_str(), field_style(CalendarField::EndDate))
+    };
+
+    let output_display = if draft.output_path.trim().is_empty() {
+        Span::styled(
+            "(auto-named on save)",
+            Style::default().fg(get_color(app, Color::Gray)),
+        )
+    } else {
+        Span::styled(
+            draft.output_path.as_str(),
+            field_style(CalendarField::OutputPath),
+        )
+    };
+
+    let mut lines = vec![
+        Line::from(vec![
+            Span::raw(marker(CalendarField::StartDate)),
+            Span::styled("Start date: ", field_style(CalendarField::StartDate)),
+            start_value,
+            Span::styled(
+                "  (YYYY-MM-DD)",
+                Style::default().fg(get_color(app, Color::Gray)),
+            ),
+        ]),
+        Line::from(""),
+        Line::from(vec![
+            Span::raw(marker(CalendarField::EndDate)),
+            Span::styled("End date:   ", field_style(CalendarField::EndDate)),
+            end_value,
+            Span::styled(
+                "  (YYYY-MM-DD)",
+                Style::default().fg(get_color(app, Color::Gray)),
+            ),
+        ]),
+        Line::from(""),
+        Line::from(vec![
+            Span::raw(marker(CalendarField::Format)),
+            Span::styled("Format:     ", field_style(CalendarField::Format)),
+            Span::styled(
+                draft.current_format_label(),
+                field_style(CalendarField::Format),
+            ),
+            Span::styled(
+                "  (space/←/→ to toggle)",
+                Style::default().fg(get_color(app, Color::Gray)),
+            ),
+        ]),
+        Line::from(""),
+        Line::from(vec![
+            Span::raw(marker(CalendarField::OutputPath)),
+            Span::styled("Output file:", field_style(CalendarField::OutputPath)),
+            output_display,
+        ]),
+    ];
+
+    if let Some(error) = &draft.error {
+        lines.push(Line::from(""));
+        lines.push(Line::from(Span::styled(
+            format!("Error: {}", error),
+            Style::default().fg(Color::Red).add_modifier(Modifier::BOLD),
+        )));
+    }
+
+    let form = Paragraph::new(lines).style(Style::default()).block(
+        Block::default()
+            .borders(Borders::ALL)
+            .title("Calendar Parameters"),
+    );
+    f.render_widget(form, chunks[1]);
+
+    let guidance_text = vec![
+        Line::from(Span::raw(
+            "• Enter BCE years with a leading minus (e.g., -0999-01-01 = 1000 BCE).",
+        )),
+        Line::from(Span::raw(
+            "• Range must fall between 1000 BCE and 3000 CE (inclusive).",
+        )),
+        Line::from(Span::raw(
+            "• Files include sunrise, sunset, twilight, moonrise, moonset, and phase details.",
+        )),
+    ];
+
+    let guidance = Paragraph::new(guidance_text)
+        .style(Style::default().fg(get_color(app, Color::Gray)))
+        .wrap(Wrap { trim: false })
+        .block(Block::default().borders(Borders::ALL).title("Tips"));
+    f.render_widget(guidance, chunks[2]);
+
+    let footer = Paragraph::new("Enter: Generate | Esc: Cancel | Tab/Shift+Tab: Move")
         .style(Style::default().fg(get_color(app, Color::Gray)))
         .alignment(Alignment::Center);
     f.render_widget(footer, chunks[3]);

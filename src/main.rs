@@ -2,6 +2,7 @@
 
 mod ai;
 mod astro;
+mod calendar;
 mod city;
 mod cli;
 mod config;
@@ -21,7 +22,7 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use ratatui::{backend::CrosstermBackend, Terminal};
-use std::io;
+use std::{fs, io};
 
 fn main() -> Result<()> {
     let args = cli::Args::parse();
@@ -50,7 +51,42 @@ fn main() -> Result<()> {
     };
 
     // Output mode
-    if args.json {
+    if args.calendar {
+        let start_str = args
+            .calendar_start
+            .as_ref()
+            .ok_or_else(|| anyhow!("--calendar-start is required when --calendar is used"))?;
+        let end_str = args
+            .calendar_end
+            .as_ref()
+            .ok_or_else(|| anyhow!("--calendar-end is required when --calendar is used"))?;
+
+        let start_date = NaiveDate::parse_from_str(start_str, "%Y-%m-%d")
+            .with_context(|| format!("Invalid calendar start date '{}'", start_str))?;
+        let end_date = NaiveDate::parse_from_str(end_str, "%Y-%m-%d")
+            .with_context(|| format!("Invalid calendar end date '{}'", end_str))?;
+
+        let format = match args.calendar_format {
+            cli::CalendarFormatArg::Html => calendar::CalendarFormat::Html,
+            cli::CalendarFormatArg::Json => calendar::CalendarFormat::Json,
+        };
+
+        let calendar_output = calendar::generate_calendar(
+            &location,
+            &timezone,
+            city_name.as_deref(),
+            start_date,
+            end_date,
+            format,
+        )?;
+
+        if let Some(path) = &args.calendar_output {
+            fs::write(path, calendar_output)?;
+            println!("Calendar written to {}", path.display());
+        } else {
+            println!("{}", calendar_output);
+        }
+    } else if args.json {
         // JSON output mode
         let json = output::generate_json_output(
             &location,

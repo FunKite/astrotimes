@@ -1,6 +1,13 @@
 // Command-line argument parsing
 
-use clap::Parser;
+use clap::{Parser, ValueEnum};
+use std::path::PathBuf;
+
+#[derive(Copy, Clone, Debug, ValueEnum)]
+pub enum CalendarFormatArg {
+    Html,
+    Json,
+}
 
 #[derive(Parser, Debug, Clone)]
 #[command(name = "astrotimes")]
@@ -34,6 +41,26 @@ pub struct Args {
     /// Output in JSON format
     #[arg(long)]
     pub json: bool,
+
+    /// Generate a calendar for the specified date range
+    #[arg(long)]
+    pub calendar: bool,
+
+    /// Calendar output format (html or json)
+    #[arg(long, default_value = "html", value_enum)]
+    pub calendar_format: CalendarFormatArg,
+
+    /// Calendar range start date (YYYY-MM-DD, supports negative years like -0999)
+    #[arg(long, requires = "calendar")]
+    pub calendar_start: Option<String>,
+
+    /// Calendar range end date (YYYY-MM-DD, supports negative years like -0999)
+    #[arg(long, requires = "calendar")]
+    pub calendar_end: Option<String>,
+
+    /// Path to write the generated calendar (stdout when omitted)
+    #[arg(long, requires = "calendar")]
+    pub calendar_output: Option<PathBuf>,
 
     /// Force watch mode (live updates)
     #[arg(long)]
