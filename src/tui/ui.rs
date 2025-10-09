@@ -331,8 +331,6 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
         ))]));
         let trend_label = match moon_overview_details.altitude_trend {
             super::app::MoonAltitudeTrend::Down => "Down",
-            super::app::MoonAltitudeTrend::Rising => "Rising",
-            super::app::MoonAltitudeTrend::Setting => "Setting",
             super::app::MoonAltitudeTrend::Up => "Up",
         };
         lines.push(Line::from(vec![Span::raw(label_with_symbol(

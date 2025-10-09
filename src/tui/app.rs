@@ -21,7 +21,8 @@ const EVENT_WINDOW_HOURS: i64 = 12;
 const EVENT_REFRESH_THRESHOLD_HOURS: i64 = 6;
 const POSITION_REFRESH_INTERVAL: Duration = Duration::from_secs(10);
 const MOON_REFRESH_INTERVAL: Duration = Duration::from_secs(3600);
-
+// Allow a small buffer below the horizon before calling the Moon "Rising" so we
+// do not report rising while it is still deep below the horizon.
 #[derive(Debug, Clone)]
 pub struct CachedEvents {
     pub reference: DateTime<Tz>,
@@ -53,10 +54,11 @@ pub struct CachedMoonDetails {
 }
 
 #[derive(Debug, Clone, Copy)]
+/// Simple visibility indicator for the Moon.
 pub enum MoonAltitudeTrend {
+    /// Moon center altitude < 0° (not visible).
     Down,
-    Rising,
-    Setting,
+    /// Moon center altitude ≥ 0° (visible).
     Up,
 }
 
@@ -72,23 +74,12 @@ impl CachedMoonDetails {
 }
 
 fn determine_moon_trend(
-    location: &Location,
-    timestamp: &DateTime<Tz>,
+    _location: &Location,
+    _timestamp: &DateTime<Tz>,
     base: moon::LunarPosition,
 ) -> MoonAltitudeTrend {
-    let future_dt = timestamp.clone() + ChronoDuration::minutes(10);
-    let future = moon::lunar_position(location, &future_dt);
-    let delta = future.altitude - base.altitude;
-
-    let threshold = 0.01;
     if base.altitude >= 0.0 {
-        if delta <= -threshold {
-            MoonAltitudeTrend::Setting
-        } else {
-            MoonAltitudeTrend::Up
-        }
-    } else if delta >= threshold {
-        MoonAltitudeTrend::Rising
+        MoonAltitudeTrend::Up
     } else {
         MoonAltitudeTrend::Down
     }
