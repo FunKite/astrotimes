@@ -659,6 +659,11 @@ pub struct App {
     pub moon_overview_last_refresh: Instant,
     pub lunar_phases_cache: Vec<moon::LunarPhase>,
     pub lunar_phases_generated_for: NaiveDate,
+    pub show_location_date: bool,
+    pub show_events: bool,
+    pub show_positions: bool,
+    pub show_moon: bool,
+    pub show_lunar_phases: bool,
 }
 
 impl App {
@@ -715,6 +720,11 @@ impl App {
             moon_overview_last_refresh: Instant::now(),
             lunar_phases_cache,
             lunar_phases_generated_for,
+            show_location_date: true,
+            show_events: true,
+            show_positions: true,
+            show_moon: true,
+            show_lunar_phases: true,
         }
     }
 
@@ -855,6 +865,26 @@ impl App {
 
     pub fn toggle_night_mode(&mut self) {
         self.night_mode = !self.night_mode;
+    }
+
+    pub fn toggle_location_date(&mut self) {
+        self.show_location_date = !self.show_location_date;
+    }
+
+    pub fn toggle_events(&mut self) {
+        self.show_events = !self.show_events;
+    }
+
+    pub fn toggle_positions(&mut self) {
+        self.show_positions = !self.show_positions;
+    }
+
+    pub fn toggle_moon(&mut self) {
+        self.show_moon = !self.show_moon;
+    }
+
+    pub fn toggle_lunar_phases(&mut self) {
+        self.show_lunar_phases = !self.show_lunar_phases;
     }
 
     pub fn open_calendar_generator(&mut self) {
