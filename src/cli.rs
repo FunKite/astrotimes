@@ -66,10 +66,6 @@ pub struct Args {
     #[arg(long)]
     pub watch: bool,
 
-    /// Refresh interval in seconds for watch mode (default: 1)
-    #[arg(long, default_value = "1.0")]
-    pub refresh: f64,
-
     /// Disable all interactive prompts
     #[arg(long)]
     pub no_prompt: bool,
@@ -100,11 +96,6 @@ pub struct Args {
 }
 
 impl Args {
-    #[allow(dead_code)]
-    pub fn has_location(&self) -> bool {
-        (self.lat.is_some() && self.lon.is_some()) || self.city.is_some()
-    }
-
     pub fn should_watch(&self) -> bool {
         self.watch || (!self.json && !self.no_prompt)
     }

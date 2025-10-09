@@ -104,7 +104,6 @@ fn main() -> Result<()> {
             location,
             timezone,
             city_name.clone(),
-            args.refresh,
             time_sync_info.clone(),
             ai_config.clone(),
         )?;
@@ -216,7 +215,6 @@ fn run_watch_mode(
     location: astro::Location,
     timezone: Tz,
     city_name: Option<String>,
-    refresh_interval: f64,
     time_sync_info: time_sync::TimeSyncInfo,
     ai_config: ai::AiConfig,
 ) -> Result<()> {
@@ -228,29 +226,24 @@ fn run_watch_mode(
     let mut terminal = Terminal::new(backend)?;
 
     // Create app
-    let mut app = tui::App::new(
-        location,
-        timezone,
-        city_name,
-        refresh_interval,
-        time_sync_info,
-        ai_config,
-    );
+    let mut app = tui::App::new(location, timezone, city_name, time_sync_info, ai_config);
 
     if app.ai_config.enabled {
         app.refresh_ai_insights();
     }
 
     // Main loop
-    let tick_rate = std::time::Duration::from_millis(100);
-    let mut last_update = std::time::Instant::now();
+    let tick_rate = std::time::Duration::from_millis(250);
+    let mut last_time_update = std::time::Instant::now();
 
     loop {
         // Update time periodically
-        if last_update.elapsed() >= app.refresh_interval {
+        if last_time_update.elapsed() >= std::time::Duration::from_secs(1) {
             app.update_time();
-            last_update = std::time::Instant::now();
+            last_time_update = std::time::Instant::now();
         }
+
+        app.refresh_scheduled_data();
 
         if app.should_refresh_ai() {
             app.refresh_ai_insights();

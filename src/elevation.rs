@@ -76,14 +76,14 @@ fn get_raw_etopo_elevation(lat: f64, lon: f64) -> Result<f64> {
     // Try a small search pattern around the coordinate
     // Search within ±0.01 degrees (~1km at equator)
     let offsets = [
-        (0.005, 0.0),    // East
-        (-0.005, 0.0),   // West
-        (0.0, 0.005),    // North
-        (0.0, -0.005),   // South
-        (0.005, 0.005),  // NE
-        (-0.005, 0.005), // NW
-        (0.005, -0.005), // SE
-        (-0.005, -0.005),// SW
+        (0.005, 0.0),     // East
+        (-0.005, 0.0),    // West
+        (0.0, 0.005),     // North
+        (0.0, -0.005),    // South
+        (0.005, 0.005),   // NE
+        (-0.005, 0.005),  // NW
+        (0.005, -0.005),  // SE
+        (-0.005, -0.005), // SW
     ];
 
     for (dlon, dlat) in &offsets {
@@ -101,7 +101,8 @@ fn get_raw_etopo_elevation(lat: f64, lon: f64) -> Result<f64> {
     Err(anyhow!(
         "Failed to read elevation at ({}, {}) and nearby pixels. \
         Coordinate may be outside TIFF coverage area.",
-        lat, lon
+        lat,
+        lon
     ))
 }
 
@@ -114,8 +115,8 @@ fn haversine_distance(lat1: f64, lon1: f64, lat2: f64, lon2: f64) -> f64 {
     let lat1_rad = lat1.to_radians();
     let lat2_rad = lat2.to_radians();
 
-    let a = (dlat / 2.0).sin().powi(2)
-        + lat1_rad.cos() * lat2_rad.cos() * (dlon / 2.0).sin().powi(2);
+    let a =
+        (dlat / 2.0).sin().powi(2) + lat1_rad.cos() * lat2_rad.cos() * (dlon / 2.0).sin().powi(2);
     let c = 2.0 * a.sqrt().atan2((1.0 - a).sqrt());
 
     EARTH_RADIUS_KM * c
@@ -193,8 +194,8 @@ fn calculate_urban_correction(lat: f64, lon: f64, cities: &[City]) -> Result<f64
 /// Estimated elevation in meters, or error if data unavailable
 pub fn estimate_elevation(lat: f64, lon: f64, cities: &[City]) -> Result<f64> {
     // Get raw ETOPO elevation
-    let raw_elevation = get_raw_etopo_elevation(lat, lon)
-        .context("Failed to read ETOPO elevation data")?;
+    let raw_elevation =
+        get_raw_etopo_elevation(lat, lon).context("Failed to read ETOPO elevation data")?;
 
     // OCEAN DETECTION FIX:
     // ETOPO encodes elevations < 1m as 0 (includes oceans, below sea level)
@@ -215,8 +216,7 @@ pub fn estimate_elevation(lat: f64, lon: f64, cities: &[City]) -> Result<f64> {
     }
 
     // Calculate urban correction based on nearby cities
-    let correction = calculate_urban_correction(lat, lon, cities)
-        .unwrap_or(0.0); // If correction fails, use raw elevation
+    let correction = calculate_urban_correction(lat, lon, cities).unwrap_or(0.0); // If correction fails, use raw elevation
 
     // Apply correction
     let estimated_elevation = raw_elevation + correction;
@@ -227,33 +227,6 @@ pub fn estimate_elevation(lat: f64, lon: f64, cities: &[City]) -> Result<f64> {
     Ok(clamped_elevation)
 }
 
-/// Get diagnostic info about elevation estimation at a location
-#[allow(dead_code)]
-pub fn get_elevation_diagnostic(lat: f64, lon: f64, cities: &[City]) -> Result<String> {
-    let raw_elevation = get_raw_etopo_elevation(lat, lon)?;
-    let correction = calculate_urban_correction(lat, lon, cities)?;
-    let final_elevation = raw_elevation + correction;
-
-    // Find nearest city
-    let mut city_distances: Vec<(f64, &City)> = cities
-        .iter()
-        .map(|city| {
-            let dist = haversine_distance(lat, lon, city.lat, city.lon);
-            (dist, city)
-        })
-        .collect();
-    city_distances.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
-
-    let nearest = city_distances.first().map(|(dist, city)| {
-        format!("{} ({:.1} km away, {} m elevation)", city.name, dist, city.elev)
-    }).unwrap_or_else(|| "No cities in database".to_string());
-
-    Ok(format!(
-        "ETOPO raw: {:.1} m\nUrban correction: {:.1} m\nFinal estimate: {:.1} m\nNearest city: {}",
-        raw_elevation, correction, final_elevation, nearest
-    ))
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -262,7 +235,11 @@ mod tests {
     fn test_haversine_distance() {
         // New York to Los Angeles: ~3944 km
         let dist = haversine_distance(40.7128, -74.0060, 34.0522, -118.2437);
-        assert!((dist - 3944.0).abs() < 50.0, "Distance should be ~3944 km, got {}", dist);
+        assert!(
+            (dist - 3944.0).abs() < 50.0,
+            "Distance should be ~3944 km, got {}",
+            dist
+        );
     }
 
     #[test]
@@ -274,8 +251,11 @@ mod tests {
         let result = estimate_elevation(0.0, 0.0, &cities);
 
         if let Ok(elev) = result {
-            assert!(elev >= -100.0 && elev <= 9000.0,
-                "Elevation {} should be within bounds", elev);
+            assert!(
+                elev >= -100.0 && elev <= 9000.0,
+                "Elevation {} should be within bounds",
+                elev
+            );
         }
     }
 }

@@ -2,9 +2,8 @@
 
 use super::app::{AiConfigField, AiServerStatus, App, CalendarField, LocationInputField};
 use crate::astro::*;
-use crate::events;
 use crate::time_sync;
-use chrono::{Datelike, Timelike, Utc};
+use chrono::{Timelike, Utc};
 use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
@@ -13,7 +12,7 @@ use ratatui::{
     Frame,
 };
 
-const FOOTER_INSTRUCTIONS: [&str; 9] = [
+const FOOTER_INSTRUCTIONS: [&str; 7] = [
     "q quit",
     "s save",
     "c city",
@@ -21,8 +20,6 @@ const FOOTER_INSTRUCTIONS: [&str; 9] = [
     "g calendar",
     "a AI",
     "n night",
-    "]/[ slow/fast",
-    "= reset",
 ];
 
 pub fn render(f: &mut Frame, app: &App) {
@@ -81,13 +78,10 @@ fn render_title(f: &mut Frame, area: Rect, app: &App) {
 
 fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
     let now_tz = app.current_time.with_timezone(&app.timezone);
-
-    // Calculate all astronomical data
-    let sun_pos = sun::solar_position(&app.location, &now_tz);
-    let moon_pos = moon::lunar_position(&app.location, &now_tz);
-
-    // Lunar phases
-    let phases = moon::lunar_phases(now_tz.year(), now_tz.month());
+    let sun_pos = app.positions_cache.sun;
+    let moon_pos_position = app.positions_cache.moon;
+    let moon_overview = app.moon_overview_cache.moon;
+    let lunar_phases = &app.lunar_phases_cache;
 
     // Build the display text
     let mut lines = Vec::new();
@@ -160,9 +154,8 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
             .add_modifier(Modifier::BOLD),
     )]));
 
-    // Collect and sort all events
-    let timed_events =
-        events::collect_events_within_window(&app.location, &now_tz, chrono::Duration::hours(12));
+    // Use cached events
+    let timed_events = &app.events_cache.entries;
     let next_event_idx = timed_events.iter().position(|(dt, _)| *dt > now_tz);
 
     for (idx, (event_time, event_name)) in timed_events.iter().enumerate() {
@@ -203,9 +196,9 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
     ))]));
     lines.push(Line::from(vec![Span::raw(format!(
         "🌕 Moon: Alt {:>5.1}°, Az {:>3.0}° {}",
-        moon_pos.altitude,
-        moon_pos.azimuth,
-        coordinates::azimuth_to_compass(moon_pos.azimuth)
+        moon_pos_position.altitude,
+        moon_pos_position.azimuth,
+        coordinates::azimuth_to_compass(moon_pos_position.azimuth)
     ))]));
     lines.push(Line::from(""));
 
@@ -218,13 +211,13 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
     )]));
 
     // Classify moon size
-    let size_class = if moon_pos.angular_diameter > 33.0 {
+    let size_class = if moon_overview.angular_diameter > 33.0 {
         "Near Perigee"
-    } else if moon_pos.angular_diameter > 32.0 {
+    } else if moon_overview.angular_diameter > 32.0 {
         "Larger than Average"
-    } else if moon_pos.angular_diameter > 30.5 {
+    } else if moon_overview.angular_diameter > 30.5 {
         "Average"
-    } else if moon_pos.angular_diameter > 29.5 {
+    } else if moon_overview.angular_diameter > 29.5 {
         "Smaller than Average"
     } else {
         "Near Apogee"
@@ -232,22 +225,22 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
 
     lines.push(Line::from(vec![Span::raw(format!(
         "{} Phase:           {} (Age {:.1} days)",
-        moon::phase_emoji(moon_pos.phase_angle),
-        moon::phase_name(moon_pos.phase_angle),
-        (moon_pos.phase_angle / 360.0 * 29.53)
+        moon::phase_emoji(moon_overview.phase_angle),
+        moon::phase_name(moon_overview.phase_angle),
+        (moon_overview.phase_angle / 360.0 * 29.53)
     ))]));
     lines.push(Line::from(vec![Span::raw(format!(
         "💡 Fraction Illum.: {:.0}%",
-        moon_pos.illumination * 100.0
+        moon_overview.illumination * 100.0
     ))]));
     lines.push(Line::from(vec![Span::raw(format!(
         "🔭 Apparent size:   {:.1}' ({})",
-        moon_pos.angular_diameter, size_class
+        moon_overview.angular_diameter, size_class
     ))]));
     lines.push(Line::from(""));
 
     // Lunar phases section
-    if !phases.is_empty() {
+    if !lunar_phases.is_empty() {
         lines.push(Line::from(vec![Span::styled(
             "— Lunar Phases —",
             Style::default()
@@ -255,7 +248,20 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
                 .add_modifier(Modifier::BOLD),
         )]));
 
-        for phase in phases.iter().take(4) {
+        let now_utc = now_tz.with_timezone(&Utc);
+        let future_start = lunar_phases
+            .iter()
+            .position(|phase| phase.datetime > now_utc)
+            .unwrap_or(lunar_phases.len());
+        let mut display_phases: Vec<&moon::LunarPhase> = Vec::new();
+
+        let prev_start = future_start.saturating_sub(2);
+        display_phases.extend(&lunar_phases[prev_start..future_start]);
+
+        let future_end = (future_start + 2).min(lunar_phases.len());
+        display_phases.extend(&lunar_phases[future_start..future_end]);
+
+        for phase in display_phases {
             let phase_emoji = match phase.phase_type {
                 moon::LunarPhaseType::NewMoon => "🌑",
                 moon::LunarPhaseType::FirstQuarter => "🌓",
@@ -336,10 +342,7 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
 
 fn render_footer(f: &mut Frame, area: Rect, app: &App) {
     let mut lines = Vec::new();
-    let header = format!(
-        "— System — Update: {:.1}s",
-        app.refresh_interval.as_secs_f64()
-    );
+    let header = "— System — Time 1s • Position 10s • Moon 60m • Phases midnight";
     lines.push(Line::from(Span::styled(
         header,
         Style::default()

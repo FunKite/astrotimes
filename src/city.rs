@@ -64,36 +64,6 @@ impl CityDatabase {
         results.sort_by(|a, b| b.1.cmp(&a.1));
         results
     }
-
-    /// Filter cities by field
-    #[allow(dead_code)]
-    pub fn filter(&self, field: &str, value: &str) -> Vec<&City> {
-        let value_lower = value.to_lowercase();
-        self.cities
-            .iter()
-            .filter(|city| match field {
-                "country" => city.country.to_lowercase().contains(&value_lower),
-                "state" => city
-                    .state
-                    .as_ref()
-                    .map_or(false, |s| s.to_lowercase().contains(&value_lower)),
-                "tz" => city.tz.to_lowercase().contains(&value_lower),
-                _ => false,
-            })
-            .collect()
-    }
-
-    /// Get all cities
-    #[allow(dead_code)]
-    pub fn all(&self) -> &[City] {
-        &self.cities
-    }
-
-    /// Get cities count
-    #[allow(dead_code)]
-    pub fn count(&self) -> usize {
-        self.cities.len()
-    }
 }
 
 #[cfg(test)]
@@ -103,7 +73,7 @@ mod tests {
     #[test]
     fn test_load_database() {
         let db = CityDatabase::load().unwrap();
-        assert!(db.count() > 0);
+        assert!(!db.cities().is_empty());
     }
 
     #[test]

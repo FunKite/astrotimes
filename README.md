@@ -79,10 +79,12 @@ The default mode is a live-updating display:
 | `q` | Quit the application |
 | `n` | Toggle Night Mode (red text) |
 | `s` | Save current location |
+| `c` | Switch city (open picker) |
+| `l` | Enter manual location |
 | `g` | Open calendar generator (HTML/JSON export) |
-| `]` / `+` | Decrease refresh interval (faster) |
-| `[` / `-` | Increase refresh interval (slower) |
-| `=` / `0` | Reset refresh interval (60s) |
+| `a` | Configure AI insights |
+
+Watch mode updates the clock every second, refreshes sun/moon positions every 10 seconds, refreshes the detailed moon data hourly, and rebuilds the lunar phase list each night at local midnight to keep CPU usage minimal while keeping the numbers accurate.
 
 ### JSON Output
 
@@ -131,7 +133,6 @@ In watch mode, press `g` to open an interactive calendar generator: adjust the r
 | `--calendar-start <DATE>` | Calendar start date (requires `--calendar`) |
 | `--calendar-end <DATE>` | Calendar end date (requires `--calendar`) |
 | `--calendar-output <PATH>` | Optional file path for the calendar |
-| `--refresh <SECS>` | Refresh interval for watch mode (default: 60) |
 | `--no-prompt` | Disable interactive prompts |
 | `--no-save` | Don't save configuration |
 

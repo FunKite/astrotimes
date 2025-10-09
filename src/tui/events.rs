@@ -59,15 +59,6 @@ fn handle_watch_mode_keys(app: &mut App, key: KeyEvent) -> Result<()> {
         KeyCode::Char('g') | KeyCode::Char('G') => {
             app.open_calendar_generator();
         }
-        KeyCode::Char(']') | KeyCode::Char('+') => {
-            app.decrease_refresh();
-        }
-        KeyCode::Char('[') | KeyCode::Char('-') => {
-            app.increase_refresh();
-        }
-        KeyCode::Char('=') | KeyCode::Char('0') => {
-            app.reset_refresh();
-        }
         _ => {}
     }
     Ok(())
@@ -133,6 +124,10 @@ fn handle_location_input_keys(app: &mut App, key: KeyEvent) -> Result<()> {
                             app.timezone = tz;
                             app.city_name = None;
                             app.mode = AppMode::Watch;
+                            app.update_time();
+                            app.reset_cached_data();
+                            app.ai_last_refresh = None;
+                            app.ai_outcome = None;
                             app.location_input_draft.clear_error();
                         }
                         Err(_) => {
