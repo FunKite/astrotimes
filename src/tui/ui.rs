@@ -249,12 +249,16 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
                 ""
             };
 
+            let event_label = sanitized_event_label(app, event_name);
+            let (event_width, diff_width) = if app.night_mode { (14, 15) } else { (16, 17) };
             lines.push(Line::from(vec![Span::raw(format!(
-                "{}  {:<16}{:<17}{}",
+                "{}  {:<event_width$}{:<diff_width$}{}",
                 time_str,
-                sanitized_event_label(app, event_name),
+                event_label,
                 diff_str,
-                marker
+                marker,
+                event_width = event_width,
+                diff_width = diff_width
             ))]));
         }
         sections_rendered += 1;
