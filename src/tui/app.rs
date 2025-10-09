@@ -3,6 +3,7 @@
 use crate::ai;
 use crate::astro::*;
 use crate::city::City;
+use crate::events;
 use crate::time_sync::TimeSyncInfo;
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Datelike, Local};
@@ -136,7 +137,10 @@ impl LocationInputDraft {
 
     pub fn validate(&self) -> Result<(f64, f64, Option<f64>, String)> {
         // Parse latitude
-        let lat = self.latitude.trim().parse::<f64>()
+        let lat = self
+            .latitude
+            .trim()
+            .parse::<f64>()
             .map_err(|_| anyhow!("Invalid latitude"))?;
 
         if lat < -90.0 || lat > 90.0 {
@@ -144,7 +148,10 @@ impl LocationInputDraft {
         }
 
         // Parse longitude
-        let lon = self.longitude.trim().parse::<f64>()
+        let lon = self
+            .longitude
+            .trim()
+            .parse::<f64>()
             .map_err(|_| anyhow!("Invalid longitude"))?;
 
         if lon < -180.0 || lon > 180.0 {
@@ -155,8 +162,12 @@ impl LocationInputDraft {
         let elev = if self.elevation.trim().is_empty() {
             None
         } else {
-            Some(self.elevation.trim().parse::<f64>()
-                .map_err(|_| anyhow!("Invalid elevation"))?)
+            Some(
+                self.elevation
+                    .trim()
+                    .parse::<f64>()
+                    .map_err(|_| anyhow!("Invalid elevation"))?,
+            )
         };
 
         // Validate timezone
@@ -571,57 +582,13 @@ impl App {
 
         let now_tz = self.current_time.with_timezone(&self.timezone);
 
-        let mut events = Vec::new();
-        if let Some(e) = sun::solar_event_time(&self.location, &now_tz, sun::SolarEvent::SolarNoon)
-        {
-            events.push((e, "☀️ Solar noon"));
-        }
-        if let Some(e) = sun::solar_event_time(&self.location, &now_tz, sun::SolarEvent::Sunset) {
-            events.push((e, "🌇 Sunset"));
-        }
-        if let Some(e) = moon::lunar_event_time(&self.location, &now_tz, moon::LunarEvent::Moonrise)
-        {
-            events.push((e, "🌕 Moonrise"));
-        }
-        if let Some(e) = sun::solar_event_time(&self.location, &now_tz, sun::SolarEvent::CivilDusk)
-        {
-            events.push((e, "🌆 Civil dusk"));
-        }
-        if let Some(e) =
-            sun::solar_event_time(&self.location, &now_tz, sun::SolarEvent::NauticalDusk)
-        {
-            events.push((e, "⛵ Nautical dusk"));
-        }
-        if let Some(e) =
-            sun::solar_event_time(&self.location, &now_tz, sun::SolarEvent::AstronomicalDusk)
-        {
-            events.push((e, "🌠 Astro dusk"));
-        }
-        if let Some(e) =
-            sun::solar_event_time(&self.location, &now_tz, sun::SolarEvent::AstronomicalDawn)
-        {
-            events.push((e, "🔭 Astro dawn"));
-        }
-        if let Some(e) =
-            sun::solar_event_time(&self.location, &now_tz, sun::SolarEvent::NauticalDawn)
-        {
-            events.push((e, "⚓ Nautical dawn"));
-        }
-        if let Some(e) = sun::solar_event_time(&self.location, &now_tz, sun::SolarEvent::CivilDawn)
-        {
-            events.push((e, "🏙️ Civil dawn"));
-        }
-        if let Some(e) = sun::solar_event_time(&self.location, &now_tz, sun::SolarEvent::Sunrise) {
-            events.push((e, "🌅 Sunrise"));
-        }
-        if let Some(e) = moon::lunar_event_time(&self.location, &now_tz, moon::LunarEvent::Moonset)
-        {
-            events.push((e, "🌑 Moonset"));
-        }
-
-        events.sort_by_key(|(time, _)| *time);
-        let next_idx = events.iter().position(|(time, _)| *time > now_tz);
-        let event_summaries = ai::prepare_event_summaries(&events, &now_tz, next_idx);
+        let timed_events = events::collect_events_within_window(
+            &self.location,
+            &now_tz,
+            chrono::Duration::hours(12),
+        );
+        let next_idx = timed_events.iter().position(|(time, _)| *time > now_tz);
+        let event_summaries = ai::prepare_event_summaries(&timed_events, &now_tz, next_idx);
 
         let sun_pos = sun::solar_position(&self.location, &now_tz);
         let moon_pos = moon::lunar_position(&self.location, &now_tz);

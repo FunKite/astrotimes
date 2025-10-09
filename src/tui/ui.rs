@@ -2,6 +2,7 @@
 
 use super::app::{AiConfigField, AiServerStatus, App, LocationInputField};
 use crate::astro::*;
+use crate::events;
 use crate::time_sync;
 use chrono::{Datelike, Timelike, Utc};
 use ratatui::{
@@ -81,25 +82,6 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
     let sun_pos = sun::solar_position(&app.location, &now_tz);
     let moon_pos = moon::lunar_position(&app.location, &now_tz);
 
-    // Solar events
-    let sunrise = sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::Sunrise);
-    let sunset = sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::Sunset);
-    let solar_noon = sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::SolarNoon);
-    let civil_dawn = sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::CivilDawn);
-    let civil_dusk = sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::CivilDusk);
-    let nautical_dawn =
-        sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::NauticalDawn);
-    let nautical_dusk =
-        sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::NauticalDusk);
-    let astro_dawn =
-        sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::AstronomicalDawn);
-    let astro_dusk =
-        sun::solar_event_time(&app.location, &now_tz, sun::SolarEvent::AstronomicalDusk);
-
-    // Lunar events
-    let moonrise = moon::lunar_event_time(&app.location, &now_tz, moon::LunarEvent::Moonrise);
-    let moonset = moon::lunar_event_time(&app.location, &now_tz, moon::LunarEvent::Moonset);
-
     // Lunar phases
     let phases = moon::lunar_phases(now_tz.year(), now_tz.month());
 
@@ -167,47 +149,11 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
     )]));
 
     // Collect and sort all events
-    let mut events = Vec::new();
-    if let Some(dt) = solar_noon {
-        events.push((dt, "☀️ Solar noon"));
-    }
-    if let Some(dt) = sunset {
-        events.push((dt, "🌇 Sunset"));
-    }
-    if let Some(dt) = moonrise {
-        events.push((dt, "🌕 Moonrise"));
-    }
-    if let Some(dt) = civil_dusk {
-        events.push((dt, "🌆 Civil dusk"));
-    }
-    if let Some(dt) = nautical_dusk {
-        events.push((dt, "⛵ Nautical dusk"));
-    }
-    if let Some(dt) = astro_dusk {
-        events.push((dt, "🌠 Astro dusk"));
-    }
-    if let Some(dt) = astro_dawn {
-        events.push((dt, "🔭 Astro dawn"));
-    }
-    if let Some(dt) = nautical_dawn {
-        events.push((dt, "⚓ Nautical dawn"));
-    }
-    if let Some(dt) = civil_dawn {
-        events.push((dt, "🏙️ Civil dawn"));
-    }
-    if let Some(dt) = sunrise {
-        events.push((dt, "🌅 Sunrise"));
-    }
-    if let Some(dt) = moonset {
-        events.push((dt, "🌑 Moonset"));
-    }
+    let timed_events =
+        events::collect_events_within_window(&app.location, &now_tz, chrono::Duration::hours(12));
+    let next_event_idx = timed_events.iter().position(|(dt, _)| *dt > now_tz);
 
-    events.sort_by_key(|(dt, _)| *dt);
-
-    // Find the next upcoming event
-    let next_event_idx = events.iter().position(|(dt, _)| *dt > now_tz);
-
-    for (idx, (event_time, event_name)) in events.iter().enumerate() {
+    for (idx, (event_time, event_name)) in timed_events.iter().enumerate() {
         let time_diff = time_utils::time_until(&now_tz, event_time);
         let time_str = format!("{}", event_time.format("%H:%M:%S"));
         let mut diff_str = time_utils::format_duration_detailed(time_diff);
@@ -581,7 +527,11 @@ fn render_location_input(f: &mut Frame, app: &App) {
     };
 
     let marker = |field: LocationInputField| {
-        if field == current_field { "► " } else { "  " }
+        if field == current_field {
+            "► "
+        } else {
+            "  "
+        }
     };
 
     let lat_display = if draft.latitude.is_empty() {
@@ -611,28 +561,40 @@ fn render_location_input(f: &mut Frame, app: &App) {
             Span::raw(marker(LocationInputField::Latitude)),
             Span::styled("Latitude:  ", field_style(LocationInputField::Latitude)),
             Span::styled(lat_display, field_style(LocationInputField::Latitude)),
-            Span::styled("  (-90 to 90)", Style::default().fg(get_color(app, Color::Gray))),
+            Span::styled(
+                "  (-90 to 90)",
+                Style::default().fg(get_color(app, Color::Gray)),
+            ),
         ]),
         Line::from(""),
         Line::from(vec![
             Span::raw(marker(LocationInputField::Longitude)),
             Span::styled("Longitude: ", field_style(LocationInputField::Longitude)),
             Span::styled(lon_display, field_style(LocationInputField::Longitude)),
-            Span::styled("  (-180 to 180)", Style::default().fg(get_color(app, Color::Gray))),
+            Span::styled(
+                "  (-180 to 180)",
+                Style::default().fg(get_color(app, Color::Gray)),
+            ),
         ]),
         Line::from(""),
         Line::from(vec![
             Span::raw(marker(LocationInputField::Elevation)),
             Span::styled("Elevation: ", field_style(LocationInputField::Elevation)),
             Span::styled(elev_display, field_style(LocationInputField::Elevation)),
-            Span::styled("  (meters, optional)", Style::default().fg(get_color(app, Color::Gray))),
+            Span::styled(
+                "  (meters, optional)",
+                Style::default().fg(get_color(app, Color::Gray)),
+            ),
         ]),
         Line::from(""),
         Line::from(vec![
             Span::raw(marker(LocationInputField::Timezone)),
             Span::styled("Timezone:  ", field_style(LocationInputField::Timezone)),
             Span::styled(&draft.timezone, field_style(LocationInputField::Timezone)),
-            Span::styled("  (e.g., America/New_York)", Style::default().fg(get_color(app, Color::Gray))),
+            Span::styled(
+                "  (e.g., America/New_York)",
+                Style::default().fg(get_color(app, Color::Gray)),
+            ),
         ]),
     ];
 
@@ -645,9 +607,11 @@ fn render_location_input(f: &mut Frame, app: &App) {
         )));
     }
 
-    let input_fields = Paragraph::new(input_lines)
-        .style(Style::default())
-        .block(Block::default().borders(Borders::ALL).title("Enter Location"));
+    let input_fields = Paragraph::new(input_lines).style(Style::default()).block(
+        Block::default()
+            .borders(Borders::ALL)
+            .title("Enter Location"),
+    );
     f.render_widget(input_fields, chunks[1]);
 
     // Help text

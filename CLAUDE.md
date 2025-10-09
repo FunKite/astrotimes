@@ -87,6 +87,10 @@ High-precision astronomical CLI application written in Rust. Calculates sun/moon
 - Outstanding manual verifications still pending: narrow-terminal footer wrap, TUI AI panel behaviour, and CLI/JSON `--ai-insights` flow (see TODO markers in code).
 - Next session should start by smoke-testing the watch UI with varying widths, exercising the Ollama workflow end to end, and pushing any uncommitted changes once validation is done.
 
+## Session Notes (2025-10-08 Codex - Event Window Refinement)
+- Centralized sun/moon event harvesting in `src/events.rs`, reusing it across CLI, TUI, and AI pipelines.
+- Events section now shows occurrences within ±12 hours of “now,” capturing late-night/early-morning transitions while keeping chronological ordering.
+
 ## Critical Bug Fixes (Recent)
 
 ### 1. Timezone Bug (FIXED)
@@ -116,7 +120,7 @@ let phase_angle = normalize_degrees(180.0 - illum_angle);
 **Issue**: "Civil dawn" and "Astro dawn" durations misaligned
 **Cause**: Different emoji rendering widths
 **Fix**: Added extra space: `"🔭  Astro dawn"` and `"🏙️  Civil dawn"`
-**Files**: `src/main.rs:258,264`, `src/tui/ui.rs:138,144`
+**Files**: `src/main.rs:317-337`, `src/tui/ui.rs:156-174`
 
 ### 5. City Database Format (FIXED)
 **Issue**: Parser error on null state values
@@ -682,7 +686,7 @@ From conversation:
 
 ---
 
-*Last updated: 2025-10-08 18:19 EDT*
-*Session: Codex (GPT-5) - Session paused for shutdown*
+*Last updated: 2025-10-08 19:05 EDT*
+*Session: Codex (GPT-5) - Event window refinement*
 *Status: Beta 0.1 - Significantly improved lunar calculations*
 *Accuracy: Solar ±1 min, Lunar phases 100%, Moonrise/moonset ±1-4 min (was ±4-11 min)*
