@@ -100,35 +100,30 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
                 .fg(get_color(app, Color::Yellow))
                 .add_modifier(Modifier::BOLD),
         )]));
-        lines.push(Line::from(vec![
-            Span::raw(format!(
-                "📍 Lat,Lon(WGS84): {:.5},{:.5}",
-                app.location.latitude, app.location.longitude
-            )),
-            Span::raw("  "),
-            Span::raw(format!(
-                "⛰️ Elevation (MSL): {:.0} m",
-                app.location.elevation
-            )),
-        ]));
+        lines.push(Line::from(vec![Span::raw(format!(
+            "📍 Lat,Lon(WGS84): {:.5},{:.5}",
+            app.location.latitude, app.location.longitude
+        ))]));
+        lines.push(Line::from(vec![Span::raw(format!(
+            "⛰️ Elevation (MSL): {:.0} m",
+            app.location.elevation
+        ))]));
         if let Some(ref city) = app.city_name {
             lines.push(Line::from(vec![Span::raw(format!("🏙️ Place: {}", city))]));
         }
-        lines.push(Line::from(vec![
-            Span::raw(format!(
-                "📅 Date: {} {:02}:{:02}:{:02} {}  ",
-                now_tz.format("%b %d"),
-                now_tz.hour(),
-                now_tz.minute(),
-                now_tz.second(),
-                now_tz.format("%Z")
-            )),
-            Span::raw(format!(
-                "⏰ Timezone: {} ({})",
-                app.timezone.name(),
-                now_tz.format("UTC%:z")
-            )),
-        ]));
+        lines.push(Line::from(vec![Span::raw(format!(
+            "📅 Date: {} {:02}:{:02}:{:02} {}",
+            now_tz.format("%b %d"),
+            now_tz.hour(),
+            now_tz.minute(),
+            now_tz.second(),
+            now_tz.format("%Z")
+        ))]));
+        lines.push(Line::from(vec![Span::raw(format!(
+            "⏰ Timezone: {} ({})",
+            app.timezone.name(),
+            now_tz.format("UTC%:z")
+        ))]));
         let time_sync_text = match (
             app.time_sync.delta,
             app.time_sync.direction(),

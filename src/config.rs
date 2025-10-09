@@ -5,6 +5,44 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
 
+fn default_true() -> bool {
+    true
+}
+
+fn default_false() -> bool {
+    false
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
+pub struct WatchPreferences {
+    #[serde(default = "default_true")]
+    pub show_location_date: bool,
+    #[serde(default = "default_true")]
+    pub show_events: bool,
+    #[serde(default = "default_true")]
+    pub show_positions: bool,
+    #[serde(default = "default_true")]
+    pub show_moon: bool,
+    #[serde(default = "default_true")]
+    pub show_lunar_phases: bool,
+    #[serde(default = "default_false")]
+    pub night_mode: bool,
+}
+
+impl Default for WatchPreferences {
+    fn default() -> Self {
+        Self {
+            show_location_date: true,
+            show_events: true,
+            show_positions: true,
+            show_moon: true,
+            show_lunar_phases: true,
+            night_mode: false,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
     pub lat: f64,
@@ -13,6 +51,8 @@ pub struct Config {
     pub tz: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub city: Option<String>,
+    #[serde(default)]
+    pub watch: WatchPreferences,
 }
 
 impl Config {
@@ -23,6 +63,7 @@ impl Config {
             elev,
             tz,
             city,
+            watch: WatchPreferences::default(),
         }
     }
 
