@@ -1,5 +1,8 @@
 # Astrotimes (Rust)
 
+> [!WARNING]
+> **Beta Software**: This application is currently in beta. It is not recommended for use in safety-critical or professional applications where accuracy and reliability are paramount.
+
 > [!NOTE]
 > This is a high-precision Rust implementation of astrotimes - a standalone, offline-friendly CLI for sun and moon calculations
 
@@ -20,15 +23,16 @@ A blazing-fast, standalone CLI that shows accurate sun and moon information for 
 
 ### Key Features
 
-- **High-Precision Calculations**: Uses NOAA solar algorithms and Meeus lunar algorithms for accuracy within 1-3 minutes
-- **Offline-First**: All astronomical calculations run locally - no external services required
-- **Interactive Watch Mode**: Live-updating TUI that refreshes automatically
-- **City Database**: Built-in database of 50+ major cities worldwide
-- **Auto Location Detection**: Optional IP-based location detection
-- **JSON Output**: Machine-readable output for scripts and automation
-- **Calendar Exports**: Generate HTML or JSON calendars (1000 BCE–3000 CE) with daily solar and lunar data
-- **Night Mode**: Red text mode to preserve night vision (press `n` in watch mode)
-- **Configuration**: Remembers your location for quick subsequent runs
+- **High-Precision Calculations**: Uses NOAA solar algorithms and Meeus lunar algorithms for accuracy within 1-3 minutes.
+- **Offline-First Core**: All core astronomical calculations run locally.
+- **Intelligent Elevation Data**: Combines a built-in global elevation map (ETOPO) with an ML-driven model based on urban area data for higher accuracy.
+- **AI-Powered Insights**: Connects to Ollama for narrative summaries of astronomical events (optional).
+- **Time Sync Verification**: Checks system clock accuracy against internet time servers (optional).
+- **Interactive Watch Mode**: A live-updating TUI that refreshes automatically.
+- **City Database**: Built-in database of 50+ major cities worldwide.
+- **Auto Location Detection**: Optional IP-based geolocation.
+- **JSON & HTML Output**: Provides machine-readable JSON output and generates shareable HTML calendars.
+- **Configuration**: Remembers your last location for quick subsequent runs.
 
 ## Installation
 
@@ -117,6 +121,34 @@ Calendars can cover any range between astronomical years `-0999` (1000 BCE) an
 
 In watch mode, press `g` to open an interactive calendar generator: adjust the range, toggle HTML/JSON, and export directly from the TUI.
 
+## Advanced Features
+
+### AI-Powered Insights (Optional)
+
+AstroTimes can connect to a local [Ollama](https://ollama.com/) instance to provide narrative, AI-generated insights based on the current astronomical data. This feature can summarize the sky view, highlight interesting events, and offer context beyond the raw numbers.
+
+**To use this feature:**
+1. Ensure you have Ollama installed and running.
+2. Pull a model (e.g., `ollama pull llama3:8b`).
+3. Run AstroTimes with the `--ai-insights` flag.
+
+```bash
+# Enable AI insights with a default model
+astrotimes --ai-insights
+
+# Specify a custom model and server
+astrotimes --ai-insights --ai-model "llama3:8b" --ai-server "http://192.168.1.100:11434"
+```
+In watch mode, press `a` to open the AI configuration screen, where you can enable/disable insights, change models, and set the refresh interval.
+
+### Intelligent Elevation & Location
+
+AstroTimes enhances accuracy with sophisticated elevation and location services:
+- **Built-in Elevation Map**: Includes a self-contained, high-resolution world elevation map (from ETOPO data), enabling accurate calculations without an internet connection.
+- **ML-Enhanced Elevation**: For locations near populated areas, the application uses a machine learning model to correct raw terrain data, providing a more realistic elevation estimate by accounting for the fact that cities are typically built in lower-lying areas like valleys and plains.
+- **Internet Location Service**: Uses a fast, reliable internet service for automatic IP-based geolocation.
+- **Time Synchronization**: Connects to `worldtimeapi.org` to check the local system clock's accuracy and reports any significant drift, ensuring that event times are calculated reliably.
+
 ### Command-Line Options
 
 | Flag | Description |
@@ -129,10 +161,14 @@ In watch mode, press `g` to open an interactive calendar generator: adjust the r
 | `--date <DATE>` | Date in YYYY-MM-DD format (default: today) |
 | `--json` | Output in JSON format |
 | `--calendar` | Generate a calendar instead of standard output |
-| `--calendar-format <html\|json>` | Calendar output format (default: html) |
+| `--calendar-format <html\|json>` | Calendar output format (`html` or `json`, default: `html`) |
 | `--calendar-start <DATE>` | Calendar start date (requires `--calendar`) |
 | `--calendar-end <DATE>` | Calendar end date (requires `--calendar`) |
 | `--calendar-output <PATH>` | Optional file path for the calendar |
+| `--ai-insights` | Enable AI-powered insights (requires Ollama) |
+| `--ai-server <URL>` | Ollama server address (e.g., `http://localhost:11434`) |
+| `--ai-model <MODEL>` | Ollama model to use for insights (e.g., `llama3:8b`) |
+| `--ai-refresh-minutes <MIN>` | Refresh interval for AI insights in minutes (1-60) |
 | `--no-prompt` | Disable interactive prompts |
 | `--no-save` | Don't save configuration |
 
@@ -198,13 +234,15 @@ All dependencies are well-maintained Rust crates:
 - `fuzzy-matcher` - City search
 - `anyhow` + `thiserror` - Error handling
 
-## Performance
+## Why Rust? The Benefits
 
-Rust implementation provides:
-- **Fast startup**: < 100ms on modern hardware
-- **Low memory**: ~5-10 MB typical usage
-- **No runtime**: Single statically-linked binary
-- **Cross-platform**: Works on macOS, Linux, and Windows
+This application is built in Rust to leverage its unique strengths for creating high-performance, reliable command-line tools:
+
+- **Performance**: Rust is compiled to a native binary that runs directly on the CPU, offering C-like speed without the need for a runtime or garbage collector. This ensures a fast startup (<100ms) and low memory usage (~5-10 MB).
+- **Reliability**: Rust's strict compiler and ownership model eliminate entire classes of common bugs (e.g., null pointer dereferences, data races) at compile time. This is critical for a scientific application where calculation integrity is paramount.
+- **Single Binary**: The entire application, including the elevation map and city database, is compiled into a single, statically-linked executable. This makes installation and distribution trivial—just copy the file and run it.
+- **Cross-Platform**: Rust provides excellent cross-platform support, allowing AstroTimes to run natively on Windows, macOS, and Linux from the same codebase.
+- **Modern Tooling**: The project benefits from Rust's modern ecosystem, including its built-in package manager (`cargo`), testing framework, and high-quality, community-vetted libraries (crates).
 
 ## License
 
