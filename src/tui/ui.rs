@@ -267,7 +267,7 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
             }
 
             let marker = if Some(idx) == next_event_idx {
-                " (*next*)"
+                " (next)"
             } else {
                 ""
             };

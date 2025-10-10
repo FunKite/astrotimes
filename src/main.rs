@@ -375,11 +375,7 @@ fn print_text_output(
             diff_str = format!(" {}", diff_str);
         }
 
-        let marker = if Some(idx) == next_idx {
-            " (*next*)"
-        } else {
-            ""
-        };
+        let marker = if Some(idx) == next_idx { " (next)" } else { "" };
 
         println!(
             "{}  {:<18}  {:<18}{}",
