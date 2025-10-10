@@ -14,19 +14,18 @@ pub const DEG_TO_RAD: f64 = PI / 180.0;
 pub const RAD_TO_DEG: f64 = 180.0 / PI;
 
 /// Location on Earth
+/// All calculations assume sea level (0m elevation) per USNO celestial navigation convention
 #[derive(Debug, Clone, Copy)]
 pub struct Location {
     pub latitude: f64,  // degrees, positive North
     pub longitude: f64, // degrees, positive East
-    pub elevation: f64, // meters above sea level
 }
 
 impl Location {
-    pub fn new(lat: f64, lon: f64, elev: f64) -> Self {
+    pub fn new(lat: f64, lon: f64) -> Self {
         Self {
             latitude: lat,
             longitude: lon,
-            elevation: elev,
         }
     }
 }

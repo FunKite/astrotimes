@@ -6,7 +6,7 @@ use crate::calendar::{self, CalendarFormat};
 use crate::city::City;
 use crate::config::{self, WatchPreferences};
 use crate::events;
-use crate::location_source::{ElevationSource, LocationSource};
+use crate::location_source::LocationSource;
 use crate::time_sync::TimeSyncInfo;
 use anyhow::{anyhow, Context, Result};
 use chrono::{DateTime, Datelike, Duration as ChronoDuration, Local, NaiveDate};
@@ -110,7 +110,6 @@ pub enum AiConfigField {
 pub enum LocationInputField {
     Latitude,
     Longitude,
-    Elevation,
     Timezone,
 }
 
@@ -118,25 +117,21 @@ pub enum LocationInputField {
 pub struct LocationInputDraft {
     pub latitude: String,
     pub longitude: String,
-    pub elevation: String,
     pub timezone: String,
     pub field_index: usize,
     pub error: Option<String>,
-    pub auto_elevation: bool,
 }
 
 impl LocationInputDraft {
-    const FIELD_COUNT: usize = 4;
+    const FIELD_COUNT: usize = 3;
 
     pub fn new() -> Self {
         Self {
             latitude: String::new(),
             longitude: String::new(),
-            elevation: String::new(),
             timezone: "UTC".to_string(),
             field_index: 0,
             error: None,
-            auto_elevation: true,
         }
     }
 
@@ -144,7 +139,6 @@ impl LocationInputDraft {
         match self.field_index {
             0 => LocationInputField::Latitude,
             1 => LocationInputField::Longitude,
-            2 => LocationInputField::Elevation,
             _ => LocationInputField::Timezone,
         }
     }
@@ -173,13 +167,6 @@ impl LocationInputDraft {
                     field.push(c);
                 }
             }
-            LocationInputField::Elevation => {
-                // Allow digits, minus sign, and decimal point
-                if c.is_ascii_digit() || c == '-' || c == '.' {
-                    self.elevation.push(c);
-                    self.auto_elevation = false;
-                }
-            }
             LocationInputField::Timezone => {
                 self.timezone.push(c);
             }
@@ -195,12 +182,6 @@ impl LocationInputDraft {
             LocationInputField::Longitude => {
                 self.longitude.pop();
             }
-            LocationInputField::Elevation => {
-                self.elevation.pop();
-                if self.elevation.is_empty() {
-                    self.auto_elevation = true;
-                }
-            }
             LocationInputField::Timezone => {
                 self.timezone.pop();
             }
@@ -215,7 +196,7 @@ impl LocationInputDraft {
         self.error = Some(msg);
     }
 
-    pub fn validate(&self) -> Result<(f64, f64, Option<f64>, String)> {
+    pub fn validate(&self) -> Result<(f64, f64, String)> {
         // Parse latitude
         let lat = self
             .latitude
@@ -238,25 +219,13 @@ impl LocationInputDraft {
             return Err(anyhow!("Longitude must be between -180 and 180"));
         }
 
-        // Parse elevation (optional)
-        let elev = if self.elevation.trim().is_empty() {
-            None
-        } else {
-            Some(
-                self.elevation
-                    .trim()
-                    .parse::<f64>()
-                    .map_err(|_| anyhow!("Invalid elevation"))?,
-            )
-        };
-
         // Validate timezone
         let tz = self.timezone.trim().to_string();
         if tz.is_empty() {
             return Err(anyhow!("Timezone cannot be empty"));
         }
 
-        Ok((lat, lon, elev, tz))
+        Ok((lat, lon, tz))
     }
 }
 
@@ -675,7 +644,6 @@ pub struct App {
     pub timezone: Tz,
     pub city_name: Option<String>,
     pub location_source: LocationSource,
-    pub elevation_source: ElevationSource,
     pub current_time: DateTime<Local>,
     pub night_mode: bool,
     pub mode: AppMode,
@@ -717,7 +685,6 @@ impl App {
         timezone: Tz,
         city_name: Option<String>,
         location_source: LocationSource,
-        elevation_source: ElevationSource,
         time_sync: TimeSyncInfo,
         time_sync_disabled: bool,
         ai_config: ai::AiConfig,
@@ -741,7 +708,6 @@ impl App {
             timezone,
             city_name,
             location_source,
-            elevation_source,
             current_time: now,
             night_mode: prefs.night_mode,
             mode: AppMode::Watch,
@@ -911,7 +877,6 @@ impl App {
         let mut cfg = config::Config::new(
             self.location.latitude,
             self.location.longitude,
-            self.location.elevation,
             self.timezone.name().to_string(),
             self.city_name.clone(),
         );
@@ -1027,11 +992,10 @@ impl App {
     }
 
     pub fn set_location(&mut self, city: &City) {
-        self.location = Location::new(city.lat, city.lon, city.elev);
+        self.location = Location::new(city.lat, city.lon);
         self.timezone = city.tz.parse().unwrap_or(chrono_tz::UTC);
         self.city_name = Some(city.name.clone());
         self.location_source = LocationSource::CityDatabase;
-        self.elevation_source = ElevationSource::TerrainMl;
         self.should_save = true;
         self.update_time();
         self.reset_cached_data();

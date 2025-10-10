@@ -10,7 +10,6 @@ pub struct City {
     pub name: String,
     pub lat: f64,
     pub lon: f64,
-    pub elev: f64,
     pub tz: String,
     pub country: String,
     pub state: Option<String>,

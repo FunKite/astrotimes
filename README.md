@@ -141,13 +141,17 @@ astrotimes --ai-insights --ai-model "llama3:8b" --ai-server "http://192.168.1.10
 ```
 In watch mode, press `a` to open the AI configuration screen, where you can enable/disable insights, change models, and set the refresh interval.
 
-### Intelligent Elevation & Location
+### Calculation Standard & Location Services
 
-AstroTimes enhances accuracy with sophisticated elevation and location services:
-- **Built-in Elevation Map**: Includes a self-contained, high-resolution world elevation map (from ETOPO data), enabling accurate calculations without an internet connection.
-- **ML-Enhanced Elevation**: For locations near populated areas, the application uses a machine learning model to correct raw terrain data, providing a more realistic elevation estimate by accounting for the fact that cities are typically built in lower-lying areas like valleys and plains.
-- **Internet Location Service**: Uses a fast, reliable internet service for automatic IP-based geolocation.
-- **Time Synchronization**: Connects to `worldtimeapi.org` to check the local system clock's accuracy and reports any significant drift, ensuring that event times are calculated reliably.
+**Sea Level Convention**: All astronomical calculations use sea level (0m elevation) as the reference point, consistent with U.S. Naval Observatory (USNO) celestial navigation standards. This approach:
+- Provides standardized, reproducible results that match USNO reference data
+- Eliminates elevation-related calculation variations for consistent accuracy
+- Follows the convention used in professional maritime and aviation almanacs
+
+**Location Services**:
+- **City Database**: Built-in database of 570 cities worldwide with coordinates and timezone data
+- **IP Geolocation**: Optional automatic location detection via internet services
+- **Time Synchronization**: Checks system clock accuracy against NTP servers to ensure reliable event timing
 
 ### Command-Line Options
 
@@ -155,7 +159,6 @@ AstroTimes enhances accuracy with sophisticated elevation and location services:
 |------|-------------|
 | `--lat <LAT>` | Latitude in decimal degrees |
 | `--lon <LON>` | Longitude in decimal degrees |
-| `--elev <ELEV>` | Elevation in meters |
 | `--tz <TZ>` | Timezone (IANA format, e.g., America/New_York) |
 | `--city <CITY>` | Select city from database |
 | `--date <DATE>` | Date in YYYY-MM-DD format (default: today) |
@@ -183,10 +186,14 @@ AstroTimes enhances accuracy with sophisticated elevation and location services:
 
 ### Accuracy
 
-Calculations are designed to align with U.S. Naval Observatory data for sea-level locations:
-- Solar events: ±1-3 minutes
-- Lunar events: ±3 minutes at mid-latitudes
+**Standard**: All calculations use sea level (0m elevation) per USNO celestial navigation conventions. This standardizes results and ensures alignment with USNO reference data.
+
+**Precision**: When compared against U.S. Naval Observatory tables:
+- Solar events (sunrise/sunset/twilight): ±1-3 minutes
+- Lunar events (moonrise/moonset): ±3 minutes at mid-latitudes
 - Lunar phase times: ±2 minutes
+
+**Note**: Observer elevation affects rise/set times by approximately 1 minute per 150 meters of elevation. For applications requiring elevation-specific calculations, results can be adjusted using the formula: `-2.076 × √(elevation_meters) / 60` minutes.
 
 ### Data Storage
 
@@ -196,7 +203,6 @@ Configuration is saved to `~/.astro_times.json`:
 {
   "lat": 40.7128,
   "lon": -74.0060,
-  "elev": 10.0,
   "tz": "America/New_York",
   "city": "New York"
 }

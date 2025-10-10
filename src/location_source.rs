@@ -18,20 +18,3 @@ impl LocationSource {
         }
     }
 }
-
-#[derive(Debug, Clone, Copy)]
-pub enum ElevationSource {
-    Manual,
-    TerrainMl,
-    Saved,
-}
-
-impl ElevationSource {
-    pub fn short_label(self) -> &'static str {
-        match self {
-            ElevationSource::Manual => "manual",
-            ElevationSource::TerrainMl => "ml",
-            ElevationSource::Saved => "saved",
-        }
-    }
-}

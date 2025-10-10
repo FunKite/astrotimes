@@ -157,15 +157,6 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
                 app.location_source.short_label()
             ),
         ))]));
-        lines.push(Line::from(vec![Span::raw(label_with_symbol(
-            app,
-            "⛰️",
-            format!(
-                "Elevation (MSL): {:.0} m {}",
-                app.location.elevation,
-                app.elevation_source.short_label()
-            ),
-        ))]));
         if let Some(ref city) = app.city_name {
             lines.push(Line::from(vec![Span::raw(label_with_symbol(
                 app,
@@ -668,10 +659,10 @@ fn render_location_input(f: &mut Frame, app: &App) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Length(3),  // Title
-            Constraint::Length(10), // Input fields
-            Constraint::Min(5),     // Help text
-            Constraint::Length(2),  // Footer
+            Constraint::Length(3), // Title
+            Constraint::Length(8), // Input fields
+            Constraint::Min(5),    // Help text
+            Constraint::Length(2), // Footer
         ])
         .split(f.area());
 
@@ -720,16 +711,6 @@ fn render_location_input(f: &mut Frame, app: &App) {
         draft.longitude.clone()
     };
 
-    let elev_display = if draft.elevation.is_empty() {
-        if draft.auto_elevation {
-            "(auto-detect)".to_string()
-        } else {
-            "".to_string()
-        }
-    } else {
-        draft.elevation.clone()
-    };
-
     let mut input_lines = vec![
         Line::from(vec![
             Span::raw(marker(LocationInputField::Latitude)),
@@ -747,16 +728,6 @@ fn render_location_input(f: &mut Frame, app: &App) {
             Span::styled(lon_display, field_style(LocationInputField::Longitude)),
             Span::styled(
                 "  (-180 to 180)",
-                Style::default().fg(get_color(app, Color::Gray)),
-            ),
-        ]),
-        Line::from(""),
-        Line::from(vec![
-            Span::raw(marker(LocationInputField::Elevation)),
-            Span::styled("Elevation: ", field_style(LocationInputField::Elevation)),
-            Span::styled(elev_display, field_style(LocationInputField::Elevation)),
-            Span::styled(
-                "  (meters, optional)",
                 Style::default().fg(get_color(app, Color::Gray)),
             ),
         ]),
@@ -789,26 +760,18 @@ fn render_location_input(f: &mut Frame, app: &App) {
     // Help text
     let help_text = vec![
         Line::from(Span::styled(
-            "Smart Elevation Estimation:",
+            "Enter your location coordinates:",
             Style::default()
                 .fg(get_color(app, Color::Green))
                 .add_modifier(Modifier::BOLD),
         )),
         Line::from(""),
         Line::from(Span::styled(
-            "If you leave elevation blank, it will be auto-estimated using:",
+            "All astronomical calculations use sea level (0m elevation) per USNO conventions.",
             Style::default().fg(get_color(app, Color::White)),
         )),
         Line::from(Span::styled(
-            "  • ETOPO 2022 worldwide terrain data",
-            Style::default().fg(get_color(app, Color::Gray)),
-        )),
-        Line::from(Span::styled(
-            "  • ML-based urban correction (people tend to live at lower elevations)",
-            Style::default().fg(get_color(app, Color::Gray)),
-        )),
-        Line::from(Span::styled(
-            "  • Inverse distance weighting from 570 cities worldwide",
+            "Specify latitude and longitude in decimal degrees (e.g., 42.3834, -71.4162).",
             Style::default().fg(get_color(app, Color::Gray)),
         )),
     ];

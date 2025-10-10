@@ -35,7 +35,6 @@ struct DailyRecord {
 struct CalendarMetadata<'a> {
     latitude: f64,
     longitude: f64,
-    elevation_m: f64,
     timezone: String,
     city: Option<&'a str>,
     range_start: String,
@@ -189,7 +188,6 @@ fn render_json(
     let metadata = CalendarMetadata {
         latitude: location.latitude,
         longitude: location.longitude,
-        elevation_m: location.elevation,
         timezone: timezone.name().to_string(),
         city: city_name,
         range_start: start.to_string(),
@@ -278,10 +276,9 @@ fn render_html(
         html.push_str(" • ");
     }
     html.push_str(&format!(
-        "{} • {} • Elev {:.0} m • {}",
+        "{} • {} • {}",
         format_lat(location.latitude),
         format_lon(location.longitude),
-        location.elevation,
         timezone.name()
     ));
     html.push_str("</div>");

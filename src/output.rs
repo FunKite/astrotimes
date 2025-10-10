@@ -24,7 +24,6 @@ pub struct JsonOutput {
 pub struct LocationData {
     pub latitude: f64,
     pub longitude: f64,
-    pub elevation: f64,
     pub timezone: String,
     pub city: Option<String>,
 }
@@ -215,7 +214,6 @@ pub fn generate_json_output(
         location: LocationData {
             latitude: location.latitude,
             longitude: location.longitude,
-            elevation: location.elevation,
             timezone: timezone_name.to_string(),
             city: city_name,
         },

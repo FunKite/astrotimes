@@ -48,7 +48,6 @@ pub struct AiData {
 pub struct AiLocation {
     pub latitude_deg: f64,
     pub longitude_deg: f64,
-    pub elevation_m: f64,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub city: Option<String>,
 }
@@ -241,7 +240,6 @@ pub fn build_ai_data(
         location: AiLocation {
             latitude_deg: location.latitude,
             longitude_deg: location.longitude,
-            elevation_m: location.elevation,
             city: city_name.map(|c| c.to_string()),
         },
         sun: AiSunData {

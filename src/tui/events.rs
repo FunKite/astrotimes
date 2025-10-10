@@ -1,9 +1,7 @@
 // Event handling for TUI
 
 use super::app::{AiConfigField, App, AppMode, CalendarField};
-use crate::city::CityDatabase;
-use crate::elevation;
-use crate::location_source::{ElevationSource, LocationSource};
+use crate::location_source::LocationSource;
 use anyhow::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEvent};
 use std::time::Duration;
@@ -113,33 +111,15 @@ fn handle_location_input_keys(app: &mut App, key: KeyEvent) -> Result<()> {
         KeyCode::Enter => {
             // Validate and apply location
             match app.location_input_draft.validate() {
-                Ok((lat, lon, elev_opt, tz_str)) => {
+                Ok((lat, lon, tz_str)) => {
                     // Parse timezone
                     match tz_str.parse::<chrono_tz::Tz>() {
                         Ok(tz) => {
-                            // Determine elevation
-                            let elev = if let Some(e) = elev_opt {
-                                e
-                            } else {
-                                // Auto-estimate elevation using ETOPO + ML
-                                if let Ok(db) = CityDatabase::load() {
-                                    elevation::estimate_elevation(lat, lon, db.cities())
-                                        .unwrap_or(187.0)
-                                } else {
-                                    187.0
-                                }
-                            };
-
                             // Update app state
-                            app.location = crate::astro::Location::new(lat, lon, elev);
+                            app.location = crate::astro::Location::new(lat, lon);
                             app.timezone = tz;
                             app.city_name = None;
                             app.location_source = LocationSource::ManualCli;
-                            app.elevation_source = if elev_opt.is_some() {
-                                ElevationSource::Manual
-                            } else {
-                                ElevationSource::TerrainMl
-                            };
                             app.mode = AppMode::Watch;
                             app.update_time();
                             app.reset_cached_data();

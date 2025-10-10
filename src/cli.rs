@@ -22,10 +22,6 @@ pub struct Args {
     #[arg(long)]
     pub lon: Option<f64>,
 
-    /// Elevation in meters above sea level
-    #[arg(long)]
-    pub elev: Option<f64>,
-
     /// Timezone (IANA timezone name or UTC offset like -07:00)
     #[arg(long)]
     pub tz: Option<String>,

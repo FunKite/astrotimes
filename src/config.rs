@@ -47,7 +47,6 @@ impl Default for WatchPreferences {
 pub struct Config {
     pub lat: f64,
     pub lon: f64,
-    pub elev: f64,
     pub tz: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub city: Option<String>,
@@ -56,11 +55,10 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(lat: f64, lon: f64, elev: f64, tz: String, city: Option<String>) -> Self {
+    pub fn new(lat: f64, lon: f64, tz: String, city: Option<String>) -> Self {
         Self {
             lat,
             lon,
-            elev,
             tz,
             city,
             watch: WatchPreferences::default(),
