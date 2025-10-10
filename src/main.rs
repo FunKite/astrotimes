@@ -9,6 +9,7 @@ mod config;
 mod elevation;
 mod events;
 mod location;
+mod location_source;
 mod output;
 mod time_sync;
 mod tui;
@@ -23,6 +24,8 @@ use crossterm::{
 };
 use ratatui::{backend::CrosstermBackend, Terminal};
 use std::{env, fs, io};
+
+use location_source::LocationSource;
 
 fn main() -> Result<()> {
     let args = cli::Args::parse();
@@ -45,7 +48,8 @@ fn main() -> Result<()> {
     let ai_config = ai::AiConfig::from_args(&args)?;
 
     // Determine location
-    let (location, timezone, city_name) = determine_location(&args, &mut config)?;
+    let (location, timezone, city_name, location_source) =
+        determine_location(&args, &mut config)?;
 
     // Determine date
     let dt = if let Some(date_str) = &args.date {
@@ -115,6 +119,7 @@ fn main() -> Result<()> {
             city_name.clone(),
             time_sync_info.clone(),
             skip_time_sync,
+            location_source,
             ai_config.clone(),
             config.as_ref().map(|cfg| cfg.watch.clone()),
         )?;
@@ -126,6 +131,7 @@ fn main() -> Result<()> {
             &city_name,
             &dt,
             &time_sync_info,
+            location_source,
             &ai_config,
         )?;
     }
@@ -152,7 +158,7 @@ fn main() -> Result<()> {
 fn determine_location(
     args: &cli::Args,
     config: &mut Option<config::Config>,
-) -> Result<(astro::Location, Tz, Option<String>)> {
+) -> Result<(astro::Location, Tz, Option<String>, LocationSource)> {
     // Priority: CLI args > Config file > Auto-detection
 
     // Check if city is specified
@@ -164,7 +170,12 @@ fn determine_location(
 
         let location = astro::Location::new(city.lat, city.lon, city.elev);
         let tz: Tz = city.tz.parse()?;
-        return Ok((location, tz, Some(city.name.clone())));
+        return Ok((
+            location,
+            tz,
+            Some(city.name.clone()),
+            LocationSource::CityDatabase,
+        ));
     }
 
     // Check CLI arguments
@@ -182,14 +193,14 @@ fn determine_location(
         });
         let tz: Tz = tz_str.parse().unwrap_or(chrono_tz::UTC);
         let location = astro::Location::new(lat, lon, elev);
-        return Ok((location, tz, None));
+        return Ok((location, tz, None, LocationSource::ManualCli));
     }
 
     // Check config file
     if let Some(cfg) = config {
         let location = astro::Location::new(cfg.lat, cfg.lon, cfg.elev);
         let tz: Tz = cfg.tz.parse()?;
-        return Ok((location, tz, cfg.city.clone()));
+        return Ok((location, tz, cfg.city.clone(), LocationSource::SavedConfig));
     }
 
     // Try auto-detection
@@ -213,7 +224,7 @@ fn determine_location(
                 None,
             ));
 
-            return Ok((location, tz, None));
+            return Ok((location, tz, None, LocationSource::IpLookup));
         }
     }
 
@@ -228,6 +239,7 @@ fn run_watch_mode(
     city_name: Option<String>,
     time_sync_info: time_sync::TimeSyncInfo,
     time_sync_disabled: bool,
+    location_source: LocationSource,
     ai_config: ai::AiConfig,
     watch_prefs: Option<config::WatchPreferences>,
 ) -> Result<()> {
@@ -243,6 +255,7 @@ fn run_watch_mode(
         location,
         timezone,
         city_name,
+        location_source,
         time_sync_info,
         time_sync_disabled,
         ai_config,
@@ -303,6 +316,7 @@ fn print_text_output(
     city_name: &Option<String>,
     dt: &chrono::DateTime<Tz>,
     time_sync_info: &time_sync::TimeSyncInfo,
+    location_source: LocationSource,
     ai_config: &ai::AiConfig,
 ) -> Result<()> {
     println!("AstroTimes Beta 0.1.0 — github.com/FunKite/astrotimes");
@@ -310,9 +324,12 @@ fn print_text_output(
     // Location
     println!("— Location & Date —");
     println!(
-        "📍 Lat, Lon (WGS84): {:.5}, {:.5}  ⛰️ Elevation (MSL): {:.0} m",
-        location.latitude, location.longitude, location.elevation
+        "📍 Lat,Lon~{:.3},{:.3} {}",
+        location.latitude,
+        location.longitude,
+        location_source.short_label()
     );
+    println!("⛰️ Elevation (MSL): {:.0} m", location.elevation);
     if let Some(city) = city_name {
         println!("🏙️ Place: {}", city);
     }

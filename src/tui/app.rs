@@ -6,6 +6,7 @@ use crate::calendar::{self, CalendarFormat};
 use crate::city::City;
 use crate::config::{self, WatchPreferences};
 use crate::events;
+use crate::location_source::LocationSource;
 use crate::time_sync::TimeSyncInfo;
 use anyhow::{anyhow, Context, Result};
 use chrono::{DateTime, Datelike, Duration as ChronoDuration, Local, NaiveDate};
@@ -671,6 +672,7 @@ pub struct App {
     pub location: Location,
     pub timezone: Tz,
     pub city_name: Option<String>,
+    pub location_source: LocationSource,
     pub current_time: DateTime<Local>,
     pub night_mode: bool,
     pub mode: AppMode,
@@ -709,6 +711,7 @@ impl App {
         location: Location,
         timezone: Tz,
         city_name: Option<String>,
+        location_source: LocationSource,
         time_sync: TimeSyncInfo,
         time_sync_disabled: bool,
         ai_config: ai::AiConfig,
@@ -731,6 +734,7 @@ impl App {
             location,
             timezone,
             city_name,
+            location_source,
             current_time: now,
             night_mode: prefs.night_mode,
             mode: AppMode::Watch,

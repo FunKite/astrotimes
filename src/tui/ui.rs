@@ -151,8 +151,10 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
             app,
             "📍",
             format!(
-                "Lat,Lon(WGS84): {:.5},{:.5}",
-                app.location.latitude, app.location.longitude
+                "Lat,Lon~{:.3},{:.3} {}",
+                app.location.latitude,
+                app.location.longitude,
+                app.location_source.short_label()
             ),
         ))]));
         lines.push(Line::from(vec![Span::raw(label_with_symbol(
