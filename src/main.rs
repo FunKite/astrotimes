@@ -331,8 +331,8 @@ fn print_text_output(
         )
     };
     println!(
-        "📅 {} ⌚ {}@{}",
-        dt.format("%b %d %H:%M"),
+        "📅 {} ⌚{}@{}",
+        dt.format("%b %d %H:%M:%S"),
         timezone.name(),
         offset_label
     );

@@ -185,8 +185,8 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
             app,
             "📅",
             format!(
-                "{} ⌚ {}@{}",
-                now_tz.format("%b %d %H:%M"),
+                "{} ⌚{}@{}",
+                now_tz.format("%b %d %H:%M:%S"),
                 app.timezone.name(),
                 offset_label
             ),
