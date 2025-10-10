@@ -25,7 +25,7 @@ use crossterm::{
 use ratatui::{backend::CrosstermBackend, Terminal};
 use std::{env, fs, io};
 
-use location_source::LocationSource;
+use location_source::{ElevationSource, LocationSource};
 
 fn main() -> Result<()> {
     let args = cli::Args::parse();
@@ -48,7 +48,7 @@ fn main() -> Result<()> {
     let ai_config = ai::AiConfig::from_args(&args)?;
 
     // Determine location
-    let (location, timezone, city_name, location_source) =
+    let (location, timezone, city_name, location_source, elevation_source) =
         determine_location(&args, &mut config)?;
 
     // Determine date
@@ -120,6 +120,7 @@ fn main() -> Result<()> {
             time_sync_info.clone(),
             skip_time_sync,
             location_source,
+            elevation_source,
             ai_config.clone(),
             config.as_ref().map(|cfg| cfg.watch.clone()),
         )?;
@@ -132,6 +133,7 @@ fn main() -> Result<()> {
             &dt,
             &time_sync_info,
             location_source,
+            elevation_source,
             &ai_config,
         )?;
     }
@@ -158,7 +160,13 @@ fn main() -> Result<()> {
 fn determine_location(
     args: &cli::Args,
     config: &mut Option<config::Config>,
-) -> Result<(astro::Location, Tz, Option<String>, LocationSource)> {
+) -> Result<(
+    astro::Location,
+    Tz,
+    Option<String>,
+    LocationSource,
+    ElevationSource,
+)> {
     // Priority: CLI args > Config file > Auto-detection
 
     // Check if city is specified
@@ -175,14 +183,20 @@ fn determine_location(
             tz,
             Some(city.name.clone()),
             LocationSource::CityDatabase,
+            ElevationSource::TerrainMl,
         ));
     }
 
     // Check CLI arguments
     if let (Some(lat), Some(lon)) = (args.lat, args.lon) {
-        let elev = args
-            .elev
-            .unwrap_or_else(|| location::detect_elevation(lat, lon));
+        let (elev, elev_source) = if let Some(e) = args.elev {
+            (e, ElevationSource::Manual)
+        } else {
+            (
+                location::detect_elevation(lat, lon),
+                ElevationSource::TerrainMl,
+            )
+        };
         let tz_str = args.tz.clone().unwrap_or_else(|| {
             // Try to detect timezone
             if let Ok(loc) = location::detect_location() {
@@ -193,14 +207,20 @@ fn determine_location(
         });
         let tz: Tz = tz_str.parse().unwrap_or(chrono_tz::UTC);
         let location = astro::Location::new(lat, lon, elev);
-        return Ok((location, tz, None, LocationSource::ManualCli));
+        return Ok((location, tz, None, LocationSource::ManualCli, elev_source));
     }
 
     // Check config file
     if let Some(cfg) = config {
         let location = astro::Location::new(cfg.lat, cfg.lon, cfg.elev);
         let tz: Tz = cfg.tz.parse()?;
-        return Ok((location, tz, cfg.city.clone(), LocationSource::SavedConfig));
+        return Ok((
+            location,
+            tz,
+            cfg.city.clone(),
+            LocationSource::SavedConfig,
+            ElevationSource::Saved,
+        ));
     }
 
     // Try auto-detection
@@ -224,7 +244,13 @@ fn determine_location(
                 None,
             ));
 
-            return Ok((location, tz, None, LocationSource::IpLookup));
+            return Ok((
+                location,
+                tz,
+                None,
+                LocationSource::IpLookup,
+                ElevationSource::TerrainMl,
+            ));
         }
     }
 
@@ -240,6 +266,7 @@ fn run_watch_mode(
     time_sync_info: time_sync::TimeSyncInfo,
     time_sync_disabled: bool,
     location_source: LocationSource,
+    elevation_source: ElevationSource,
     ai_config: ai::AiConfig,
     watch_prefs: Option<config::WatchPreferences>,
 ) -> Result<()> {
@@ -256,6 +283,7 @@ fn run_watch_mode(
         timezone,
         city_name,
         location_source,
+        elevation_source,
         time_sync_info,
         time_sync_disabled,
         ai_config,
@@ -317,6 +345,7 @@ fn print_text_output(
     dt: &chrono::DateTime<Tz>,
     time_sync_info: &time_sync::TimeSyncInfo,
     location_source: LocationSource,
+    elevation_source: ElevationSource,
     ai_config: &ai::AiConfig,
 ) -> Result<()> {
     println!("AstroTimes Beta 0.1.0 — github.com/FunKite/astrotimes");
@@ -329,7 +358,11 @@ fn print_text_output(
         location.longitude,
         location_source.short_label()
     );
-    println!("⛰️ Elevation (MSL): {:.0} m", location.elevation);
+    println!(
+        "⛰️ Elevation (MSL): {:.0} m {}",
+        location.elevation,
+        elevation_source.short_label()
+    );
     if let Some(city) = city_name {
         println!("🏙️ Place: {}", city);
     }

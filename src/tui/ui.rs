@@ -160,7 +160,11 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
         lines.push(Line::from(vec![Span::raw(label_with_symbol(
             app,
             "⛰️",
-            format!("Elevation (MSL): {:.0} m", app.location.elevation),
+            format!(
+                "Elevation (MSL): {:.0} m {}",
+                app.location.elevation,
+                app.elevation_source.short_label()
+            ),
         ))]));
         if let Some(ref city) = app.city_name {
             lines.push(Line::from(vec![Span::raw(label_with_symbol(
