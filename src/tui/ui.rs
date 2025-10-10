@@ -291,8 +291,11 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
         if sections_rendered > 0 {
             lines.push(Line::from(""));
         }
+        let pos_countdown = app.position_countdown();
+        let pos_minutes = pos_countdown.as_secs() / 60;
+        let pos_seconds = pos_countdown.as_secs() % 60;
         lines.push(Line::from(vec![Span::styled(
-            "— (P)osition —",
+            format!("— (P)osition —  ↻{:02}:{:02}", pos_minutes, pos_seconds),
             Style::default()
                 .fg(get_color(app, Color::Yellow))
                 .add_modifier(Modifier::BOLD),
@@ -301,7 +304,7 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
             app,
             "☀️",
             format!(
-                "Sun:  Alt {:>5.1}°, Az {:>3.0}° {}",
+                "Sun:  Alt {:>6.2}°, Az {:>6.2}° {}",
                 sun_pos.altitude,
                 sun_pos.azimuth,
                 coordinates::azimuth_to_compass(sun_pos.azimuth)
@@ -311,7 +314,7 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
             app,
             "🌕",
             format!(
-                "Moon: Alt {:>5.1}°, Az {:>3.0}° {}",
+                "Moon: Alt {:>6.2}°, Az {:>6.2}° {}",
                 moon_pos_position.altitude,
                 moon_pos_position.azimuth,
                 coordinates::azimuth_to_compass(moon_pos_position.azimuth)
@@ -324,8 +327,11 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
         if sections_rendered > 0 {
             lines.push(Line::from(""));
         }
+        let moon_countdown = app.moon_countdown();
+        let moon_minutes = moon_countdown.as_secs() / 60;
+        let moon_seconds = moon_countdown.as_secs() % 60;
         lines.push(Line::from(vec![Span::styled(
-            "— (M)oon —",
+            format!("— (M)oon —  ↻{:02}:{:02}", moon_minutes, moon_seconds),
             Style::default()
                 .fg(get_color(app, Color::Yellow))
                 .add_modifier(Modifier::BOLD),
@@ -360,7 +366,7 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
             app,
             "💡",
             format!(
-                "Fraction Illum.: {:.0}% ({})",
+                "Fraction Illum.: {:.2}% ({})",
                 moon_overview.illumination * 100.0,
                 trend_label
             ),
@@ -369,7 +375,7 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
             app,
             "🔭",
             format!(
-                "Apparent size:   {:.1}' ({})",
+                "Apparent size:   {:.2}' ({})",
                 moon_overview.angular_diameter, size_class
             ),
         ))]));
@@ -447,8 +453,35 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
         if sections_rendered > 0 {
             lines.push(Line::from(""));
         }
+
+        // Build header with model and countdown on same line
+        let mut header_text = "— AI Insights —".to_string();
+
+        match &app.ai_outcome {
+            Some(outcome) => {
+                // Calculate countdown to next refresh
+                let elapsed = app
+                    .current_time
+                    .with_timezone(&Utc)
+                    .signed_duration_since(outcome.updated_at);
+                let elapsed_secs = elapsed.num_seconds().max(0) as u64;
+                let refresh_secs = app.ai_config.refresh.as_secs();
+                let remaining_secs = refresh_secs.saturating_sub(elapsed_secs);
+                let minutes = remaining_secs / 60;
+                let seconds = remaining_secs % 60;
+
+                header_text.push_str(&format!(
+                    "  Model: {}  ↻{:02}:{:02}",
+                    outcome.model, minutes, seconds
+                ));
+            }
+            None => {
+                header_text.push_str("  Fetching…");
+            }
+        }
+
         lines.push(Line::from(vec![Span::styled(
-            "— AI Insights —",
+            header_text,
             Style::default()
                 .fg(get_color(app, Color::Yellow))
                 .add_modifier(Modifier::BOLD),
@@ -456,20 +489,6 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
 
         match &app.ai_outcome {
             Some(outcome) => {
-                let elapsed = app
-                    .current_time
-                    .with_timezone(&Utc)
-                    .signed_duration_since(outcome.updated_at);
-                let elapsed_secs = elapsed.num_seconds().max(0);
-                let minutes = elapsed_secs / 60;
-                let seconds = elapsed_secs % 60;
-                let updated_display = format!("Updated {:02}:{:02} ago", minutes, seconds);
-
-                lines.push(Line::from(vec![Span::raw(format!(
-                    "Model: {}  {}",
-                    outcome.model, updated_display
-                ))]));
-
                 if let Some(content) = &outcome.content {
                     for line in content.lines() {
                         lines.push(Line::from(Span::raw(line.trim_end().to_string())));
@@ -485,9 +504,7 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
                     )));
                 }
             }
-            None => {
-                lines.push(Line::from(Span::raw("Fetching insights…")));
-            }
+            None => {}
         }
 
         lines.push(Line::from(""));

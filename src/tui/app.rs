@@ -22,8 +22,8 @@ use std::{
 const STATUS_TTL: Duration = Duration::from_secs(10);
 const EVENT_WINDOW_HOURS: i64 = 12;
 const EVENT_REFRESH_THRESHOLD_HOURS: i64 = 6;
-const POSITION_REFRESH_INTERVAL: Duration = Duration::from_secs(10);
-const MOON_REFRESH_INTERVAL: Duration = Duration::from_secs(3600);
+const POSITION_REFRESH_INTERVAL: Duration = Duration::from_secs(5);
+const MOON_REFRESH_INTERVAL: Duration = Duration::from_secs(600);
 const TIME_SYNC_REFRESH_INTERVAL: Duration = Duration::from_secs(900);
 // Allow a small buffer below the horizon before calling the Moon "Rising" so we
 // do not report rising while it is still deep below the horizon.
@@ -921,6 +921,20 @@ impl App {
             .checked_sub(elapsed)
             .unwrap_or_else(|| Duration::from_secs(0));
         Some(remaining)
+    }
+
+    pub fn position_countdown(&self) -> Duration {
+        let elapsed = self.positions_last_refresh.elapsed();
+        POSITION_REFRESH_INTERVAL
+            .checked_sub(elapsed)
+            .unwrap_or_else(|| Duration::from_secs(0))
+    }
+
+    pub fn moon_countdown(&self) -> Duration {
+        let elapsed = self.moon_overview_last_refresh.elapsed();
+        MOON_REFRESH_INTERVAL
+            .checked_sub(elapsed)
+            .unwrap_or_else(|| Duration::from_secs(0))
     }
 
     pub fn toggle_night_mode(&mut self) {

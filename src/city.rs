@@ -30,6 +30,7 @@ impl CityDatabase {
     }
 
     /// Get reference to all cities in the database
+    #[allow(dead_code)]
     pub fn cities(&self) -> &[City] {
         &self.cities
     }
