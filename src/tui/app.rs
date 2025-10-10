@@ -14,6 +14,8 @@ use chrono_tz::Tz;
 use std::{
     fs,
     path::PathBuf,
+    sync::mpsc::{self, Receiver},
+    thread,
     time::{Duration, Instant},
 };
 
@@ -705,6 +707,8 @@ pub struct App {
     pub show_lunar_phases: bool,
     pub time_sync_last_check: Instant,
     pub time_sync_disabled: bool,
+    ai_job_rx: Option<Receiver<Result<ai::AiOutcome, String>>>,
+    ai_job_prev_outcome: Option<ai::AiOutcome>,
 }
 
 impl App {
@@ -772,6 +776,8 @@ impl App {
             show_lunar_phases: prefs.show_lunar_phases,
             time_sync_last_check: Instant::now(),
             time_sync_disabled,
+            ai_job_rx: None,
+            ai_job_prev_outcome: None,
         }
     }
 
@@ -871,6 +877,7 @@ impl App {
     }
 
     pub fn refresh_scheduled_data(&mut self) {
+        self.poll_ai_job();
         self.refresh_time_sync_if_needed();
         self.refresh_events_if_needed();
         self.refresh_positions_if_needed();
@@ -1023,6 +1030,8 @@ impl App {
         self.location = Location::new(city.lat, city.lon, city.elev);
         self.timezone = city.tz.parse().unwrap_or(chrono_tz::UTC);
         self.city_name = Some(city.name.clone());
+        self.location_source = LocationSource::CityDatabase;
+        self.elevation_source = ElevationSource::TerrainMl;
         self.should_save = true;
         self.update_time();
         self.reset_cached_data();
@@ -1066,6 +1075,10 @@ impl App {
 
     pub fn should_refresh_ai(&self) -> bool {
         if !self.ai_config.enabled {
+            return false;
+        }
+
+        if self.ai_job_rx.is_some() {
             return false;
         }
 
@@ -1143,7 +1156,15 @@ impl App {
     }
 
     pub fn refresh_ai_insights(&mut self) {
+        self.start_ai_refresh_job();
+    }
+
+    fn start_ai_refresh_job(&mut self) {
         if !self.ai_config.enabled {
+            return;
+        }
+
+        if self.ai_job_rx.is_some() {
             return;
         }
 
@@ -1169,23 +1190,52 @@ impl App {
             &self.lunar_phases_cache,
         );
 
+        let config = self.ai_config.clone();
+        let (tx, rx) = mpsc::channel();
         let previous_outcome = self.ai_outcome.clone();
 
-        match ai::fetch_insights(&self.ai_config, &ai_data) {
-            Ok(outcome) => {
-                self.ai_outcome = Some(outcome);
-            }
-            Err(err) => {
-                let err_string = err.to_string();
-                if let Some(prev) = previous_outcome {
-                    self.ai_outcome = Some(prev.with_error_message(err_string));
-                } else {
-                    self.ai_outcome = Some(ai::AiOutcome::from_error(&self.ai_config.model, err));
+        thread::spawn(move || {
+            let result = ai::fetch_insights(&config, &ai_data).map_err(|err| err.to_string());
+            let _ = tx.send(result);
+        });
+
+        self.ai_job_prev_outcome = previous_outcome;
+        self.ai_job_rx = Some(rx);
+    }
+
+    fn poll_ai_job(&mut self) {
+        if let Some(rx) = &self.ai_job_rx {
+            match rx.try_recv() {
+                Ok(result) => {
+                    match result {
+                        Ok(outcome) => {
+                            self.ai_outcome = Some(outcome);
+                        }
+                        Err(err_string) => {
+                            if let Some(prev) = self.ai_job_prev_outcome.take() {
+                                self.ai_outcome = Some(prev.with_error_message(err_string));
+                            } else {
+                                self.ai_outcome = Some(ai::AiOutcome::from_error(
+                                    &self.ai_config.model,
+                                    anyhow::anyhow!(err_string),
+                                ));
+                            }
+                        }
+                    }
+                    self.ai_job_rx = None;
+                    self.ai_job_prev_outcome = None;
+                    self.ai_last_refresh = Some(Instant::now());
+                }
+                Err(mpsc::TryRecvError::Empty) => {}
+                Err(mpsc::TryRecvError::Disconnected) => {
+                    if let Some(prev) = self.ai_job_prev_outcome.take() {
+                        self.ai_outcome =
+                            Some(prev.with_error_message("AI refresh interrupted".to_string()));
+                    }
+                    self.ai_job_rx = None;
                 }
             }
         }
-
-        self.ai_last_refresh = Some(Instant::now());
     }
 
     pub fn open_ai_config(&mut self) {
@@ -1261,7 +1311,7 @@ impl App {
         self.ai_last_refresh = None;
 
         if self.ai_config.enabled {
-            self.refresh_ai_insights();
+            self.start_ai_refresh_job();
         }
 
         Ok(())

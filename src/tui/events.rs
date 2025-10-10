@@ -3,6 +3,7 @@
 use super::app::{AiConfigField, App, AppMode, CalendarField};
 use crate::city::CityDatabase;
 use crate::elevation;
+use crate::location_source::{ElevationSource, LocationSource};
 use anyhow::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEvent};
 use std::time::Duration;
@@ -133,6 +134,12 @@ fn handle_location_input_keys(app: &mut App, key: KeyEvent) -> Result<()> {
                             app.location = crate::astro::Location::new(lat, lon, elev);
                             app.timezone = tz;
                             app.city_name = None;
+                            app.location_source = LocationSource::ManualCli;
+                            app.elevation_source = if elev_opt.is_some() {
+                                ElevationSource::Manual
+                            } else {
+                                ElevationSource::TerrainMl
+                            };
                             app.mode = AppMode::Watch;
                             app.update_time();
                             app.reset_cached_data();
