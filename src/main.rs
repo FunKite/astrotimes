@@ -14,7 +14,7 @@ mod time_sync;
 mod tui;
 
 use anyhow::{anyhow, Context, Result};
-use chrono::{Datelike, Duration, Local, NaiveDate, TimeZone};
+use chrono::{Datelike, Duration, Local, NaiveDate, Offset, TimeZone};
 use chrono_tz::Tz;
 use clap::Parser;
 use crossterm::{
@@ -316,12 +316,25 @@ fn print_text_output(
     if let Some(city) = city_name {
         println!("🏙️ Place: {}", city);
     }
+    let offset_seconds = dt.offset().fix().local_minus_utc();
+    let offset_minutes = offset_seconds / 60;
+    let sign = if offset_minutes >= 0 { '+' } else { '-' };
+    let abs_minutes = offset_minutes.abs();
+    let offset_hours = abs_minutes / 60;
+    let offset_remaining_minutes = abs_minutes % 60;
+    let offset_label = if offset_remaining_minutes == 0 {
+        format!("UTC{}{:02}", sign, offset_hours)
+    } else {
+        format!(
+            "UTC{}{:02}:{:02}",
+            sign, offset_hours, offset_remaining_minutes
+        )
+    };
     println!(
-        "📅 Date: {} {}  ⏰ Timezone: {} (UTC{})",
-        dt.format("%b %d %H:%M:%S"),
-        dt.format("%Z"),
+        "📅 {} ⌚ {}@{}",
+        dt.format("%b %d %H:%M"),
         timezone.name(),
-        dt.format("%:z")
+        offset_label
     );
     match (
         time_sync_info.delta,

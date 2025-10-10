@@ -3,7 +3,7 @@
 use super::app::{AiConfigField, AiServerStatus, App, CalendarField, LocationInputField};
 use crate::astro::*;
 use crate::time_sync;
-use chrono::{Timelike, Utc};
+use chrono::{Offset, Utc};
 use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
@@ -167,25 +167,28 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
                 format!("Place: {}", city),
             ))]));
         }
+        let offset_seconds = now_tz.offset().fix().local_minus_utc();
+        let offset_minutes = offset_seconds / 60;
+        let sign = if offset_minutes >= 0 { '+' } else { '-' };
+        let abs_minutes = offset_minutes.abs();
+        let offset_hours = abs_minutes / 60;
+        let offset_remaining_minutes = abs_minutes % 60;
+        let offset_label = if offset_remaining_minutes == 0 {
+            format!("UTC{}{:02}", sign, offset_hours)
+        } else {
+            format!(
+                "UTC{}{:02}:{:02}",
+                sign, offset_hours, offset_remaining_minutes
+            )
+        };
         lines.push(Line::from(vec![Span::raw(label_with_symbol(
             app,
             "📅",
             format!(
-                "Date: {} {:02}:{:02}:{:02} {}",
-                now_tz.format("%b %d"),
-                now_tz.hour(),
-                now_tz.minute(),
-                now_tz.second(),
-                now_tz.format("%Z")
-            ),
-        ))]));
-        lines.push(Line::from(vec![Span::raw(label_with_symbol(
-            app,
-            "⏰",
-            format!(
-                "Timezone: {} ({})",
+                "{} ⌚ {}@{}",
+                now_tz.format("%b %d %H:%M"),
                 app.timezone.name(),
-                now_tz.format("UTC%:z")
+                offset_label
             ),
         ))]));
         let countdown_text = app.time_sync_countdown().map(|remaining| {
