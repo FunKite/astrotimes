@@ -292,10 +292,9 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
             lines.push(Line::from(""));
         }
         let pos_countdown = app.position_countdown();
-        let pos_minutes = pos_countdown.as_secs() / 60;
-        let pos_seconds = pos_countdown.as_secs() % 60;
+        let pos_seconds = pos_countdown.as_secs();
         lines.push(Line::from(vec![Span::styled(
-            format!("— (P)osition —  ↻{:02}:{:02}", pos_minutes, pos_seconds),
+            format!("— (P)osition —  ↻{}s", pos_seconds),
             Style::default()
                 .fg(get_color(app, Color::Yellow))
                 .add_modifier(Modifier::BOLD),
