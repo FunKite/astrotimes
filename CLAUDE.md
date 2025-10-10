@@ -10,7 +10,7 @@ High-precision astronomical CLI application written in Rust. Calculates sun/moon
 
 ---
 
-## Current Status (Last Updated: 2025-10-08 15:32 EDT)
+## Current Status (Last Updated: 2025-10-09 23:10 EDT)
 
 ### ✅ Fully Implemented Features
 1. **NOAA Solar Calculations**
@@ -87,6 +87,13 @@ High-precision astronomical CLI application written in Rust. Calculates sun/moon
 - Outstanding manual verifications still pending: narrow-terminal footer wrap, TUI AI panel behaviour, and CLI/JSON `--ai-insights` flow (see TODO markers in code).
 - Next session should start by smoke-testing the watch UI with varying widths, exercising the Ollama workflow end to end, and pushing any uncommitted changes once validation is done.
 
+## Session Notes (2025-10-09 Async AI & Provenance Updates)
+- Replaced worldtimeapi checks with direct NTP queries (time.google.com primary, pool.ntp.org fallback) and added a 15‑minute auto-refresh with countdown in watch mode. CLI/TUI now label the active time source.
+- Collapsed the Location section rows: compact `Lat,Lon~…` with 3 decimal precision and provenance tags for both coordinates and elevation (manual, city DB, saved config, IP/ML). Combined date/timezone into one narrow `📅 … ⌚Zone@UTC±HH[:MM]` line.
+- Migrated watch-mode AI refresh to a background job so the UI returns immediately after saving AI settings. Added asynchronous polling and job state handling to avoid the 10s pause when choosing large models.
+- Updated headers to `AstroTimes Beta 0.1.0 — github.com/FunKite/astrotimes` and simplified next-event markers to `(next)`.
+- Added `ASTROTIMES_SKIP_TIME_SYNC` environment bypass for tests, plus JSON/time sync formatting tweaks to reuse the new source labels.
+
 ## Session Notes (2025-10-08 Codex - Event Window Refinement)
 - Centralized sun/moon event harvesting in `src/events.rs`, reusing it across CLI, TUI, and AI pipelines.
 - Events section now shows occurrences within ±12 hours of “now,” capturing late-night/early-morning transitions while keeping chronological ordering.
@@ -95,6 +102,11 @@ High-precision astronomical CLI application written in Rust. Calculates sun/moon
 - Replaced the lunar rise/set solver with a 5-minute sweep plus binary refinement to 1-second precision (`src/astro/moon.rs`).
 - Moonrise and moonset now agree with USNO within ±1 minute across the accuracy harness cities; `accuracy_report.html` shows all moon events passing.
 - Maintained the transit finder by scanning for the peak altitude and refining in a narrow window so TUI summaries stay consistent.
+
+## Session Notes (2025-10-08 Codex - Takeover Checklist)
+- Picked up from the lunar solver session; confirmed uncommitted edits remain in `accuracy_report.html`, `src/elevation.rs`, and `src/tui/events.rs`.
+- Next deliverable: validate that the Events list spans 12 hours before/after the reference timestamp and preserves strict chronological ordering across CLI/TUI outputs.
+- After confirming the wider window, rerun the USNO comparison, investigate any residual offsets (Anchorage sunset still +2 min), and prepare a push-ready commit once results stabilize.
 
 ## Critical Bug Fixes (Recent)
 
@@ -662,6 +674,12 @@ From conversation:
 
 ## Next Session TODO
 
+### Up Next (Oct 8, 2025 Evening):
+- Expand the Events panel to cover ±12 hours around the reference time and keep results sorted chronologically (`src/tui/events.rs`).
+- Re-run the USNO accuracy harness after widening the window and iterate on any remaining offsets (Anchorage sunset still +2 min).
+- Review and reconcile uncommitted edits in `accuracy_report.html`, `src/elevation.rs`, and `src/tui/events.rs`; regenerate the accuracy report when changes settle.
+- Stage and commit the verified updates promptly (target ≤2 minutes between final check and commit).
+
 ### Completed (Oct 8, 2025):
 - ✅ Fixed all compiler warnings (24 warnings → 0)
 - ✅ Created distributable package (tarball with install script)
@@ -691,7 +709,7 @@ From conversation:
 
 ---
 
-*Last updated: 2025-10-08 19:32 EDT*
+*Last updated: 2025-10-08 20:37 EDT*
 *Session: Codex (GPT-5) - Lunar rise/set refinement*
 *Status: Beta 0.1 - Significantly improved lunar calculations*
 *Accuracy: Solar ±1–2 min (Anchorage sunset +2), Lunar phases 100%, Moonrise/moonset ±1 min*
