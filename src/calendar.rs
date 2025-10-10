@@ -186,8 +186,8 @@ fn render_json(
     records: &[DailyRecord],
 ) -> Result<String> {
     let metadata = CalendarMetadata {
-        latitude: location.latitude,
-        longitude: location.longitude,
+        latitude: location.latitude.value(),
+        longitude: location.longitude.value(),
         timezone: timezone.name().to_string(),
         city: city_name,
         range_start: start.to_string(),
@@ -277,8 +277,8 @@ fn render_html(
     }
     html.push_str(&format!(
         "{} • {} • {}",
-        format_lat(location.latitude),
-        format_lon(location.longitude),
+        format_lat(location.latitude.value()),
+        format_lon(location.longitude.value()),
         timezone.name()
     ));
     html.push_str("</div>");

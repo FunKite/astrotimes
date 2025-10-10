@@ -152,8 +152,8 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
             "📍",
             format!(
                 "Lat,Lon~{:.3},{:.3} {}",
-                app.location.latitude,
-                app.location.longitude,
+                app.location.latitude.value(),
+                app.location.longitude.value(),
                 app.location_source.short_label()
             ),
         ))]));

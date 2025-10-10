@@ -5,28 +5,47 @@ pub mod coordinates;
 pub mod moon;
 pub mod sun;
 pub mod time_utils;
+pub mod units;
 
 use chrono::{DateTime, Datelike, TimeZone, Timelike};
-use std::f64::consts::PI;
+use units::{Latitude, Longitude};
 
-// Constants
-pub const DEG_TO_RAD: f64 = PI / 180.0;
-pub const RAD_TO_DEG: f64 = 180.0 / PI;
+// Re-export commonly used types
+pub use units::{Altitude, Azimuth, Degrees, Radians, DEG_TO_RAD, RAD_TO_DEG};
 
 /// Location on Earth
 /// All calculations assume sea level (0m elevation) per USNO celestial navigation convention
 #[derive(Debug, Clone, Copy)]
 pub struct Location {
-    pub latitude: f64,  // degrees, positive North
-    pub longitude: f64, // degrees, positive East
+    pub latitude: Latitude,  // positive North
+    pub longitude: Longitude, // positive East
 }
 
 impl Location {
-    pub fn new(lat: f64, lon: f64) -> Self {
+    /// Create a new location with validation
+    pub fn new(lat: f64, lon: f64) -> Result<Self, String> {
+        Ok(Self {
+            latitude: Latitude::new(lat)?,
+            longitude: Longitude::new(lon)?,
+        })
+    }
+
+    /// Create a new location without validation (use only when values are known to be valid)
+    pub fn new_unchecked(lat: f64, lon: f64) -> Self {
         Self {
-            latitude: lat,
-            longitude: lon,
+            latitude: Latitude::new_unchecked(lat),
+            longitude: Longitude::new_unchecked(lon),
         }
+    }
+
+    /// Get latitude in degrees
+    pub fn lat_degrees(&self) -> f64 {
+        self.latitude.value()
+    }
+
+    /// Get longitude in degrees
+    pub fn lon_degrees(&self) -> f64 {
+        self.longitude.value()
     }
 }
 
@@ -62,24 +81,14 @@ pub fn julian_century(jd: f64) -> f64 {
     (jd - 2451545.0) / 36525.0
 }
 
-/// Normalize angle to 0-360 degrees
+/// Normalize angle to 0-360 degrees (kept for backward compatibility)
 pub fn normalize_degrees(angle: f64) -> f64 {
-    let mut result = angle % 360.0;
-    if result < 0.0 {
-        result += 360.0;
-    }
-    result
+    Degrees::new(angle).normalized().value()
 }
 
-/// Normalize angle to -180 to 180 degrees
+/// Normalize angle to -180 to 180 degrees (kept for backward compatibility)
 pub fn normalize_degrees_signed(angle: f64) -> f64 {
-    let mut result = angle % 360.0;
-    if result > 180.0 {
-        result -= 360.0;
-    } else if result < -180.0 {
-        result += 360.0;
-    }
-    result
+    Degrees::new(angle).normalized_signed().value()
 }
 
 #[cfg(test)]

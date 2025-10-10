@@ -875,8 +875,8 @@ impl App {
 
     pub fn build_config(&self) -> config::Config {
         let mut cfg = config::Config::new(
-            self.location.latitude,
-            self.location.longitude,
+            self.location.latitude.value(),
+            self.location.longitude.value(),
             self.timezone.name().to_string(),
             self.city_name.clone(),
         );
@@ -1006,7 +1006,7 @@ impl App {
     }
 
     pub fn set_location(&mut self, city: &City) {
-        self.location = Location::new(city.lat, city.lon);
+        self.location = Location::new_unchecked(city.lat, city.lon);
         self.timezone = city.tz.parse().unwrap_or(chrono_tz::UTC);
         self.city_name = Some(city.name.clone());
         self.location_source = LocationSource::CityDatabase;

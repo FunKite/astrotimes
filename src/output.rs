@@ -212,8 +212,8 @@ pub fn generate_json_output(
 
     let output = JsonOutput {
         location: LocationData {
-            latitude: location.latitude,
-            longitude: location.longitude,
+            latitude: location.latitude.value(),
+            longitude: location.longitude.value(),
             timezone: timezone_name.to_string(),
             city: city_name,
         },

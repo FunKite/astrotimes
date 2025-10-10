@@ -115,17 +115,25 @@ fn handle_location_input_keys(app: &mut App, key: KeyEvent) -> Result<()> {
                     // Parse timezone
                     match tz_str.parse::<chrono_tz::Tz>() {
                         Ok(tz) => {
-                            // Update app state
-                            app.location = crate::astro::Location::new(lat, lon);
-                            app.timezone = tz;
-                            app.city_name = None;
-                            app.location_source = LocationSource::ManualCli;
-                            app.mode = AppMode::Watch;
-                            app.update_time();
-                            app.reset_cached_data();
-                            app.ai_last_refresh = None;
-                            app.ai_outcome = None;
-                            app.location_input_draft.clear_error();
+                            // Validate and create location
+                            match crate::astro::Location::new(lat, lon) {
+                                Ok(location) => {
+                                    // Update app state
+                                    app.location = location;
+                                    app.timezone = tz;
+                                    app.city_name = None;
+                                    app.location_source = LocationSource::ManualCli;
+                                    app.mode = AppMode::Watch;
+                                    app.update_time();
+                                    app.reset_cached_data();
+                                    app.ai_last_refresh = None;
+                                    app.ai_outcome = None;
+                                    app.location_input_draft.clear_error();
+                                }
+                                Err(e) => {
+                                    app.location_input_draft.set_error(e);
+                                }
+                            }
                         }
                         Err(_) => {
                             app.location_input_draft

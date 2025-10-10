@@ -154,13 +154,13 @@ pub fn lunar_position<T: TimeZone>(location: &Location, dt: &DateTime<T>) -> Lun
         - t * t * t / 38710000.0;
 
     // Local sidereal time
-    let lst = normalize_degrees(gmst + location.longitude);
+    let lst = normalize_degrees(gmst + location.longitude.value());
 
     // Hour angle
     let ha = normalize_degrees_signed(lst - alpha * RAD_TO_DEG);
 
     // Convert to horizontal coordinates
-    let lat_rad = location.latitude * DEG_TO_RAD;
+    let lat_rad = location.latitude.value() * DEG_TO_RAD;
     let ha_rad = ha * DEG_TO_RAD;
 
     let sin_alt = lat_rad.sin() * delta.sin() + lat_rad.cos() * delta.cos() * ha_rad.cos();

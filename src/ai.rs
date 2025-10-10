@@ -238,8 +238,8 @@ pub fn build_ai_data(
             .to_string(),
         timezone: timezone.name().to_string(),
         location: AiLocation {
-            latitude_deg: location.latitude,
-            longitude_deg: location.longitude,
+            latitude_deg: location.latitude.value(),
+            longitude_deg: location.longitude.value(),
             city: city_name.map(|c| c.to_string()),
         },
         sun: AiSunData {

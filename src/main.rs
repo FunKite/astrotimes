@@ -141,8 +141,8 @@ fn main() -> Result<()> {
             let _ = cfg.save();
         } else {
             let new_config = config::Config::new(
-                location.latitude,
-                location.longitude,
+                location.latitude.value(),
+                location.longitude.value(),
                 timezone.name().to_string(),
                 city_name,
             );
@@ -171,7 +171,7 @@ fn determine_location(
             .find_exact(city_name)
             .ok_or_else(|| anyhow!("City '{}' not found in database", city_name))?;
 
-        let location = astro::Location::new(city.lat, city.lon);
+        let location = astro::Location::new_unchecked(city.lat, city.lon);
         let tz: Tz = city.tz.parse()?;
         return Ok((
             location,
@@ -192,13 +192,14 @@ fn determine_location(
             }
         });
         let tz: Tz = tz_str.parse().unwrap_or(chrono_tz::UTC);
-        let location = astro::Location::new(lat, lon);
+        let location = astro::Location::new(lat, lon)
+            .map_err(|e| anyhow!("Invalid location: {}", e))?;
         return Ok((location, tz, None, LocationSource::ManualCli));
     }
 
     // Check config file
     if let Some(cfg) = config {
-        let location = astro::Location::new(cfg.lat, cfg.lon);
+        let location = astro::Location::new_unchecked(cfg.lat, cfg.lon);
         let tz: Tz = cfg.tz.parse()?;
         return Ok((
             location,
@@ -216,13 +217,13 @@ fn determine_location(
                 "Detected location: {:.4}, {:.4} ({})",
                 detected.latitude, detected.longitude, detected.timezone
             );
-            let location = astro::Location::new(detected.latitude, detected.longitude);
+            let location = astro::Location::new_unchecked(detected.latitude, detected.longitude);
             let tz: Tz = detected.timezone.parse().unwrap_or(chrono_tz::UTC);
 
             // Update config
             *config = Some(config::Config::new(
-                location.latitude,
-                location.longitude,
+                location.latitude.value(),
+                location.longitude.value(),
                 tz.name().to_string(),
                 None,
             ));
@@ -333,8 +334,8 @@ fn print_text_output(
     println!("— Location & Date —");
     println!(
         "📍 Lat,Lon~{:.3},{:.3} {}",
-        location.latitude,
-        location.longitude,
+        location.latitude.value(),
+        location.longitude.value(),
         location_source.short_label()
     );
     if let Some(city) = city_name {

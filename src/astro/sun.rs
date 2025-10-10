@@ -145,7 +145,7 @@ pub fn solar_noon<T: TimeZone>(location: &Location, date: &DateTime<T>) -> DateT
     let eqtime = equation_of_time(t);
 
     // Solar noon in minutes from midnight UTC
-    let solar_noon_offset = 720.0 - 4.0 * location.longitude - eqtime;
+    let solar_noon_offset = 720.0 - 4.0 * location.longitude.value() - eqtime;
 
     let utc_midnight = date.date_naive().and_hms_opt(0, 0, 0).unwrap();
     let solar_noon_utc = chrono::Utc.from_local_datetime(&utc_midnight).unwrap()
@@ -173,7 +173,7 @@ pub fn solar_event_time<T: TimeZone>(
     let dec = sun_declination(t);
     let eqtime = equation_of_time(t);
 
-    let ha = hour_angle_for_altitude(location.latitude, dec, event.altitude())?;
+    let ha = hour_angle_for_altitude(location.latitude.value(), dec, event.altitude())?;
 
     let is_rising = matches!(
         event,
@@ -184,9 +184,9 @@ pub fn solar_event_time<T: TimeZone>(
     );
 
     let offset = if is_rising {
-        720.0 - 4.0 * (location.longitude + ha) - eqtime
+        720.0 - 4.0 * (location.longitude.value() + ha) - eqtime
     } else {
-        720.0 - 4.0 * (location.longitude - ha) - eqtime
+        720.0 - 4.0 * (location.longitude.value() - ha) - eqtime
     };
 
     let utc_midnight = date.date_naive().and_hms_opt(0, 0, 0).unwrap();
@@ -208,7 +208,7 @@ pub fn solar_position<T: TimeZone>(location: &Location, dt: &DateTime<T>) -> Sol
     let utc_dt = dt.with_timezone(&chrono::Utc);
 
     // Calculate true solar time (using UTC hours)
-    let time_offset = eqtime + 4.0 * location.longitude;
+    let time_offset = eqtime + 4.0 * location.longitude.value();
     let true_solar_time = utc_dt.hour() as f64 * 60.0
         + utc_dt.minute() as f64
         + utc_dt.second() as f64 / 60.0
@@ -217,7 +217,7 @@ pub fn solar_position<T: TimeZone>(location: &Location, dt: &DateTime<T>) -> Sol
     // Hour angle in degrees
     let ha = (true_solar_time / 4.0) - 180.0;
 
-    let lat_rad = location.latitude * DEG_TO_RAD;
+    let lat_rad = location.latitude.value() * DEG_TO_RAD;
     let dec_rad = dec * DEG_TO_RAD;
     let ha_rad = ha * DEG_TO_RAD;
 
