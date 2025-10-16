@@ -47,3 +47,7 @@ codegen-units = 1
 [[bin]]
 name = "accuracy_report"
 path = "src/bin/accuracy_report.rs"
+
+[[bin]]
+name = "perf_benchmark"
+path = "src/bin/perf_benchmark.rs"

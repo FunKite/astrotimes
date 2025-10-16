@@ -1,17 +1,6 @@
 // Astrotimes - High-precision astronomical CLI for sun and moon calculations
 
-mod ai;
-mod astro;
-mod calendar;
-mod city;
-mod cli;
-mod config;
-mod events;
-mod location;
-mod location_source;
-mod output;
-mod time_sync;
-mod tui;
+use astrotimes::{ai, astro, calendar, city, cli, config, events, location, location_source, output, time_sync, tui};
 
 use anyhow::{anyhow, Context, Result};
 use chrono::{Datelike, Duration, Local, NaiveDate, Offset, TimeZone};

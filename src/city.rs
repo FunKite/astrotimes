@@ -46,22 +46,39 @@ impl CityDatabase {
     /// Search cities with fuzzy matching
     pub fn search(&self, query: &str) -> Vec<(&City, i64)> {
         let matcher = SkimMatcherV2::default();
-        let mut results: Vec<_> = self
-            .cities
-            .iter()
-            .filter_map(|city| {
-                let search_text = if let Some(state) = &city.state {
-                    format!("{}, {}, {}", city.name, state, city.country)
-                } else {
-                    format!("{}, {}", city.name, city.country)
-                };
-                matcher
-                    .fuzzy_match(&search_text, query)
-                    .map(|score| (city, score))
-            })
-            .collect();
+        // Pre-allocate with approximate capacity
+        let mut results = Vec::with_capacity(64);
 
-        results.sort_by(|a, b| b.1.cmp(&a.1));
+        for city in &self.cities {
+            // Use stack-allocated buffer to avoid repeated allocations
+            let match_score = if let Some(state) = &city.state {
+                // Try to match against "Name, State, Country" format
+                let mut search_buf = String::with_capacity(
+                    city.name.len() + state.len() + city.country.len() + 4,
+                );
+                search_buf.push_str(&city.name);
+                search_buf.push_str(", ");
+                search_buf.push_str(state);
+                search_buf.push_str(", ");
+                search_buf.push_str(&city.country);
+                matcher.fuzzy_match(&search_buf, query)
+            } else {
+                // Try to match against "Name, Country" format
+                let mut search_buf =
+                    String::with_capacity(city.name.len() + city.country.len() + 2);
+                search_buf.push_str(&city.name);
+                search_buf.push_str(", ");
+                search_buf.push_str(&city.country);
+                matcher.fuzzy_match(&search_buf, query)
+            };
+
+            if let Some(score) = match_score {
+                results.push((city, score));
+            }
+        }
+
+        // Sort by score descending (highest scores first)
+        results.sort_unstable_by(|a, b| b.1.cmp(&a.1));
         results
     }
 }

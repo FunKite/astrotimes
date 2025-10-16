@@ -432,10 +432,11 @@ fn search_rise_or_set<T: TimeZone>(
     let end = start.clone() + Duration::hours(24);
 
     let step = Duration::minutes(5);
-    let mut prev_dt = start.clone();
+    let mut prev_dt = start;
     let mut prev_alt = lunar_position(location, &prev_dt).altitude - threshold;
 
-    while let Some(current) = prev_dt.clone().checked_add_signed(step) {
+    loop {
+        let current = prev_dt.clone().checked_add_signed(step)?;
         if current > end {
             break;
         }
@@ -449,8 +450,8 @@ fn search_rise_or_set<T: TimeZone>(
         if crossing {
             return Some(refine_crossing(
                 location,
-                prev_dt.clone(),
-                current.clone(),
+                prev_dt,
+                current,
                 threshold,
                 seek_rising,
             ));
@@ -488,7 +489,7 @@ pub fn lunar_event_time<T: TimeZone>(
             let mut best_alt = lunar_position(location, &best_dt).altitude;
 
             loop {
-                let next_dt = match iter_dt.clone().checked_add_signed(step) {
+                let next_dt = match iter_dt.checked_add_signed(step) {
                     Some(dt) if dt <= end => dt,
                     _ => break,
                 };
@@ -531,7 +532,7 @@ pub fn lunar_event_time<T: TimeZone>(
                     peak_dt = current_dt.clone();
                 }
 
-                match current_dt.clone().checked_add_signed(fine_step) {
+                match current_dt.checked_add_signed(fine_step) {
                     Some(next) => current_dt = next,
                     None => break,
                 }
