@@ -4,6 +4,7 @@
 pub mod coordinates;
 pub mod m1_optimizations;
 pub mod moon;
+pub mod moon_batch_optimized;
 pub mod simd_math;
 pub mod sun;
 pub mod time_utils;

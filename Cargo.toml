@@ -85,3 +85,7 @@ path = "src/bin/simd_benchmark.rs"
 [[bin]]
 name = "m1_max_benchmark"
 path = "src/bin/m1_max_benchmark.rs"
+
+[[bin]]
+name = "moonrise_moonset_benchmark"
+path = "src/bin/moonrise_moonset_benchmark.rs"
