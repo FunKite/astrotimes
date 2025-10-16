@@ -16,8 +16,6 @@ struct BenchmarkResult {
     name: &'static str,
     total_time_ms: f64,
     avg_time_us: f64,
-    min_time_us: f64,
-    max_time_us: f64,
     iterations: usize,
 }
 
@@ -28,8 +26,6 @@ impl BenchmarkResult {
             name,
             total_time_ms,
             avg_time_us,
-            min_time_us: 0.0,
-            max_time_us: 0.0,
             iterations,
         }
     }

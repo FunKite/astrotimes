@@ -7,6 +7,7 @@ use astrotimes::astro::{self, Location, m1_optimizations};
 const ITERATIONS: usize = 100;
 
 #[derive(Debug)]
+#[allow(dead_code)]
 struct BenchmarkResult {
     name: &'static str,
     total_time_ms: f64,
@@ -32,6 +33,7 @@ impl BenchmarkResult {
         );
     }
 
+    #[allow(dead_code)]
     fn improvement_vs(&self, baseline: &BenchmarkResult) -> f64 {
         ((baseline.avg_time_us - self.avg_time_us) / baseline.avg_time_us) * 100.0
     }

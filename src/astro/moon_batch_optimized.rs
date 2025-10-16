@@ -10,9 +10,8 @@
 /// The batch approach reduces computational overhead and enables better
 /// compiler vectorization of trigonometric operations.
 
-use chrono::{DateTime, Duration, TimeZone, Utc};
+use chrono::{DateTime, Duration, TimeZone};
 use super::{Location, moon, moon::LunarEvent};
-use chrono_tz::Tz;
 
 /// Result of batch moonrise/moonset search
 #[derive(Debug, Clone)]

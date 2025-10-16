@@ -5,7 +5,6 @@ use chrono_tz::Tz;
 use astrotimes::astro::{self, Location, simd_math};
 
 const ITERATIONS: usize = 1000;
-const BATCH_SIZE: usize = 4;
 
 /// Benchmark structure to track performance metrics
 #[derive(Debug)]

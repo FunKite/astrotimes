@@ -134,7 +134,7 @@ pub fn m1_batch_altitude(
 ///
 /// Note: Requires `rayon` dependency. Add to Cargo.toml:
 ///   rayon = "1.7"
-#[cfg(all(target_arch = "aarch64", feature = "parallel"))]
+#[allow(dead_code)]
 pub fn parallel_event_collection_m1(
     locations: &[crate::astro::Location],
     times: &[chrono::DateTime<chrono_tz::Tz>],

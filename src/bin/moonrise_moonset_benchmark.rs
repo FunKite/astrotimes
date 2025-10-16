@@ -7,6 +7,7 @@ use astrotimes::astro::{self, Location, moon_batch_optimized};
 const ITERATIONS: usize = 100;
 
 #[derive(Debug)]
+#[allow(dead_code)]
 struct BenchmarkResult {
     name: &'static str,
     total_time_ms: f64,
