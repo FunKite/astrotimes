@@ -3,6 +3,7 @@
 
 pub mod coordinates;
 pub mod moon;
+pub mod simd_math;
 pub mod sun;
 pub mod time_utils;
 pub mod units;

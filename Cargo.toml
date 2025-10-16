@@ -51,3 +51,7 @@ path = "src/bin/accuracy_report.rs"
 [[bin]]
 name = "perf_benchmark"
 path = "src/bin/perf_benchmark.rs"
+
+[[bin]]
+name = "simd_benchmark"
+path = "src/bin/simd_benchmark.rs"
