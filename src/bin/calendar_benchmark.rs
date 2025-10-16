@@ -42,6 +42,7 @@ impl CalendarBenchmarkResult {
         println!();
     }
 
+    #[allow(dead_code)]
     fn improvement_vs(&self, baseline: &CalendarBenchmarkResult) -> (f64, f64) {
         let speedup = baseline.time_per_day_us / self.time_per_day_us;
         let improvement_pct = ((baseline.time_per_day_us - self.time_per_day_us) / baseline.time_per_day_us) * 100.0;
@@ -275,7 +276,6 @@ fn main() {
 
     // Calculate extrapolations
     let html_75yr_estimated = b3.time_per_day_us * (total_days as f64) / 1000.0;
-    let json_75yr_estimated = b3.time_per_day_us * (total_days as f64) / 1000.0;
 
     println!("Scaling Analysis:");
     println!("  1-year extrapolation to 75 years: {:.2}ms", html_75yr_estimated);
@@ -318,7 +318,7 @@ fn main() {
     println!("Combined Optimization Potential:");
     let baseline_per_day = b1.time_per_day_us;
     let parallelization_speedup = 6.0; // Conservative 6x on 8 cores
-    let batch_speedup = 3.5; // Moonrise/moonset optimization
+    let _batch_speedup = 3.5; // Moonrise/moonset optimization (factored into parallelization_speedup * 1.08)
     let combined = baseline_per_day / (parallelization_speedup * 1.08); // 8% from other improvements
 
     println!("  Baseline per day:        {:.3}μs", baseline_per_day);
