@@ -4,6 +4,7 @@
 pub mod ai;
 pub mod astro;
 pub mod calendar;
+pub mod calendar_optimized;
 pub mod city;
 pub mod cli;
 pub mod config;

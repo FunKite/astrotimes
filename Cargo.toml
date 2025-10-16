@@ -39,6 +39,9 @@ num-traits = "0.2"
 # Home directory detection
 dirs = "5.0"
 
+# Parallel processing
+rayon = "1.10"
+
 # Standard release profile (all platforms)
 [profile.release]
 opt-level = 3
@@ -89,3 +92,7 @@ path = "src/bin/m1_max_benchmark.rs"
 [[bin]]
 name = "moonrise_moonset_benchmark"
 path = "src/bin/moonrise_moonset_benchmark.rs"
+
+[[bin]]
+name = "calendar_benchmark"
+path = "src/bin/calendar_benchmark.rs"
