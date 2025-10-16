@@ -1,0 +1,22 @@
+# Cargo configuration for AstroTimes
+# Platform-specific build optimizations
+
+[alias]
+# Quick commands for common builds
+m1-max = "build --release -Z build-std=core,alloc --target aarch64-apple-darwin"
+m1-profile = "build --profile release-m1-max"
+bench-m1 = "bench --target aarch64-apple-darwin"
+
+[build]
+# M1 Max optimization flags
+# These are applied to all builds unless overridden
+rustflags = [
+    "-C", "target-cpu=apple-m1",           # M1 Max CPU tuning
+]
+
+# Default target for macOS ARM64
+# target = "aarch64-apple-darwin"
+
+[profile.release-m1-max]
+# Applied via rustflags in this config
+# RUSTFLAGS="-C target-cpu=apple-m1 -C opt-level=3 -C lto=fat -C codegen-units=1"

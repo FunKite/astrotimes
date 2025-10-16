@@ -2,6 +2,7 @@
 // Implements NOAA solar algorithms and Meeus lunar algorithms for high precision
 
 pub mod coordinates;
+pub mod m1_optimizations;
 pub mod moon;
 pub mod simd_math;
 pub mod sun;

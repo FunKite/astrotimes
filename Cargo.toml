@@ -39,10 +39,36 @@ num-traits = "0.2"
 # Home directory detection
 dirs = "5.0"
 
+# Standard release profile (all platforms)
 [profile.release]
 opt-level = 3
 lto = true
 codegen-units = 1
+strip = false
+
+# M1 Max-optimized profile (Apple Silicon)
+# Optimized for 10-core CPU (8 performance + 2 efficiency)
+# with 16-core GPU and 32MB L2 cache per performance core
+[profile.release-m1-max]
+inherits = "release"
+lto = "fat"
+codegen-units = 1
+strip = false
+debug = false
+
+# Development profile
+[profile.dev]
+opt-level = 2
+debug = true
+
+# Test profile
+[profile.test]
+opt-level = 2
+
+# Benchmarking profile
+[profile.bench]
+inherits = "release"
+debug = true
 
 [[bin]]
 name = "accuracy_report"
@@ -55,3 +81,7 @@ path = "src/bin/perf_benchmark.rs"
 [[bin]]
 name = "simd_benchmark"
 path = "src/bin/simd_benchmark.rs"
+
+[[bin]]
+name = "m1_max_benchmark"
+path = "src/bin/m1_max_benchmark.rs"
