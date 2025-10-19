@@ -432,7 +432,7 @@ fn search_rise_or_set<T: TimeZone>(
     let end = start.clone() + Duration::hours(24);
 
     let step = Duration::minutes(5);
-    let mut prev_dt = start;
+    let mut prev_dt = start.clone();
     let mut prev_alt = lunar_position(location, &prev_dt).altitude - threshold;
 
     loop {

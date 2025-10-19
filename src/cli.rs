@@ -89,6 +89,10 @@ pub struct Args {
     /// Minutes between AI insight refreshes in watch mode (1-60, default 2)
     #[arg(long, default_value_t = 2)]
     pub ai_refresh_minutes: u64,
+
+    /// Generate USNO validation report comparing calculations with Naval Observatory data
+    #[arg(long)]
+    pub validate: bool,
 }
 
 impl Args {

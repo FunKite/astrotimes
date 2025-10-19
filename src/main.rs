@@ -33,7 +33,12 @@ fn main() -> Result<()> {
         time_sync::check_time_sync()
     };
 
-    let ai_config = ai::AiConfig::from_args(&args)?;
+    let mut ai_config = ai::AiConfig::from_args(&args)?;
+
+    // Merge with saved AI settings if config was loaded
+    if let Some(cfg) = &config {
+        ai_config = ai_config.merge_with_saved(&cfg.ai);
+    }
 
     // Determine location
     let (location, timezone, city_name, location_source) =
@@ -87,6 +92,27 @@ fn main() -> Result<()> {
         } else {
             println!("{}", calendar_output);
         }
+    } else if args.validate {
+        // Validation mode - compare with USNO data
+        let report = astrotimes::usno_validation::generate_validation_report(
+            &location,
+            &timezone,
+            city_name.clone(),
+            &dt,
+        )?;
+
+        let html = astrotimes::usno_validation::generate_html_report(&report);
+
+        // Generate filename with timestamp
+        let timestamp = chrono::Local::now().format("%Y%m%d-%H%M%S");
+        let filename = format!("astrotimes-usno-validation-{}.html", timestamp);
+        fs::write(&filename, html)?;
+        println!("✓ Validation report written to: {}", filename);
+        println!("\nSummary:");
+        println!("  Pass:    {} (0-3 min)", report.results.iter().filter(|r| r.status == astrotimes::usno_validation::ValidationStatus::Pass).count());
+        println!("  Warning: {} (3-5 min)", report.results.iter().filter(|r| r.status == astrotimes::usno_validation::ValidationStatus::Warning).count());
+        println!("  Fail:    {} (>5 min)", report.results.iter().filter(|r| r.status == astrotimes::usno_validation::ValidationStatus::Fail).count());
+        println!("  Missing: {}", report.results.iter().filter(|r| r.status == astrotimes::usno_validation::ValidationStatus::Missing).count());
     } else if args.json {
         // JSON output mode
         let json = output::generate_json_output(
@@ -101,12 +127,17 @@ fn main() -> Result<()> {
         println!("{}", json);
     } else if args.should_watch() {
         // Interactive watch mode
+        let time_sync_server = config
+            .as_ref()
+            .map(|cfg| cfg.time_sync.server.clone())
+            .unwrap_or_default();
         run_watch_mode(
             location,
             timezone,
             city_name.clone(),
             time_sync_info.clone(),
             skip_time_sync,
+            time_sync_server,
             location_source,
             ai_config.clone(),
             config.as_ref().map(|cfg| cfg.watch.clone()),
@@ -237,6 +268,7 @@ fn run_watch_mode(
     city_name: Option<String>,
     time_sync_info: time_sync::TimeSyncInfo,
     time_sync_disabled: bool,
+    time_sync_server: String,
     location_source: LocationSource,
     ai_config: ai::AiConfig,
     watch_prefs: Option<config::WatchPreferences>,
@@ -256,6 +288,7 @@ fn run_watch_mode(
         location_source,
         time_sync_info,
         time_sync_disabled,
+        time_sync_server,
         ai_config,
         watch_prefs,
     );
