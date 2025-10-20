@@ -153,7 +153,8 @@ fn handle_settings_keys(app: &mut App, key: KeyEvent) -> Result<()> {
                 | SettingsField::ShowEvents
                 | SettingsField::ShowPositions
                 | SettingsField::ShowMoon
-                | SettingsField::ShowLunarPhases => {
+                | SettingsField::ShowLunarPhases
+                | SettingsField::NightMode => {
                     app.settings_draft.toggle_current_bool();
                 }
                 SettingsField::AiEnabled => {
