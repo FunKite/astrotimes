@@ -256,11 +256,11 @@ fn render_html(
     html.push_str(
         "thead{background:rgba(88,166,255,0.12);text-transform:uppercase;letter-spacing:0.05em;}",
     );
-    html.push_str("th,td{padding:0.9rem 1rem;text-align:left;white-space:nowrap;}");
+    html.push_str("th,td{padding:0.5rem 1rem;text-align:left;white-space:nowrap;}");
     html.push_str("tbody tr:nth-child(even){background:rgba(88,166,255,0.04);}");
     html.push_str("tbody tr:hover{background:rgba(88,166,255,0.14);}");
     html.push_str(".date{font-weight:600;font-size:1rem;}");
-    html.push_str(".weekday{font-size:0.9rem;opacity:0.75;display:block;margin-top:0.25rem;text-transform:uppercase;}");
+    html.push_str(".weekday{font-size:0.9rem;opacity:0.75;display:inline;margin-left:0.5rem;text-transform:uppercase;}");
     html.push_str(".emoji{font-size:1.2rem;margin-right:0.5rem;}");
     html.push_str(".illum{font-size:0.9rem;opacity:0.8;}");
     html.push_str(".badge{display:inline-block;padding:0.25rem 0.65rem;border-radius:999px;font-size:0.8rem;background:rgba(88,166,255,0.2);color:#58a6ff;margin-left:0.4rem;}");
