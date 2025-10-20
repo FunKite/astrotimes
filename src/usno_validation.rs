@@ -62,6 +62,8 @@ pub struct ValidationResult {
     pub usno_value: Option<String>,
     pub difference_minutes: Option<i64>,
     pub status: ValidationStatus,
+    // Internal field for sorting - holds the datetime for chronological ordering
+    _datetime: Option<DateTime<Tz>>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -263,6 +265,7 @@ pub fn generate_validation_report(
                 usno_value: Some(usno_dt.format("%H:%M").to_string()),
                 difference_minutes: Some(diff_minutes),
                 status: ValidationStatus::from_difference(Some(diff_minutes)),
+                _datetime: Some(*at_dt),
             });
         } else {
             // No matching USNO event found
@@ -272,9 +275,13 @@ pub fn generate_validation_report(
                 usno_value: None,
                 difference_minutes: None,
                 status: ValidationStatus::Missing,
+                _datetime: Some(*at_dt),
             });
         }
     }
+
+    // Sort results chronologically to match watch mode event ordering
+    results.sort_by_key(|r| r._datetime);
 
     Ok(ValidationReport {
         location: *location,
