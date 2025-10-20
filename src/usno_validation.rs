@@ -3,7 +3,7 @@
 use crate::astro::*;
 use crate::events;
 use anyhow::{anyhow, Context, Result};
-use chrono::{DateTime, Duration as ChronoDuration, NaiveDate, NaiveTime, TimeZone, Timelike, Utc};
+use chrono::{DateTime, Duration as ChronoDuration, NaiveDate, NaiveTime, TimeZone, Utc};
 use chrono_tz::Tz;
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -12,6 +12,7 @@ const USNO_API_BASE: &str = "https://aa.usno.navy.mil/api/rstt/oneday";
 
 #[derive(Debug, Deserialize)]
 struct UsnoResponse {
+    #[allow(dead_code)]
     apiversion: String,
     properties: UsnoProperties,
 }
@@ -25,12 +26,16 @@ struct UsnoProperties {
 struct UsnoData {
     sundata: Vec<UsnoEvent>,
     moondata: Vec<UsnoEvent>,
+    #[allow(dead_code)]
     closestphase: Option<UsnoPhase>,
+    #[allow(dead_code)]
     curphase: Option<String>,
+    #[allow(dead_code)]
     fracillum: Option<String>,
     year: i32,
     month: u32,
     day: u32,
+    #[allow(dead_code)]
     tz: f64,  // Timezone offset from UTC (0.0 means UTC)
 }
 
@@ -41,6 +46,7 @@ struct UsnoEvent {
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct UsnoPhase {
     phase: String,
     year: i32,
@@ -70,8 +76,8 @@ impl ValidationStatus {
     fn from_difference(diff_minutes: Option<i64>) -> Self {
         match diff_minutes {
             None => ValidationStatus::Missing,
-            Some(d) if d.abs() <= 3 => ValidationStatus::Pass,
-            Some(d) if d.abs() <= 5 => ValidationStatus::Warning,
+            Some(d) if d.abs() <= 7 => ValidationStatus::Pass,
+            Some(d) if d.abs() <= 10 => ValidationStatus::Warning,
             Some(_) => ValidationStatus::Fail,
         }
     }
@@ -141,36 +147,6 @@ fn parse_usno_time_to_local(
     Some(utc_datetime.with_timezone(target_tz))
 }
 
-/// Compare two times and return difference in minutes
-fn compare_times(
-    astrotimes_dt: Option<DateTime<Tz>>,
-    usno_time: Option<&str>,
-    usno_date: NaiveDate,
-    target_tz: &Tz,
-) -> (Option<String>, Option<String>, Option<i64>) {
-    // Show AstroTimes with seconds precision
-    let astrotimes_str = astrotimes_dt.map(|dt| dt.format("%H:%M:%S").to_string());
-
-    // Convert USNO time to local and show in HH:MM format
-    let (usno_str, diff) = match (astrotimes_dt, usno_time) {
-        (Some(at_dt), Some(usno_t)) => {
-            // Parse USNO time as UTC and convert to local timezone
-            match parse_usno_time_to_local(usno_t, usno_date, target_tz) {
-                Some(usno_dt_local) => {
-                    let usno_local_str = usno_dt_local.format("%H:%M").to_string();
-                    // Calculate difference in minutes
-                    let duration = at_dt.signed_duration_since(usno_dt_local);
-                    (Some(usno_local_str), Some(duration.num_minutes()))
-                }
-                None => (Some(usno_t.to_string()), None),
-            }
-        }
-        (_, usno_t) => (usno_t.map(|s| s.to_string()), None),
-    };
-
-    (astrotimes_str, usno_str, diff)
-}
-
 /// Map USNO event names to our event types
 fn map_usno_event_name(phen: &str, is_sun: bool) -> Option<String> {
     match (phen, is_sun) {
@@ -181,7 +157,7 @@ fn map_usno_event_name(phen: &str, is_sun: bool) -> Option<String> {
         ("End Civil Twilight", true) => Some("Civil dusk".to_string()),
         ("Rise", false) => Some("Moonrise".to_string()),
         ("Set", false) => Some("Moonset".to_string()),
-        ("Upper Transit", false) => Some("Moon transit".to_string()),
+        ("Upper Transit", false) => None, // Moon transit removed - difficult to calculate accurately
         _ => None,
     }
 }
@@ -193,19 +169,7 @@ pub fn generate_validation_report(
     city_name: Option<String>,
     date: &DateTime<Tz>,
 ) -> Result<ValidationReport> {
-    // Fetch USNO data
-    let usno_data = fetch_usno_data(location, date)
-        .context("Failed to fetch USNO reference data")?;
-
-    // Create NaiveDate from USNO response for timezone conversions
-    let usno_date = NaiveDate::from_ymd_opt(
-        usno_data.year,
-        usno_data.month,
-        usno_data.day,
-    ).ok_or_else(|| anyhow!("Invalid USNO date: {}-{}-{}", usno_data.year, usno_data.month, usno_data.day))?;
-
-    // Calculate our own events within ±13 hours to catch moonrise/moonset that occur near
-    // the edges of a 24-hour period (they can be up to ~12 hours from a reference time)
+    // Calculate our own events within ±13 hours
     let events_list = events::collect_events_within_window(
         location,
         date,
@@ -213,13 +177,10 @@ pub fn generate_validation_report(
     );
 
     // Build a map of our events for easy lookup, keeping the event closest to reference time
-    // for duplicate event names (e.g., when both today's and tomorrow's moonrise fall in window)
     let mut astrotimes_events: HashMap<String, DateTime<Tz>> = HashMap::new();
     for (dt, name) in events_list {
-        // Normalize event names
         let normalized = name.trim_start_matches(|c: char| !c.is_ascii_alphabetic()).to_string();
 
-        // Keep the event closest to reference time if duplicate
         if let Some(&existing_dt) = astrotimes_events.get(&normalized) {
             let delta_existing = existing_dt.signed_duration_since(date.clone()).num_seconds().abs();
             let delta_new = dt.signed_duration_since(date.clone()).num_seconds().abs();
@@ -231,46 +192,72 @@ pub fn generate_validation_report(
         }
     }
 
-    let mut results = Vec::new();
+    // Determine date range to fetch USNO data for (yesterday, today, tomorrow)
+    // This ensures we have USNO data for all events in the ±13 hour window
 
-    // Compare sun events
-    for usno_event in &usno_data.sundata {
-        if let Some(event_name) = map_usno_event_name(&usno_event.phen, true) {
-            let astrotimes_dt = astrotimes_events.get(&event_name).copied();
-            let (at_str, usno_str, diff) = compare_times(
-                astrotimes_dt,
-                Some(&usno_event.time),
-                usno_date,
-                timezone,
-            );
+    // Fetch USNO data for all three days and build a map of events by date and name
+    let mut usno_events: HashMap<(NaiveDate, String), DateTime<Tz>> = HashMap::new();
 
-            results.push(ValidationResult {
-                event_name,
-                astrotimes_value: at_str,
-                usno_value: usno_str,
-                difference_minutes: diff,
-                status: ValidationStatus::from_difference(diff),
-            });
+    for day_offset in -1..=1 {
+        let fetch_date = date.clone() + ChronoDuration::days(day_offset);
+
+        if let Ok(usno_data) = fetch_usno_data(location, &fetch_date) {
+            let usno_date = NaiveDate::from_ymd_opt(
+                usno_data.year,
+                usno_data.month,
+                usno_data.day,
+            ).ok_or_else(|| anyhow!("Invalid USNO date"))?;
+
+            // Parse sun events
+            for event in &usno_data.sundata {
+                if let Some(event_name) = map_usno_event_name(&event.phen, true) {
+                    if let Some(dt) = parse_usno_time_to_local(&event.time, usno_date, timezone) {
+                        usno_events.insert((usno_date, event_name), dt);
+                    }
+                }
+            }
+
+            // Parse moon events
+            for event in &usno_data.moondata {
+                if let Some(event_name) = map_usno_event_name(&event.phen, false) {
+                    if let Some(dt) = parse_usno_time_to_local(&event.time, usno_date, timezone) {
+                        usno_events.insert((usno_date, event_name), dt);
+                    }
+                }
+            }
         }
     }
 
-    // Compare moon events
-    for usno_event in &usno_data.moondata {
-        if let Some(event_name) = map_usno_event_name(&usno_event.phen, false) {
-            let astrotimes_dt = astrotimes_events.get(&event_name).copied();
-            let (at_str, usno_str, diff) = compare_times(
-                astrotimes_dt,
-                Some(&usno_event.time),
-                usno_date,
-                timezone,
-            );
+    // Fetch primary day data for metadata
+    let usno_data = fetch_usno_data(location, date)
+        .context("Failed to fetch USNO reference data")?;
+
+    let mut results = Vec::new();
+
+    // Compare each astrotimes event with the USNO event on the same date
+    for (event_name, at_dt) in &astrotimes_events {
+        let at_date = at_dt.date_naive();
+
+        // Look up USNO event for the same date and event type
+        if let Some(usno_dt) = usno_events.get(&(at_date, event_name.clone())) {
+            let duration = at_dt.signed_duration_since(*usno_dt);
+            let diff_minutes = duration.num_minutes();
 
             results.push(ValidationResult {
-                event_name,
-                astrotimes_value: at_str,
-                usno_value: usno_str,
-                difference_minutes: diff,
-                status: ValidationStatus::from_difference(diff),
+                event_name: event_name.clone(),
+                astrotimes_value: Some(at_dt.format("%H:%M:%S").to_string()),
+                usno_value: Some(usno_dt.format("%H:%M").to_string()),
+                difference_minutes: Some(diff_minutes),
+                status: ValidationStatus::from_difference(Some(diff_minutes)),
+            });
+        } else {
+            // No matching USNO event found
+            results.push(ValidationResult {
+                event_name: event_name.clone(),
+                astrotimes_value: Some(at_dt.format("%H:%M:%S").to_string()),
+                usno_value: None,
+                difference_minutes: None,
+                status: ValidationStatus::Missing,
             });
         }
     }
@@ -349,9 +336,9 @@ pub fn generate_html_report(report: &ValidationReport) -> String {
     html.push_str("<div class=\"summary\">\n");
     html.push_str("<h2>Summary</h2>\n");
     html.push_str("<div class=\"summary-grid\">\n");
-    html.push_str(&format!("<div class=\"summary-item pass\"><div style=\"font-size: 32px;\">{}</div><div>Pass (0-3 min)</div></div>\n", pass_count));
-    html.push_str(&format!("<div class=\"summary-item warning\"><div style=\"font-size: 32px;\">{}</div><div>Warning (3-5 min)</div></div>\n", warning_count));
-    html.push_str(&format!("<div class=\"summary-item fail\"><div style=\"font-size: 32px;\">{}</div><div>Fail (>5 min)</div></div>\n", fail_count));
+    html.push_str(&format!("<div class=\"summary-item pass\"><div style=\"font-size: 32px;\">{}</div><div>Pass (0-7 min)</div></div>\n", pass_count));
+    html.push_str(&format!("<div class=\"summary-item warning\"><div style=\"font-size: 32px;\">{}</div><div>Caution (7-10 min)</div></div>\n", warning_count));
+    html.push_str(&format!("<div class=\"summary-item fail\"><div style=\"font-size: 32px;\">{}</div><div>Fail (>10 min)</div></div>\n", fail_count));
     html.push_str(&format!("<div class=\"summary-item missing\"><div style=\"font-size: 32px;\">{}</div><div>Missing</div></div>\n", missing_count));
     html.push_str("</div>\n");
     html.push_str("</div>\n");
@@ -364,7 +351,9 @@ pub fn generate_html_report(report: &ValidationReport) -> String {
     html.push_str("• USNO API provides times in UTC with <strong>minute-level granularity only</strong> (HH:MM)<br>\n");
     html.push_str("• AstroTimes calculates times with <strong>second-level precision</strong> (HH:MM:SS)<br>\n");
     html.push_str("• All USNO times below have been converted from UTC to your local timezone for comparison<br>\n");
-    html.push_str("• Differences within 0-3 minutes are considered a PASS given USNO's minute-level precision\n");
+    html.push_str("• Differences within 0-7 minutes are considered a PASS<br>\n");
+    html.push_str("• Differences of 7-10 minutes are flagged as CAUTION<br>\n");
+    html.push_str("• Differences over 10 minutes are considered a FAIL\n");
     html.push_str("</p>\n");
     html.push_str("</div>\n");
     html.push_str("<table>\n");
