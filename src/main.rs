@@ -438,7 +438,7 @@ fn print_text_output(
         let marker = if Some(idx) == next_idx { " (next)" } else { "" };
 
         println!(
-            "{}  {:<18}  {:<18}{}",
+            "{}  {:<18}   {:<18}{}",
             event_time.format("%H:%M:%S"),
             event_name,
             diff_str,

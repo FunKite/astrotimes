@@ -304,7 +304,7 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
             let event_label = sanitized_event_label(app, event_name);
             let (event_width, diff_width) = if app.night_mode { (14, 15) } else { (16, 17) };
             lines.push(Line::from(vec![Span::raw(format!(
-                "{}  {:<event_width$}{:<diff_width$}{}",
+                "{}  {:<event_width$} {:<diff_width$}{}",
                 time_str,
                 event_label,
                 diff_str,
