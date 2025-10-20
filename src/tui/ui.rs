@@ -1270,6 +1270,22 @@ fn render_settings(f: &mut Frame, app: &App) {
     );
     lines.push(Line::from(""));
 
+    // Display section
+    lines.push(Line::from(Span::styled(
+        "— Display —",
+        Style::default().fg(get_color(app, Color::Yellow)).add_modifier(Modifier::BOLD),
+    )));
+
+    render_setting_field(
+        &mut lines,
+        app,
+        current_field == SettingsField::NightMode,
+        "Night Mode",
+        if draft.night_mode { "[x] Enabled (red)" } else { "[ ] Disabled" }.to_string(),
+        Some("Press Space or Enter to toggle".to_string()),
+    );
+    lines.push(Line::from(""));
+
     // AI Configuration section
     lines.push(Line::from(Span::styled(
         "— AI Configuration —",

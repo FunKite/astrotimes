@@ -117,6 +117,7 @@ pub enum SettingsField {
     ShowPositions,
     ShowMoon,
     ShowLunarPhases,
+    NightMode,
     AiEnabled,
     AiServer,
     AiModel,
@@ -693,6 +694,7 @@ pub struct SettingsDraft {
     pub show_positions: bool,
     pub show_moon: bool,
     pub show_lunar_phases: bool,
+    pub night_mode: bool,
     pub ai_enabled: bool,
     pub ai_server: String,
     pub ai_model: String,
@@ -705,7 +707,7 @@ pub struct SettingsDraft {
 }
 
 impl SettingsDraft {
-    const FIELD_COUNT: usize = 12;
+    const FIELD_COUNT: usize = 13;
 
     pub fn from_app(app: &App) -> Self {
         Self {
@@ -717,6 +719,7 @@ impl SettingsDraft {
             show_positions: app.show_positions,
             show_moon: app.show_moon,
             show_lunar_phases: app.show_lunar_phases,
+            night_mode: app.night_mode,
             ai_enabled: app.ai_config.enabled,
             ai_server: app.ai_config.server.clone(),
             ai_model: app.ai_config.model.clone(),
@@ -739,9 +742,10 @@ impl SettingsDraft {
             5 => SettingsField::ShowPositions,
             6 => SettingsField::ShowMoon,
             7 => SettingsField::ShowLunarPhases,
-            8 => SettingsField::AiEnabled,
-            9 => SettingsField::AiServer,
-            10 => SettingsField::AiModel,
+            8 => SettingsField::NightMode,
+            9 => SettingsField::AiEnabled,
+            10 => SettingsField::AiServer,
+            11 => SettingsField::AiModel,
             _ => SettingsField::AiRefreshMinutes,
         }
     }
@@ -764,6 +768,7 @@ impl SettingsDraft {
             SettingsField::ShowPositions => self.show_positions = !self.show_positions,
             SettingsField::ShowMoon => self.show_moon = !self.show_moon,
             SettingsField::ShowLunarPhases => self.show_lunar_phases = !self.show_lunar_phases,
+            SettingsField::NightMode => self.night_mode = !self.night_mode,
             SettingsField::AiEnabled => self.ai_enabled = !self.ai_enabled,
             _ => {}
         }
@@ -922,6 +927,7 @@ impl App {
                 show_positions: prefs.show_positions,
                 show_moon: prefs.show_moon,
                 show_lunar_phases: prefs.show_lunar_phases,
+                night_mode: prefs.night_mode,
                 ai_enabled: ai_config.enabled,
                 ai_server: ai_config.server.clone(),
                 ai_model: ai_config.model.clone(),
@@ -1554,6 +1560,7 @@ impl App {
             show_positions: self.show_positions,
             show_moon: self.show_moon,
             show_lunar_phases: self.show_lunar_phases,
+            night_mode: self.night_mode,
             ai_enabled: self.ai_config.enabled,
             ai_server: self.ai_config.server.clone(),
             ai_model: self.ai_config.model.clone(),
@@ -1605,6 +1612,9 @@ impl App {
         self.show_moon = self.settings_draft.show_moon;
         self.show_lunar_phases = self.settings_draft.show_lunar_phases;
 
+        // Apply night mode
+        self.night_mode = self.settings_draft.night_mode;
+
         // Apply AI settings
         self.ai_config.enabled = self.settings_draft.ai_enabled;
         self.ai_config.server = self.settings_draft.ai_server.clone();
@@ -1631,6 +1641,7 @@ impl App {
             show_positions: true,
             show_moon: true,
             show_lunar_phases: true,
+            night_mode: false,
             ai_enabled: false,
             ai_server: "http://localhost:11434".to_string(),
             ai_model: "llama3.2:latest".to_string(),
