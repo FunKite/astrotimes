@@ -178,7 +178,7 @@ gh release create v0.1.0-beta \
 
 ## Files Ready for Upload
 
-Location: `/Users/mikemclarney/Documents/GitHub/astrotimesR/dist/`
+Location: `dist/` directory in project root
 
 - ✅ `astrotimes-v0.1.0-macos-arm64.tar.gz` (1.4 MB)
 - ✅ `astrotimes-v0.1.0-macos-arm64.tar.gz.sha256` (103 bytes)
