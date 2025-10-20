@@ -162,6 +162,14 @@ fn map_usno_event_name(phen: &str, is_sun: bool) -> Option<String> {
     }
 }
 
+/// Check if an event should be included in the validation report
+/// (excludes nautical and astronomical twilight since USNO doesn't provide them)
+fn should_include_in_report(event_name: &str) -> bool {
+    !event_name.contains("Nautical")
+        && !event_name.contains("Astronomical")
+        && !event_name.contains("Astro ")
+}
+
 /// Generate validation report comparing astrotimes calculations with USNO data
 pub fn generate_validation_report(
     location: &Location,
@@ -235,7 +243,13 @@ pub fn generate_validation_report(
     let mut results = Vec::new();
 
     // Compare each astrotimes event with the USNO event on the same date
+    // (filter out nautical and astronomical events since USNO doesn't provide them)
     for (event_name, at_dt) in &astrotimes_events {
+        // Skip nautical and astronomical twilight events
+        if !should_include_in_report(event_name) {
+            continue;
+        }
+
         let at_date = at_dt.date_naive();
 
         // Look up USNO event for the same date and event type
