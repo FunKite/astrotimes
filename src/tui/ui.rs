@@ -149,12 +149,21 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
 
         // Combine Lat/Lon and Place on one line
         let location_text = if let Some(ref city) = app.city_name {
-            format!(
-                "Lat,Lon~{:.3},{:.3}  🏙️ Place: {}",
-                app.location.latitude.value(),
-                app.location.longitude.value(),
-                city
-            )
+            if app.night_mode {
+                format!(
+                    "Lat,Lon~{:.3},{:.3}  Place: {}",
+                    app.location.latitude.value(),
+                    app.location.longitude.value(),
+                    city
+                )
+            } else {
+                format!(
+                    "Lat,Lon~{:.3},{:.3}  🏙️ Place: {}",
+                    app.location.latitude.value(),
+                    app.location.longitude.value(),
+                    city
+                )
+            }
         } else {
             format!(
                 "Lat,Lon~{:.3},{:.3}",
@@ -183,15 +192,26 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
                 sign, offset_hours, offset_remaining_minutes
             )
         };
-        lines.push(Line::from(vec![Span::raw(label_with_symbol(
-            app,
-            "📅",
+        let timezone_text = if app.night_mode {
+            format!(
+                "{} {}@{}",
+                now_tz.format("%b %d %H:%M:%S"),
+                app.timezone.name(),
+                offset_label
+            )
+        } else {
             format!(
                 "{} ⌚{}@{}",
                 now_tz.format("%b %d %H:%M:%S"),
                 app.timezone.name(),
                 offset_label
-            ),
+            )
+        };
+
+        lines.push(Line::from(vec![Span::raw(label_with_symbol(
+            app,
+            "📅",
+            timezone_text,
         ))]));
 
         // Only show Time Sync row if enabled
