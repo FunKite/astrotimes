@@ -17,16 +17,16 @@ bench-m1 = "bench --target aarch64-apple-darwin"
 # Portable baseline (all tier 1 platforms)
 portable-release = "build --release"
 
-# CPU-native optimizations
-native-release = "build --profile release-native -e RUSTFLAGS='-C target-cpu=native'"
+# CPU-native optimizations (set RUSTFLAGS when running)
+native-release = "build --profile release-native"
 
-# x86_64 optimizations
-x86-64-avx2 = "build --profile release-x86-64-v3 -e RUSTFLAGS='-C target-cpu=haswell -C target-feature=+avx2,+sse4.2'"
-x86-64-avx512 = "build --profile release-x86-64-v4 -e RUSTFLAGS='-C target-cpu=skylake-avx512 -C target-feature=+avx512f'"
+# x86_64 optimizations (set RUSTFLAGS when running)
+x86-64-avx2 = "build --profile release-x86-64-v3"
+x86-64-avx512 = "build --profile release-x86-64-v4"
 
 # ARM64 optimizations
 aarch64-portable = "build --profile release-aarch64-generic"
-aarch64-sve = "build --profile release-aarch64-sve -e RUSTFLAGS='-C target-cpu=cortex-a76 -C target-feature=+sve'"
+aarch64-sve = "build --profile release-aarch64-sve"
 
 [build]
 # Default build flags (detect platform at build time if possible)
