@@ -29,10 +29,6 @@ const EVENT_DEFINITIONS: &[EventDefinition] = &[
         source: EventSource::Moon(moon::LunarEvent::Moonrise),
     },
     EventDefinition {
-        label: "🌔 Moon transit",
-        source: EventSource::Moon(moon::LunarEvent::Transit),
-    },
-    EventDefinition {
         label: "🌆 Civil dusk",
         source: EventSource::Solar(sun::SolarEvent::CivilDusk),
     },

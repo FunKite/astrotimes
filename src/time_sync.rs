@@ -10,6 +10,14 @@ const TIME_SERVERS: [(&str, &str); 2] = [
 pub const PRIMARY_SOURCE_LABEL: &str = TIME_SERVERS[0].1;
 const SYNC_THRESHOLD_MICROS: i64 = 50_000; // 50 ms tolerance treated as in sync
 
+/// Default NTP servers to use when none are specified
+pub fn default_servers() -> Vec<(String, String)> {
+    TIME_SERVERS
+        .iter()
+        .map(|(server, label)| (server.to_string(), label.to_string()))
+        .collect()
+}
+
 #[derive(Debug, Clone)]
 pub struct TimeSyncInfo {
     pub source: &'static str,
@@ -25,7 +33,11 @@ pub enum TimeSyncDirection {
 }
 
 pub fn check_time_sync() -> TimeSyncInfo {
-    match fetch_delta() {
+    check_time_sync_with_servers(None)
+}
+
+pub fn check_time_sync_with_servers(custom_server: Option<&str>) -> TimeSyncInfo {
+    match fetch_delta(custom_server) {
         Ok((delta, source)) => TimeSyncInfo {
             source,
             delta: Some(delta),
@@ -77,9 +89,34 @@ pub fn direction_code(direction: TimeSyncDirection) -> &'static str {
     }
 }
 
-fn fetch_delta() -> anyhow::Result<(ChronoDuration, &'static str)> {
+fn fetch_delta(custom_server: Option<&str>) -> anyhow::Result<(ChronoDuration, &'static str)> {
     let mut last_err: Option<anyhow::Error> = None;
 
+    // If custom server is specified, try it first
+    if let Some(server_str) = custom_server {
+        let server_trimmed = server_str.trim();
+        if !server_trimmed.is_empty() {
+            let server_with_port = if server_trimmed.contains(':') {
+                server_trimmed.to_string()
+            } else {
+                format!("{}:123", server_trimmed)
+            };
+
+            match query_ntp(&server_with_port) {
+                Ok(server_time) => {
+                    let system_time = Utc::now();
+                    let delta = system_time.signed_duration_since(server_time);
+                    // Return static string for custom servers
+                    return Ok((delta, PRIMARY_SOURCE_LABEL));
+                }
+                Err(err) => {
+                    last_err = Some(anyhow!("{} query failed: {}", server_trimmed, err));
+                }
+            }
+        }
+    }
+
+    // Fall back to default servers
     for (server, label) in TIME_SERVERS.iter() {
         match query_ntp(server) {
             Ok(server_time) => {

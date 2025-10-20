@@ -1,6 +1,6 @@
 // UI rendering
 
-use super::app::{AiConfigField, AiServerStatus, App, CalendarField, LocationInputField};
+use super::app::{AiConfigField, AiServerStatus, App, CalendarField, LocationInputField, SettingsField};
 use crate::astro::*;
 use crate::time_sync;
 use chrono::{Offset, Utc};
@@ -13,26 +13,19 @@ use ratatui::{
 };
 use std::borrow::Cow;
 
-const FOOTER_INSTRUCTIONS: [&str; 12] = [
-    "q quit",
-    "s save",
-    "c city",
-    "g location",
-    "k calendar",
-    "a AI",
-    "n night",
-    "d toggle date",
-    "e toggle events",
-    "p toggle position",
-    "m toggle moon",
-    "l toggle lunar phases",
-];
+fn get_footer_instructions(ai_enabled: bool) -> Vec<&'static str> {
+    let mut instructions = vec!["q quit", "s settings", "r reports"];
+    if ai_enabled {
+        instructions.push("f fetch AI");
+    }
+    instructions
+}
 
 pub fn render(f: &mut Frame, app: &App) {
     match app.mode {
         super::app::AppMode::Watch => {
             let area = f.area();
-            let footer_height = footer_line_count(area.width);
+            let footer_height = footer_line_count(area.width, app.ai_config.enabled);
             let chunks = Layout::default()
                 .direction(Direction::Vertical)
                 .constraints([
@@ -46,6 +39,9 @@ pub fn render(f: &mut Frame, app: &App) {
             render_main_content(f, chunks[1], app);
             render_footer(f, chunks[2], app);
         }
+        super::app::AppMode::Settings => {
+            render_settings(f, app);
+        }
         super::app::AppMode::CityPicker => {
             render_city_picker(f, app);
         }
@@ -57,6 +53,9 @@ pub fn render(f: &mut Frame, app: &App) {
         }
         super::app::AppMode::Calendar => {
             render_calendar_generator(f, app);
+        }
+        super::app::AppMode::Reports => {
+            render_reports_menu(f, app);
         }
     }
 }
@@ -142,28 +141,34 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
 
     if app.show_location_date {
         lines.push(Line::from(vec![Span::styled(
-            "— Location & (D)ate —",
+            "— Location & Date —",
             Style::default()
                 .fg(get_color(app, Color::Yellow))
                 .add_modifier(Modifier::BOLD),
         )]));
+
+        // Combine Lat/Lon and Place on one line
+        let location_text = if let Some(ref city) = app.city_name {
+            format!(
+                "Lat,Lon~{:.3},{:.3}  🏙️ Place: {}",
+                app.location.latitude.value(),
+                app.location.longitude.value(),
+                city
+            )
+        } else {
+            format!(
+                "Lat,Lon~{:.3},{:.3}",
+                app.location.latitude.value(),
+                app.location.longitude.value()
+            )
+        };
+
         lines.push(Line::from(vec![Span::raw(label_with_symbol(
             app,
             "📍",
-            format!(
-                "Lat,Lon~{:.3},{:.3} {}",
-                app.location.latitude.value(),
-                app.location.longitude.value(),
-                app.location_source.short_label()
-            ),
+            location_text,
         ))]));
-        if let Some(ref city) = app.city_name {
-            lines.push(Line::from(vec![Span::raw(label_with_symbol(
-                app,
-                "🏙️",
-                format!("Place: {}", city),
-            ))]));
-        }
+
         let offset_seconds = now_tz.offset().fix().local_minus_utc();
         let offset_minutes = offset_seconds / 60;
         let sign = if offset_minutes >= 0 { '+' } else { '-' };
@@ -188,48 +193,52 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
                 offset_label
             ),
         ))]));
-        let countdown_text = app.time_sync_countdown().map(|remaining| {
-            let total_secs = remaining.as_secs();
-            let minutes = total_secs / 60;
-            let seconds = total_secs % 60;
-            format!("{:02}:{:02}", minutes, seconds)
-        });
-        let mut time_sync_text = format!("Sync {}:", app.time_sync.source);
-        match (
-            app.time_sync.delta,
-            app.time_sync.direction(),
-            app.time_sync.error_summary(),
-        ) {
-            (Some(delta), Some(direction), _) => {
-                let dir_symbol = match direction {
-                    time_sync::TimeSyncDirection::Ahead => "↑",
-                    time_sync::TimeSyncDirection::Behind => "↓",
-                    time_sync::TimeSyncDirection::InSync => "✓",
-                };
-                time_sync_text.push_str(&format!(
-                    " {} {}",
-                    time_sync::format_offset(delta),
-                    dir_symbol
-                ));
+
+        // Only show Time Sync row if enabled
+        if !app.time_sync_disabled {
+            let countdown_text = app.time_sync_countdown().map(|remaining| {
+                let total_secs = remaining.as_secs();
+                let minutes = total_secs / 60;
+                let seconds = total_secs % 60;
+                format!("{:02}:{:02}", minutes, seconds)
+            });
+            let mut time_sync_text = format!("Sync {}:", app.time_sync.source);
+            match (
+                app.time_sync.delta,
+                app.time_sync.direction(),
+                app.time_sync.error_summary(),
+            ) {
+                (Some(delta), Some(direction), _) => {
+                    let dir_symbol = match direction {
+                        time_sync::TimeSyncDirection::Ahead => "↑",
+                        time_sync::TimeSyncDirection::Behind => "↓",
+                        time_sync::TimeSyncDirection::InSync => "✓",
+                    };
+                    time_sync_text.push_str(&format!(
+                        " {} {}",
+                        time_sync::format_offset(delta),
+                        dir_symbol
+                    ));
+                }
+                (Some(delta), None, _) => {
+                    time_sync_text.push_str(&format!(" {}", time_sync::format_offset(delta)));
+                }
+                (None, _, Some(err)) => {
+                    time_sync_text.push_str(&format!(" err {}", err));
+                }
+                _ => {
+                    time_sync_text.push_str(" n/a");
+                }
             }
-            (Some(delta), None, _) => {
-                time_sync_text.push_str(&format!(" {}", time_sync::format_offset(delta)));
+            if let Some(countdown) = countdown_text {
+                time_sync_text.push_str(&format!(" ↻{}", countdown));
             }
-            (None, _, Some(err)) => {
-                time_sync_text.push_str(&format!(" err {}", err));
-            }
-            _ => {
-                time_sync_text.push_str(" n/a");
-            }
+            lines.push(Line::from(vec![Span::raw(label_with_symbol(
+                app,
+                "🕒",
+                time_sync_text,
+            ))]));
         }
-        if let Some(countdown) = countdown_text {
-            time_sync_text.push_str(&format!(" ↻{}", countdown));
-        }
-        lines.push(Line::from(vec![Span::raw(label_with_symbol(
-            app,
-            "🕒",
-            time_sync_text,
-        ))]));
         if let Some(status) = app.current_status() {
             lines.push(Line::from(vec![Span::styled(
                 format!("{}{}", symbol_prefix(app, "✓ "), status),
@@ -246,7 +255,7 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
             lines.push(Line::from(""));
         }
         lines.push(Line::from(vec![Span::styled(
-            "— (E)vents —",
+            "— Events —",
             Style::default()
                 .fg(get_color(app, Color::Yellow))
                 .add_modifier(Modifier::BOLD),
@@ -294,7 +303,7 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
         let pos_countdown = app.position_countdown();
         let pos_seconds = pos_countdown.as_secs();
         lines.push(Line::from(vec![Span::styled(
-            format!("— (P)osition —  ↻{}s", pos_seconds),
+            format!("— Position —  ↻{}s", pos_seconds),
             Style::default()
                 .fg(get_color(app, Color::Yellow))
                 .add_modifier(Modifier::BOLD),
@@ -330,7 +339,7 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
         let moon_minutes = moon_countdown.as_secs() / 60;
         let moon_seconds = moon_countdown.as_secs() % 60;
         lines.push(Line::from(vec![Span::styled(
-            format!("— (M)oon —  ↻{:02}:{:02}", moon_minutes, moon_seconds),
+            format!("— Moon —  ↻{:02}:{:02}", moon_minutes, moon_seconds),
             Style::default()
                 .fg(get_color(app, Color::Yellow))
                 .add_modifier(Modifier::BOLD),
@@ -386,7 +395,7 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
             lines.push(Line::from(""));
         }
         lines.push(Line::from(vec![Span::styled(
-            "— (L)unar Phases —",
+            "— Lunar Phases —",
             Style::default()
                 .fg(get_color(app, Color::Yellow))
                 .add_modifier(Modifier::BOLD),
@@ -442,7 +451,7 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
 
     if sections_rendered == 0 {
         lines.push(Line::from(vec![Span::styled(
-            "All panels hidden. Press D/E/P/M/L to re-enable.",
+            "All panels hidden. Use settings (s) to re-enable.",
             Style::default().fg(get_color(app, Color::Gray)),
         )]));
         sections_rendered += 1;
@@ -519,11 +528,12 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
 }
 
 fn render_footer(f: &mut Frame, area: Rect, app: &App) {
+    let footer_instructions = get_footer_instructions(app.ai_config.enabled);
     let mut lines = Vec::new();
     let max_width = area.width.saturating_sub(4) as usize;
     let mut current_line = String::new();
 
-    for entry in FOOTER_INSTRUCTIONS {
+    for entry in footer_instructions {
         let entry_len = entry.len();
         let candidate_len = if current_line.is_empty() {
             entry_len
@@ -560,7 +570,8 @@ fn render_footer(f: &mut Frame, area: Rect, app: &App) {
     f.render_widget(footer, area);
 }
 
-fn footer_line_count(width: u16) -> u16 {
+fn footer_line_count(width: u16, ai_enabled: bool) -> u16 {
+    let footer_instructions = get_footer_instructions(ai_enabled);
     let max_width = width.saturating_sub(4) as usize;
     if max_width == 0 {
         return 3;
@@ -569,7 +580,7 @@ fn footer_line_count(width: u16) -> u16 {
     let mut line_count = 0usize;
     let mut current_len = 0usize;
 
-    for entry in FOOTER_INSTRUCTIONS {
+    for entry in footer_instructions {
         let entry_len = entry.len();
         let candidate_len = if current_len == 0 {
             entry_len
@@ -974,6 +985,11 @@ fn render_ai_config(f: &mut Frame, app: &App) {
         draft.refresh_minutes.clone()
     };
     let enabled_display = if draft.enabled { "[x] On" } else { "[ ] Off" };
+    let refresh_mode_display = draft.refresh_mode;
+    let refresh_mode_label = match refresh_mode_display {
+        crate::config::AiRefreshMode::AutoAndManual => "Auto & Manual",
+        crate::config::AiRefreshMode::ManualOnly => "Manual Only",
+    };
 
     let fields: Vec<(AiConfigField, &str, String)> = vec![
         (
@@ -987,6 +1003,11 @@ fn render_ai_config(f: &mut Frame, app: &App) {
             AiConfigField::RefreshMinutes,
             "Refresh (min)",
             refresh_display,
+        ),
+        (
+            AiConfigField::RefreshMode,
+            "Refresh Mode",
+            refresh_mode_label.to_string(),
         ),
     ];
 
@@ -1123,4 +1144,378 @@ fn render_ai_config(f: &mut Frame, app: &App) {
         .style(Style::default().fg(get_color(app, Color::White)))
         .wrap(Wrap { trim: false });
     f.render_widget(paragraph, inner);
+}
+
+fn render_settings(f: &mut Frame, app: &App) {
+    let area = f.area();
+    let block = bordered_block(app).title("Settings");
+    let inner = block.inner(area);
+    f.render_widget(block, area);
+
+    let draft = &app.settings_draft;
+    let current_field = draft.current_field();
+
+    let mut lines = Vec::new();
+
+    // Header
+    lines.push(Line::from(Span::styled(
+        "Configure your AstroTimes experience",
+        Style::default().fg(get_color(app, Color::Gray)),
+    )));
+    lines.push(Line::from(""));
+
+    // Location section
+    lines.push(Line::from(Span::styled(
+        "— Location —",
+        Style::default().fg(get_color(app, Color::Yellow)).add_modifier(Modifier::BOLD),
+    )));
+
+    let location_mode_str = match draft.location_mode {
+        crate::config::LocationMode::Auto => "Auto (IP-based)",
+        crate::config::LocationMode::City => "City (pick from database)",
+        crate::config::LocationMode::Manual => "Manual (lat/lon)",
+    };
+    let location_hint = match draft.location_mode {
+        crate::config::LocationMode::City => "(Space: cycle | Enter: pick city)",
+        crate::config::LocationMode::Manual => "(Space: cycle | Enter: input coords)",
+        crate::config::LocationMode::Auto => "(Space: cycle)",
+    };
+    render_setting_field(
+        &mut lines,
+        app,
+        current_field == SettingsField::LocationMode,
+        "Location Mode",
+        location_mode_str.to_string(),
+        Some(location_hint.to_string()),
+    );
+    lines.push(Line::from(""));
+
+    // Time Sync section
+    lines.push(Line::from(Span::styled(
+        "— Time Sync —",
+        Style::default().fg(get_color(app, Color::Yellow)).add_modifier(Modifier::BOLD),
+    )));
+
+    let time_sync_enabled_str = if draft.time_sync_enabled { "[x] Enabled" } else { "[ ] Disabled" };
+    render_setting_field(
+        &mut lines,
+        app,
+        current_field == SettingsField::TimeSyncEnabled,
+        "Time Sync",
+        time_sync_enabled_str.to_string(),
+        None,
+    );
+
+    if draft.time_sync_enabled {
+        render_setting_field(
+            &mut lines,
+            app,
+            current_field == SettingsField::TimeSyncServer,
+            "NTP Server",
+            draft.time_sync_server.clone(),
+            None,
+        );
+    }
+    lines.push(Line::from(""));
+
+    // Panel Visibility section
+    lines.push(Line::from(Span::styled(
+        "— Panel Visibility —",
+        Style::default().fg(get_color(app, Color::Yellow)).add_modifier(Modifier::BOLD),
+    )));
+
+    render_setting_field(
+        &mut lines,
+        app,
+        current_field == SettingsField::ShowLocationDate,
+        "Location & Date",
+        if draft.show_location_date { "[x] Show" } else { "[ ] Hide" }.to_string(),
+        None,
+    );
+
+    render_setting_field(
+        &mut lines,
+        app,
+        current_field == SettingsField::ShowEvents,
+        "Events",
+        if draft.show_events { "[x] Show" } else { "[ ] Hide" }.to_string(),
+        None,
+    );
+
+    render_setting_field(
+        &mut lines,
+        app,
+        current_field == SettingsField::ShowPositions,
+        "Positions",
+        if draft.show_positions { "[x] Show" } else { "[ ] Hide" }.to_string(),
+        None,
+    );
+
+    render_setting_field(
+        &mut lines,
+        app,
+        current_field == SettingsField::ShowMoon,
+        "Moon Details",
+        if draft.show_moon { "[x] Show" } else { "[ ] Hide" }.to_string(),
+        None,
+    );
+
+    render_setting_field(
+        &mut lines,
+        app,
+        current_field == SettingsField::ShowLunarPhases,
+        "Lunar Phases",
+        if draft.show_lunar_phases { "[x] Show" } else { "[ ] Hide" }.to_string(),
+        None,
+    );
+    lines.push(Line::from(""));
+
+    // AI Configuration section
+    lines.push(Line::from(Span::styled(
+        "— AI Configuration —",
+        Style::default().fg(get_color(app, Color::Yellow)).add_modifier(Modifier::BOLD),
+    )));
+
+    let ai_enabled_str = if draft.ai_enabled { "[x] Enabled" } else { "[ ] Disabled" };
+    render_setting_field(
+        &mut lines,
+        app,
+        current_field == SettingsField::AiEnabled,
+        "AI Insights",
+        ai_enabled_str.to_string(),
+        None,
+    );
+
+    if draft.ai_enabled {
+        render_setting_field(
+            &mut lines,
+            app,
+            current_field == SettingsField::AiServer,
+            "Ollama Server",
+            draft.ai_server.clone(),
+            None,
+        );
+
+        // Show server status
+        match &draft.ai_server_status {
+            crate::tui::app::AiServerStatus::Connected { server } => {
+                lines.push(Line::from(Span::styled(
+                    format!(
+                        "  {}Connected to {} — {} model{} available",
+                        symbol_prefix(app, "✅ "),
+                        server,
+                        draft.ai_models.len(),
+                        if draft.ai_models.len() == 1 { "" } else { "s" }
+                    ),
+                    Style::default()
+                        .fg(get_color(app, Color::LightGreen))
+                        .add_modifier(Modifier::BOLD),
+                )));
+            }
+            crate::tui::app::AiServerStatus::Failed { server, message } => {
+                lines.push(Line::from(Span::styled(
+                    format!(
+                        "  {}Unable to reach {} ({})",
+                        symbol_prefix(app, "⚠️ "),
+                        server,
+                        message.replace('\n', " ")
+                    ),
+                    Style::default().fg(get_color(app, Color::LightRed)),
+                )));
+            }
+            crate::tui::app::AiServerStatus::Unknown => {}
+        }
+
+        let model_hint = if draft.ai_models.is_empty() {
+            None
+        } else {
+            Some("(←/→ or [ ] to browse)".to_string())
+        };
+        render_setting_field(
+            &mut lines,
+            app,
+            current_field == SettingsField::AiModel,
+            "Model",
+            draft.ai_model.clone(),
+            model_hint,
+        );
+
+        // Show available models list if we have them
+        if !draft.ai_models.is_empty() {
+            for (idx, model_name) in draft.ai_models.iter().enumerate() {
+                let selected = Some(idx) == draft.ai_model_index;
+                let indicator = if selected { "▶" } else { " " };
+                let style = if selected {
+                    Style::default()
+                        .fg(get_color(app, Color::Green))
+                        .add_modifier(Modifier::BOLD)
+                } else if current_field == SettingsField::AiModel {
+                    Style::default().fg(get_color(app, Color::White))
+                } else {
+                    Style::default().fg(get_color(app, Color::Gray))
+                };
+
+                lines.push(Line::from(vec![
+                    Span::raw("   "),
+                    Span::styled(
+                        format!("{} {}", indicator, model_name),
+                        style,
+                    )
+                ]));
+            }
+
+            // Show hint for using arrow keys when on AI Model field
+            if current_field == SettingsField::AiModel && draft.ai_models.len() > 1 {
+                lines.push(Line::from(Span::styled(
+                    "   Tip: Use ←/→ arrows to select a different model",
+                    Style::default().fg(get_color(app, Color::Gray)),
+                )));
+            }
+        }
+
+        render_setting_field(
+            &mut lines,
+            app,
+            current_field == SettingsField::AiRefreshMinutes,
+            "Refresh (min)",
+            draft.ai_refresh_minutes.clone(),
+            None,
+        );
+    }
+
+    lines.push(Line::from(""));
+    lines.push(Line::from(Span::styled(
+        "Enter: save and apply  Esc: cancel  ↑/↓ or Tab: navigate  Space: toggle  ←/→: select model  d: load defaults",
+        Style::default().fg(get_color(app, Color::Gray)),
+    )));
+
+    if let Some(err) = &draft.error {
+        lines.push(Line::from(Span::styled(
+            format!("{}{}", symbol_prefix(app, "⚠️ "), err),
+            Style::default().fg(get_color(app, Color::LightRed)),
+        )));
+    }
+
+    let paragraph = Paragraph::new(Text::from(lines))
+        .style(Style::default().fg(get_color(app, Color::White)))
+        .wrap(Wrap { trim: false });
+    f.render_widget(paragraph, inner);
+}
+
+fn render_setting_field(
+    lines: &mut Vec<Line>,
+    app: &App,
+    is_selected: bool,
+    label: &str,
+    value: String,
+    hint: Option<String>,
+) {
+    let prefix = if is_selected { "› " } else { "  " };
+    let mut spans = vec![
+        Span::styled(prefix, Style::default().fg(get_color(app, Color::Cyan))),
+        Span::styled(
+            format!("{:<18}", label),
+            Style::default()
+                .fg(get_color(app, Color::Yellow))
+                .add_modifier(Modifier::BOLD),
+        ),
+        Span::styled(
+            value,
+            Style::default()
+                .fg(get_color(app, Color::White))
+                .add_modifier(if is_selected {
+                    Modifier::BOLD
+                } else {
+                    Modifier::empty()
+                }),
+        ),
+    ];
+
+    if let Some(hint_text) = hint {
+        spans.push(Span::styled(
+            format!("  {}", hint_text),
+            Style::default().fg(get_color(app, Color::Gray)),
+        ));
+    }
+
+    lines.push(Line::from(spans));
+}
+
+fn render_reports_menu(f: &mut Frame, app: &App) {
+    use super::app::ReportsMenuItem;
+
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Length(3),  // Title
+            Constraint::Min(10),    // Menu items
+            Constraint::Length(2),  // Footer
+        ])
+        .split(f.area());
+
+    // Title
+    let title = Paragraph::new("Reports")
+        .style(
+            Style::default()
+                .fg(get_color(app, Color::Cyan))
+                .add_modifier(Modifier::BOLD),
+        )
+        .alignment(Alignment::Center)
+        .block(bordered_block(app));
+    f.render_widget(title, chunks[0]);
+
+    // Menu items
+    let mut lines = Vec::new();
+    lines.push(Line::from(""));
+    lines.push(Line::from(Span::styled(
+        "Select a report to generate:",
+        Style::default().fg(get_color(app, Color::Gray)),
+    )));
+    lines.push(Line::from(""));
+
+    let calendar_selected = app.reports_selected_item == ReportsMenuItem::Calendar;
+    let calendar_style = if calendar_selected {
+        Style::default()
+            .fg(get_color(app, Color::Yellow))
+            .add_modifier(Modifier::BOLD)
+    } else {
+        Style::default().fg(get_color(app, Color::White))
+    };
+    lines.push(Line::from(vec![
+        Span::raw(if calendar_selected { "► " } else { "  " }),
+        Span::styled("Astronomical Calendar", calendar_style),
+    ]));
+    lines.push(Line::from(Span::styled(
+        "    Generate HTML or JSON calendar with sun/moon events",
+        Style::default().fg(get_color(app, Color::Gray)),
+    )));
+    lines.push(Line::from(""));
+
+    let validation_selected = app.reports_selected_item == ReportsMenuItem::UsnoValidation;
+    let validation_style = if validation_selected {
+        Style::default()
+            .fg(get_color(app, Color::Yellow))
+            .add_modifier(Modifier::BOLD)
+    } else {
+        Style::default().fg(get_color(app, Color::White))
+    };
+    lines.push(Line::from(vec![
+        Span::raw(if validation_selected { "► " } else { "  " }),
+        Span::styled("USNO Validation Report", validation_style),
+    ]));
+    lines.push(Line::from(Span::styled(
+        "    Compare astrotimes calculations against U.S. Naval Observatory",
+        Style::default().fg(get_color(app, Color::Gray)),
+    )));
+
+    let menu = Paragraph::new(lines)
+        .style(Style::default().fg(get_color(app, Color::White)))
+        .block(bordered_block(app));
+    f.render_widget(menu, chunks[1]);
+
+    // Footer
+    let footer = Paragraph::new("↑/↓: Navigate | Enter: Select | Esc: Back")
+        .style(Style::default().fg(get_color(app, Color::Gray)))
+        .alignment(Alignment::Center);
+    f.render_widget(footer, chunks[2]);
 }

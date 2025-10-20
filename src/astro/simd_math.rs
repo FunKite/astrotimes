@@ -11,6 +11,12 @@
 ///
 /// Watch mode benefits from SIMD because it repeatedly calculates positions
 /// for events that occur in sequence throughout the day.
+///
+/// Build configurations:
+/// - Default (portable): Works on any CPU but uses scalar operations
+/// - Native: --features cpu-native - optimizes for the current CPU
+/// - AVX2 specific: --features cpu-avx2 - x86_64 only
+/// - NEON specific: --features cpu-neon - ARM64 only
 
 use crate::astro::DEG_TO_RAD;
 

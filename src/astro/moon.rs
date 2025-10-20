@@ -36,7 +36,6 @@ pub struct LunarPosition {
 pub enum LunarEvent {
     Moonrise,
     Moonset,
-    Transit, // Upper culmination
 }
 
 const MOON_MEAN_RADIUS: f64 = 1737.4; // km
@@ -84,7 +83,8 @@ fn moon_ecliptic_coords(t: f64) -> (f64, f64) {
     let m_prime = moon_mean_anomaly(t) * DEG_TO_RAD;
     let f = moon_argument_latitude(t) * DEG_TO_RAD;
 
-    // Main periodic terms for longitude
+    // Main periodic terms for longitude (Meeus Chapter 47, Table 47.A)
+    // Using top 40 terms for high accuracy (coefficient > 3000)
     let sigma_l = 6288774.0 * (m_prime).sin()
         + 1274027.0 * (2.0 * d - m_prime).sin()
         + 658314.0 * (2.0 * d).sin()
@@ -94,7 +94,38 @@ fn moon_ecliptic_coords(t: f64) -> (f64, f64) {
         + 58793.0 * (2.0 * d - 2.0 * m_prime).sin()
         + 57066.0 * (2.0 * d - m - m_prime).sin()
         + 53322.0 * (2.0 * d + m_prime).sin()
-        + 45758.0 * (2.0 * d - m).sin();
+        + 45758.0 * (2.0 * d - m).sin()
+        - 40923.0 * (m_prime - m).sin()
+        - 34720.0 * d.sin()
+        - 30383.0 * (m_prime + m).sin()
+        + 15327.0 * (2.0 * d - 2.0 * f).sin()
+        - 12528.0 * (2.0 * f + m_prime).sin()
+        + 10980.0 * (2.0 * f - m_prime).sin()
+        + 10675.0 * (4.0 * d - m_prime).sin()
+        + 10034.0 * (3.0 * m_prime).sin()
+        + 8548.0 * (4.0 * d - 2.0 * m_prime).sin()
+        - 7888.0 * (2.0 * d + m - m_prime).sin()
+        - 6766.0 * (d + m_prime).sin()
+        - 5163.0 * (d - m_prime).sin()
+        + 4987.0 * (d + m).sin()
+        + 4036.0 * (2.0 * d + m_prime - m).sin()
+        + 3994.0 * (2.0 * d + 2.0 * m_prime).sin()
+        + 3861.0 * (4.0 * d).sin()
+        + 3665.0 * (2.0 * d - 3.0 * m_prime).sin()
+        - 2689.0 * (m_prime - 2.0 * m).sin()
+        - 2602.0 * (2.0 * d - 2.0 * f - m_prime).sin()
+        + 2390.0 * (2.0 * d - m - 2.0 * m_prime).sin()
+        - 2348.0 * (d + m_prime + m).sin()
+        + 2236.0 * (2.0 * d - 2.0 * m).sin()
+        - 2120.0 * (m_prime + 2.0 * m).sin()
+        - 2069.0 * (2.0 * m).sin()
+        + 2048.0 * (2.0 * d - 2.0 * m - m_prime).sin()
+        - 1773.0 * (2.0 * d + 2.0 * f - m_prime).sin()
+        - 1595.0 * (2.0 * d + 2.0 * f).sin()
+        + 1215.0 * (4.0 * d - m - m_prime).sin()
+        - 1110.0 * (2.0 * f + 2.0 * m_prime).sin()
+        - 892.0 * (3.0 * d - m_prime).sin()
+        - 810.0 * (2.0 * d + m + m_prime).sin();
 
     let longitude = l_prime + sigma_l / 1000000.0;
 
@@ -149,14 +180,31 @@ pub fn lunar_position<T: TimeZone>(location: &Location, dt: &DateTime<T>) -> Lun
         + beta_rad.cos() * epsilon_rad.sin() * lambda_rad.sin())
     .asin();
 
+    // Calculate nutation in longitude for equation of equinoxes
+    let omega = 125.04 - 1934.136 * t; // Longitude of ascending node
+    let omega_rad = omega * DEG_TO_RAD;
+    let l_sun = 280.47 + 36000.77 * t; // Sun's mean longitude
+    let l_sun_rad = l_sun * DEG_TO_RAD;
+
+    // Nutation in longitude (simplified)
+    let delta_psi = -17.20 * omega_rad.sin() - 1.32 * (2.0 * l_sun_rad).sin();
+    let delta_psi_deg = delta_psi / 3600.0; // Convert arcseconds to degrees
+
+    // Equation of equinoxes
+    let epsilon_rad = epsilon * DEG_TO_RAD;
+    let eq_equinoxes = delta_psi_deg * epsilon_rad.cos();
+
     // Calculate Greenwich Mean Sidereal Time
     let gmst = 280.46061837 + 360.98564736629 * (jd - 2451545.0) + 0.000387933 * t * t
         - t * t * t / 38710000.0;
 
-    // Local sidereal time
-    let lst = normalize_degrees(gmst + location.longitude.value());
+    // Greenwich Apparent Sidereal Time (includes nutation)
+    let gast = normalize_degrees(gmst + eq_equinoxes);
 
-    // Hour angle
+    // Local sidereal time
+    let lst = normalize_degrees(gast + location.longitude.value());
+
+    // Hour angle (geocentric)
     let ha = normalize_degrees_signed(lst - alpha * RAD_TO_DEG);
 
     // Convert to horizontal coordinates
@@ -476,70 +524,6 @@ pub fn lunar_event_time<T: TimeZone>(
     match event {
         LunarEvent::Moonrise => search_rise_or_set(location, date, altitude_threshold, true),
         LunarEvent::Moonset => search_rise_or_set(location, date, altitude_threshold, false),
-        LunarEvent::Transit => {
-            // Coarse scan to locate maximum altitude, then refine with smaller steps.
-            let tz = date.timezone();
-            let start_naive = date.date_naive().and_hms_opt(0, 0, 0)?;
-            let start = resolve_local_datetime(&tz, &start_naive)?;
-            let end = start.clone() + Duration::hours(24);
-            let step = Duration::minutes(10);
-
-            let mut iter_dt = start.clone();
-            let mut best_dt = iter_dt.clone();
-            let mut best_alt = lunar_position(location, &best_dt).altitude;
-
-            loop {
-                let next_dt = match iter_dt.checked_add_signed(step) {
-                    Some(dt) if dt <= end => dt,
-                    _ => break,
-                };
-
-                let alt = lunar_position(location, &next_dt).altitude;
-                if alt > best_alt {
-                    best_alt = alt;
-                    best_dt = next_dt.clone();
-                }
-
-                iter_dt = next_dt;
-            }
-
-            // Refine around the best altitude with a smaller window
-            let window = Duration::minutes(20);
-            let low = best_dt
-                .clone()
-                .checked_sub_signed(window)
-                .map(|dt| dt.max(start.clone()))
-                .unwrap_or(start.clone());
-            let high = best_dt
-                .clone()
-                .checked_add_signed(window)
-                .map(|dt| dt.min(end.clone()))
-                .unwrap_or(end.clone());
-
-            let mut peak_dt = best_dt.clone();
-            let mut max_alt = best_alt;
-            let mut current_dt = low;
-            let fine_step = Duration::minutes(1);
-
-            loop {
-                if current_dt > high {
-                    break;
-                }
-
-                let alt = lunar_position(location, &current_dt).altitude;
-                if alt > max_alt {
-                    max_alt = alt;
-                    peak_dt = current_dt.clone();
-                }
-
-                match current_dt.checked_add_signed(fine_step) {
-                    Some(next) => current_dt = next,
-                    None => break,
-                }
-            }
-
-            Some(peak_dt)
-        }
     }
 }
 

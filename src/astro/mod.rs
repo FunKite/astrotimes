@@ -54,6 +54,7 @@ impl Location {
 
 /// Calculate Julian Day from DateTime
 /// CRITICAL: Julian Day is defined in UTC, so we must convert to UTC first
+/// Note: Meeus algorithms are formulated for UT, not TT
 pub fn julian_day<T: TimeZone>(dt: &DateTime<T>) -> f64 {
     // Convert to UTC for Julian Day calculation
     let utc_dt = dt.with_timezone(&chrono::Utc);

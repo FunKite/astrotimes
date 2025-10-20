@@ -1,22 +1,85 @@
-# Cargo configuration for AstroTimes
-# Platform-specific build optimizations
+# Cargo configuration for AstroTimes - CPU-specific optimizations
+# Platform-specific build configurations for tier 1 Rust platforms
+#
+# Supported Configurations:
+#   x86_64:   Portable (SSE2), AVX2 (Haswell+), AVX-512 (Skylake+)
+#   aarch64:  Portable (NEON), SVE (high-end)
+#   macOS:    Apple Silicon (M1/M2/M3)
 
 [alias]
 # Quick commands for common builds
+
+# Apple Silicon (M1/M2/M3 Max)
 m1-max = "build --release -Z build-std=core,alloc --target aarch64-apple-darwin"
 m1-profile = "build --profile release-m1-max"
 bench-m1 = "bench --target aarch64-apple-darwin"
 
-[build]
-# M1 Max optimization flags
-# These are applied to all builds unless overridden
-rustflags = [
-    "-C", "target-cpu=apple-m1",           # M1 Max CPU tuning
-]
+# Portable baseline (all tier 1 platforms)
+portable-release = "build --release"
 
-# Default target for macOS ARM64
-# target = "aarch64-apple-darwin"
+# CPU-native optimizations
+native-release = "build --profile release-native -e RUSTFLAGS='-C target-cpu=native'"
+
+# x86_64 optimizations
+x86-64-avx2 = "build --profile release-x86-64-v3 -e RUSTFLAGS='-C target-cpu=haswell -C target-feature=+avx2,+sse4.2'"
+x86-64-avx512 = "build --profile release-x86-64-v4 -e RUSTFLAGS='-C target-cpu=skylake-avx512 -C target-feature=+avx512f'"
+
+# ARM64 optimizations
+aarch64-portable = "build --profile release-aarch64-generic"
+aarch64-sve = "build --profile release-aarch64-sve -e RUSTFLAGS='-C target-cpu=cortex-a76 -C target-feature=+sve'"
+
+[build]
+# Default build flags (detect platform at build time if possible)
+# For maximum compatibility, we default to portable baseline
+# Override with environment variable or alias for CPU-specific builds
+
+# Uncomment to enable M1 Max optimizations by default:
+# rustflags = ["-C", "target-cpu=apple-m1"]
 
 [profile.release-m1-max]
-# Applied via rustflags in this config
+# M1/M2/M3 Max optimizations - Applied via rustflags
 # RUSTFLAGS="-C target-cpu=apple-m1 -C opt-level=3 -C lto=fat -C codegen-units=1"
+# Contains 8 performance cores + 2 efficiency cores
+# 32MB L2 cache per performance core cluster
+
+[profile.release-native]
+# CPU-native optimization (for local development)
+# Optimizes for the machine you're compiling on
+# Build with: RUSTFLAGS='-C target-cpu=native' cargo build --profile release-native
+inherits = "release"
+lto = "fat"
+codegen-units = 1
+
+[profile.release-x86-64-v3]
+# x86_64 Level 3: AVX2, SSE4.2, BMI2 (Haswell era, 2013+)
+# Runs on: Intel Haswell+, AMD Ryzen+, and most modern CPUs
+# Build with: cargo build --profile release-x86-64-v3 \
+#   -e RUSTFLAGS='-C target-cpu=haswell -C target-feature=+avx2,+sse4.2'
+inherits = "release"
+lto = "fat"
+codegen-units = 1
+
+[profile.release-x86-64-v4]
+# x86_64 Level 4: AVX-512F (Skylake era, 2017+)
+# Runs on: Intel Skylake Xeon+, High-end workstations
+# Build with: cargo build --profile release-x86-64-v4 \
+#   -e RUSTFLAGS='-C target-cpu=skylake-avx512 -C target-feature=+avx512f'
+inherits = "release"
+lto = "fat"
+codegen-units = 1
+
+[profile.release-aarch64-generic]
+# ARM64 Baseline: NEON only (portable across all ARM64 CPUs)
+# Runs on: All ARM64 systems (Apple Silicon, Linux ARM64, etc.)
+inherits = "release"
+lto = true
+codegen-units = 1
+
+[profile.release-aarch64-sve]
+# ARM64 with SVE (Scalable Vector Extension)
+# Runs on: High-end ARM64 systems (Cortex-A76+, Graviton 3+)
+# Build with: cargo build --profile release-aarch64-sve \
+#   -e RUSTFLAGS='-C target-cpu=cortex-a76 -C target-feature=+sve'
+inherits = "release"
+lto = "fat"
+codegen-units = 1

@@ -82,7 +82,6 @@ pub struct SunEvents {
 pub struct MoonEvents {
     pub moonrise: Option<String>,
     pub moonset: Option<String>,
-    pub transit: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -158,8 +157,6 @@ pub fn generate_json_output(
         moonrise: moon::lunar_event_time(location, dt, moon::LunarEvent::Moonrise)
             .map(|t| t.format("%Y-%m-%d %H:%M:%S %Z").to_string()),
         moonset: moon::lunar_event_time(location, dt, moon::LunarEvent::Moonset)
-            .map(|t| t.format("%Y-%m-%d %H:%M:%S %Z").to_string()),
-        transit: moon::lunar_event_time(location, dt, moon::LunarEvent::Transit)
             .map(|t| t.format("%Y-%m-%d %H:%M:%S %Z").to_string()),
     };
 

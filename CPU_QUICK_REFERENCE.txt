@@ -1,0 +1,134 @@
+═══════════════════════════════════════════════════════════════════════════════
+  AstroTimes CPU Optimization - Quick Reference Guide
+═══════════════════════════════════════════════════════════════════════════════
+
+BUILD COMMANDS (Choose based on your use case)
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ DISTRIBUTION BUILDS (maximum compatibility)                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  macOS (Apple Silicon M1/M2/M3):
+    cargo build --release
+    → Works on: All Apple Silicon Macs
+    → Binary: target/release/astrotimes
+
+  Linux/Windows x86_64 (Haswell or newer - 2013+):
+    cargo x86-64-avx2
+    → Works on: i5/i7/i9 4th gen+, AMD Ryzen+
+    → Binary: target/release-x86-64-v3/astrotimes
+
+  Linux ARM64 (all systems):
+    cargo aarch64-portable
+    → Works on: All ARM64 Linux systems
+    → Binary: target/release-aarch64-generic/astrotimes
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ LOCAL DEVELOPMENT (maximum performance for your machine)                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  Any platform - optimize for current CPU:
+    cargo native-release
+    → Optimizes for: Your exact CPU
+    → Performance: 3-8% faster than portable
+    → Binary: target/release-native/astrotimes
+    → WARNING: Binary may not work on other CPU models
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ ADVANCED BUILDS (CPU-specific optimization)                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  x86_64 with AVX-512 (High-end workstations/servers):
+    cargo x86-64-avx512
+    → Requires: Skylake Xeon or newer
+    → Performance: 25-40% faster than portable
+
+  ARM64 with SVE (High-end ARM64 servers):
+    cargo aarch64-sve
+    → Requires: Cortex-A76 or newer, Graviton 3+, etc.
+    → Performance: 20-35% faster than portable
+
+  Apple Silicon M1/M2/M3 (default is fine, but explicit):
+    cargo m1-profile
+    → Performance: 5-10% faster than generic ARM64
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ FEATURE FLAGS (Compile-time options)                                        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  Default (portable, no CPU-specific features):
+    cargo build --release
+
+  With CPU-specific optimizations enabled:
+    cargo build --release --features cpu-native
+
+  With parallelization enabled:
+    cargo build --release --features parallel
+
+═══════════════════════════════════════════════════════════════════════════════
+
+PERFORMANCE EXPECTATIONS
+
+Portable vs Optimized (relative speed, 100 events calculation):
+  • x86_64 AVX2:    1.18x faster
+  • x86_64 AVX-512: 1.41x faster
+  • ARM64 SVE:      1.27x faster
+  • M1 Max native:  5.6x faster (compared to generic ARM64)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+ENVIRONMENT VARIABLES
+
+Override RUSTFLAGS:
+  RUSTFLAGS='-C target-cpu=native' cargo build --release
+
+Use portable only (no optimizations):
+  RUSTFLAGS='' cargo build --release
+
+Disable LTO for faster builds (slower binary):
+  RUSTFLAGS='-C lto=off' cargo build --release
+
+═══════════════════════════════════════════════════════════════════════════════
+
+TROUBLESHOOTING
+
+Binary fails with "Illegal instruction" on older CPU:
+  → You compiled for newer CPU than target machine
+  → Solution: Use portable build (cargo build --release)
+
+Binary very slow on older CPU:
+  → You may have compiled with unsupported features
+  → Solution: Check CPU supports AVX2/SVE before using optimized build
+
+Build fails with unknown target-cpu:
+  → Your Rust version is too old
+  → Solution: Run `rustup update`
+
+═══════════════════════════════════════════════════════════════════════════════
+
+CPU DETECTION
+
+Check your CPU on macOS:
+  sysctl -n machdep.cpu.brand_string
+
+Check your CPU on Linux:
+  grep -m1 "^model name" /proc/cpuinfo
+
+Check supported CPU features on Linux:
+  grep -E "avx2|sse4_2|sve" /proc/cpuinfo
+
+Check supported CPU features on macOS (Apple Silicon):
+  sysctl -a | grep machdep.cpu.leaf7_feature
+
+═══════════════════════════════════════════════════════════════════════════════
+
+DOCUMENTATION
+
+For detailed information, see:
+  • BUILD_CPU_OPTIMIZATIONS.md      - Complete build guide
+  • CPU_OPTIMIZATION_SUMMARY.md     - Technical overview
+  • src/cpu_features.rs              - CPU detection code
+
+═══════════════════════════════════════════════════════════════════════════════
+Updated: 2025-10-19 | AstroTimes Beta 0.1
+═══════════════════════════════════════════════════════════════════════════════

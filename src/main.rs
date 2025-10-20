@@ -109,9 +109,9 @@ fn main() -> Result<()> {
         fs::write(&filename, html)?;
         println!("✓ Validation report written to: {}", filename);
         println!("\nSummary:");
-        println!("  Pass:    {} (0-3 min)", report.results.iter().filter(|r| r.status == astrotimes::usno_validation::ValidationStatus::Pass).count());
-        println!("  Warning: {} (3-5 min)", report.results.iter().filter(|r| r.status == astrotimes::usno_validation::ValidationStatus::Warning).count());
-        println!("  Fail:    {} (>5 min)", report.results.iter().filter(|r| r.status == astrotimes::usno_validation::ValidationStatus::Fail).count());
+        println!("  Pass:    {} (0-7 min)", report.results.iter().filter(|r| r.status == astrotimes::usno_validation::ValidationStatus::Pass).count());
+        println!("  Caution: {} (7-10 min)", report.results.iter().filter(|r| r.status == astrotimes::usno_validation::ValidationStatus::Warning).count());
+        println!("  Fail:    {} (>10 min)", report.results.iter().filter(|r| r.status == astrotimes::usno_validation::ValidationStatus::Fail).count());
         println!("  Missing: {}", report.results.iter().filter(|r| r.status == astrotimes::usno_validation::ValidationStatus::Missing).count());
     } else if args.json {
         // JSON output mode

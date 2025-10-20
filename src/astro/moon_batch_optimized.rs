@@ -242,12 +242,7 @@ where
             match event {
                 LunarEvent::Moonrise => result.moonrise,
                 LunarEvent::Moonset => result.moonset,
-                _ => None,
             }
-        }
-        LunarEvent::Transit => {
-            // Transit calculation unchanged - not the bottleneck
-            moon::lunar_event_time(location, date, event)
         }
     }
 }

@@ -93,10 +93,34 @@ fn determine_moon_trend(
 #[derive(Debug, Clone, Copy)]
 pub enum AppMode {
     Watch,
+    Settings,
     CityPicker,
     LocationInput,
     AiConfig,
     Calendar,
+    Reports,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ReportsMenuItem {
+    Calendar,
+    UsnoValidation,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SettingsField {
+    LocationMode,
+    TimeSyncEnabled,
+    TimeSyncServer,
+    ShowLocationDate,
+    ShowEvents,
+    ShowPositions,
+    ShowMoon,
+    ShowLunarPhases,
+    AiEnabled,
+    AiServer,
+    AiModel,
+    AiRefreshMinutes,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -105,6 +129,7 @@ pub enum AiConfigField {
     Server,
     Model,
     RefreshMinutes,
+    RefreshMode,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -453,6 +478,7 @@ pub struct AiConfigDraft {
     pub server: String,
     pub model: String,
     pub refresh_minutes: String,
+    pub refresh_mode: config::AiRefreshMode,
     pub field_index: usize,
     pub error: Option<String>,
     pub server_status: AiServerStatus,
@@ -461,7 +487,7 @@ pub struct AiConfigDraft {
 }
 
 impl AiConfigDraft {
-    const FIELD_COUNT: usize = 4;
+    const FIELD_COUNT: usize = 5;
 
     pub fn from_config(config: &ai::AiConfig) -> Self {
         Self {
@@ -469,6 +495,7 @@ impl AiConfigDraft {
             server: config.server.clone(),
             model: config.model.clone(),
             refresh_minutes: config.refresh_minutes().to_string(),
+            refresh_mode: config.refresh_mode,
             field_index: 0,
             error: None,
             server_status: AiServerStatus::Unknown,
@@ -482,6 +509,7 @@ impl AiConfigDraft {
         self.server = config.server.clone();
         self.model = config.model.clone();
         self.refresh_minutes = config.refresh_minutes().to_string();
+        self.refresh_mode = config.refresh_mode;
         self.field_index = 0;
         self.error = None;
         self.reset_detection();
@@ -492,7 +520,8 @@ impl AiConfigDraft {
             0 => AiConfigField::Enabled,
             1 => AiConfigField::Server,
             2 => AiConfigField::Model,
-            _ => AiConfigField::RefreshMinutes,
+            3 => AiConfigField::RefreshMinutes,
+            _ => AiConfigField::RefreshMode,
         }
     }
 
@@ -528,6 +557,7 @@ impl AiConfigDraft {
                     self.refresh_minutes.push(c);
                 }
             }
+            AiConfigField::RefreshMode => {}
         }
     }
 
@@ -546,6 +576,7 @@ impl AiConfigDraft {
             AiConfigField::RefreshMinutes => {
                 self.refresh_minutes.pop();
             }
+            AiConfigField::RefreshMode => {}
         }
     }
 
@@ -562,6 +593,18 @@ impl AiConfigDraft {
             value = 60;
         }
         self.refresh_minutes = value.to_string();
+        self.clear_error();
+    }
+
+    pub fn toggle_refresh_mode(&mut self) {
+        if self.current_field() != AiConfigField::RefreshMode {
+            return;
+        }
+
+        self.refresh_mode = match self.refresh_mode {
+            config::AiRefreshMode::AutoAndManual => config::AiRefreshMode::ManualOnly,
+            config::AiRefreshMode::ManualOnly => config::AiRefreshMode::AutoAndManual,
+        };
         self.clear_error();
     }
 
@@ -640,6 +683,151 @@ impl AiConfigDraft {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct SettingsDraft {
+    pub location_mode: config::LocationMode,
+    pub time_sync_enabled: bool,
+    pub time_sync_server: String,
+    pub show_location_date: bool,
+    pub show_events: bool,
+    pub show_positions: bool,
+    pub show_moon: bool,
+    pub show_lunar_phases: bool,
+    pub ai_enabled: bool,
+    pub ai_server: String,
+    pub ai_model: String,
+    pub ai_refresh_minutes: String,
+    pub field_index: usize,
+    pub error: Option<String>,
+    pub ai_server_status: AiServerStatus,
+    pub ai_models: Vec<String>,
+    pub ai_model_index: Option<usize>,
+}
+
+impl SettingsDraft {
+    const FIELD_COUNT: usize = 12;
+
+    pub fn from_app(app: &App) -> Self {
+        Self {
+            location_mode: config::LocationMode::Auto, // Will be loaded from config
+            time_sync_enabled: !app.time_sync_disabled,
+            time_sync_server: "time.google.com".to_string(), // Will be loaded from config
+            show_location_date: app.show_location_date,
+            show_events: app.show_events,
+            show_positions: app.show_positions,
+            show_moon: app.show_moon,
+            show_lunar_phases: app.show_lunar_phases,
+            ai_enabled: app.ai_config.enabled,
+            ai_server: app.ai_config.server.clone(),
+            ai_model: app.ai_config.model.clone(),
+            ai_refresh_minutes: app.ai_config.refresh_minutes().to_string(),
+            field_index: 0,
+            error: None,
+            ai_server_status: AiServerStatus::Unknown,
+            ai_models: Vec::new(),
+            ai_model_index: None,
+        }
+    }
+
+    pub fn current_field(&self) -> SettingsField {
+        match self.field_index {
+            0 => SettingsField::LocationMode,
+            1 => SettingsField::TimeSyncEnabled,
+            2 => SettingsField::TimeSyncServer,
+            3 => SettingsField::ShowLocationDate,
+            4 => SettingsField::ShowEvents,
+            5 => SettingsField::ShowPositions,
+            6 => SettingsField::ShowMoon,
+            7 => SettingsField::ShowLunarPhases,
+            8 => SettingsField::AiEnabled,
+            9 => SettingsField::AiServer,
+            10 => SettingsField::AiModel,
+            _ => SettingsField::AiRefreshMinutes,
+        }
+    }
+
+    pub fn next_field(&mut self) {
+        self.field_index = (self.field_index + 1) % Self::FIELD_COUNT;
+        self.clear_error();
+    }
+
+    pub fn prev_field(&mut self) {
+        self.field_index = (self.field_index + Self::FIELD_COUNT - 1) % Self::FIELD_COUNT;
+        self.clear_error();
+    }
+
+    pub fn toggle_current_bool(&mut self) {
+        match self.current_field() {
+            SettingsField::TimeSyncEnabled => self.time_sync_enabled = !self.time_sync_enabled,
+            SettingsField::ShowLocationDate => self.show_location_date = !self.show_location_date,
+            SettingsField::ShowEvents => self.show_events = !self.show_events,
+            SettingsField::ShowPositions => self.show_positions = !self.show_positions,
+            SettingsField::ShowMoon => self.show_moon = !self.show_moon,
+            SettingsField::ShowLunarPhases => self.show_lunar_phases = !self.show_lunar_phases,
+            SettingsField::AiEnabled => self.ai_enabled = !self.ai_enabled,
+            _ => {}
+        }
+        self.clear_error();
+    }
+
+    pub fn cycle_location_mode(&mut self) {
+        self.location_mode = match self.location_mode {
+            config::LocationMode::Auto => config::LocationMode::City,
+            config::LocationMode::City => config::LocationMode::Manual,
+            config::LocationMode::Manual => config::LocationMode::Auto,
+        };
+        self.clear_error();
+    }
+
+    pub fn input_char(&mut self, c: char) {
+        self.clear_error();
+        match self.current_field() {
+            SettingsField::TimeSyncServer => {
+                self.time_sync_server.push(c);
+            }
+            SettingsField::AiServer => {
+                self.ai_server.push(c);
+            }
+            SettingsField::AiModel => {
+                self.ai_model.push(c);
+            }
+            SettingsField::AiRefreshMinutes => {
+                if c.is_ascii_digit() && self.ai_refresh_minutes.len() < 2 {
+                    self.ai_refresh_minutes.push(c);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    pub fn backspace(&mut self) {
+        self.clear_error();
+        match self.current_field() {
+            SettingsField::TimeSyncServer => {
+                self.time_sync_server.pop();
+            }
+            SettingsField::AiServer => {
+                self.ai_server.pop();
+            }
+            SettingsField::AiModel => {
+                self.ai_model.pop();
+            }
+            SettingsField::AiRefreshMinutes => {
+                self.ai_refresh_minutes.pop();
+            }
+            _ => {}
+        }
+    }
+
+    pub fn clear_error(&mut self) {
+        self.error = None;
+    }
+
+    pub fn set_error<S: Into<String>>(&mut self, msg: S) {
+        self.error = Some(msg.into());
+    }
+}
+
 pub struct App {
     pub location: Location,
     pub timezone: Tz,
@@ -655,7 +843,11 @@ pub struct App {
     pub city_selected: usize,
     pub location_input_draft: LocationInputDraft,
     pub calendar_draft: CalendarDraft,
+    pub settings_draft: SettingsDraft,
+    pub location_mode: config::LocationMode,
+    pub reports_selected_item: ReportsMenuItem,
     pub time_sync: TimeSyncInfo,
+    pub time_sync_server: String,
     pub ai_config: ai::AiConfig,
     pub ai_outcome: Option<ai::AiOutcome>,
     pub ai_last_refresh: Option<Instant>,
@@ -674,6 +866,7 @@ pub struct App {
     pub show_positions: bool,
     pub show_moon: bool,
     pub show_lunar_phases: bool,
+    pub show_ai_insights: bool,
     pub time_sync_last_check: Instant,
     pub time_sync_disabled: bool,
     ai_job_rx: Option<Receiver<Result<ai::AiOutcome, String>>>,
@@ -688,6 +881,7 @@ impl App {
         location_source: LocationSource,
         time_sync: TimeSyncInfo,
         time_sync_disabled: bool,
+        time_sync_server: String,
         ai_config: ai::AiConfig,
         watch_prefs: Option<WatchPreferences>,
     ) -> Self {
@@ -719,7 +913,29 @@ impl App {
             city_selected: 0,
             location_input_draft: LocationInputDraft::new(),
             calendar_draft: CalendarDraft::new(now),
+            settings_draft: SettingsDraft {
+                location_mode: config::LocationMode::Auto,
+                time_sync_enabled: !time_sync_disabled,
+                time_sync_server: time_sync_server.clone(),
+                show_location_date: prefs.show_location_date,
+                show_events: prefs.show_events,
+                show_positions: prefs.show_positions,
+                show_moon: prefs.show_moon,
+                show_lunar_phases: prefs.show_lunar_phases,
+                ai_enabled: ai_config.enabled,
+                ai_server: ai_config.server.clone(),
+                ai_model: ai_config.model.clone(),
+                ai_refresh_minutes: ai_config.refresh_minutes().to_string(),
+                field_index: 0,
+                error: None,
+                ai_server_status: AiServerStatus::Unknown,
+                ai_models: Vec::new(),
+                ai_model_index: None,
+            },
+            location_mode: config::LocationMode::Auto,
+            reports_selected_item: ReportsMenuItem::Calendar,
             time_sync,
+            time_sync_server,
             ai_config_draft: AiConfigDraft::from_config(&ai_config),
             ai_config,
             ai_outcome: None,
@@ -741,6 +957,7 @@ impl App {
             show_positions: prefs.show_positions,
             show_moon: prefs.show_moon,
             show_lunar_phases: prefs.show_lunar_phases,
+            show_ai_insights: prefs.show_ai_insights,
             time_sync_last_check: Instant::now(),
             time_sync_disabled,
             ai_job_rx: None,
@@ -870,6 +1087,7 @@ impl App {
             show_positions: self.show_positions,
             show_moon: self.show_moon,
             show_lunar_phases: self.show_lunar_phases,
+            show_ai_insights: self.show_ai_insights,
             night_mode: self.night_mode,
         }
     }
@@ -882,6 +1100,17 @@ impl App {
             self.city_name.clone(),
         );
         cfg.watch = self.watch_preferences();
+        cfg.time_sync = config::TimeSyncSettings {
+            enabled: !self.time_sync_disabled,
+            server: self.time_sync_server.clone(),
+        };
+        cfg.ai = config::AiSettings {
+            enabled: self.ai_config.enabled,
+            server: self.ai_config.server.clone(),
+            model: self.ai_config.model.clone(),
+            refresh_minutes: self.ai_config.refresh_minutes(),
+            refresh_mode: self.ai_config.refresh_mode,
+        };
         cfg
     }
 
@@ -908,7 +1137,12 @@ impl App {
             return;
         }
         if self.time_sync_last_check.elapsed() >= TIME_SYNC_REFRESH_INTERVAL {
-            self.time_sync = crate::time_sync::check_time_sync();
+            let server = if self.time_sync_server.trim().is_empty() {
+                None
+            } else {
+                Some(self.time_sync_server.as_str())
+            };
+            self.time_sync = crate::time_sync::check_time_sync_with_servers(server);
             self.time_sync_last_check = Instant::now();
         }
     }
@@ -1061,6 +1295,11 @@ impl App {
 
     pub fn should_refresh_ai(&self) -> bool {
         if !self.ai_config.enabled {
+            return false;
+        }
+
+        // If manual only mode, never auto-refresh
+        if self.ai_config.refresh_mode == config::AiRefreshMode::ManualOnly {
             return false;
         }
 
@@ -1291,6 +1530,7 @@ impl App {
         self.ai_config.server = normalized_server;
         self.ai_config.model = final_model.to_string();
         self.ai_config.refresh = Duration::from_secs(minutes * 60);
+        self.ai_config.refresh_mode = self.ai_config_draft.refresh_mode;
 
         self.ai_config_draft.sync_from(&self.ai_config);
         self.ai_outcome = None;
@@ -1301,5 +1541,170 @@ impl App {
         }
 
         Ok(())
+    }
+
+    pub fn open_settings(&mut self) {
+        // Sync current app state to settings draft
+        self.settings_draft = SettingsDraft {
+            location_mode: self.location_mode,
+            time_sync_enabled: !self.time_sync_disabled,
+            time_sync_server: self.time_sync_server.clone(),
+            show_location_date: self.show_location_date,
+            show_events: self.show_events,
+            show_positions: self.show_positions,
+            show_moon: self.show_moon,
+            show_lunar_phases: self.show_lunar_phases,
+            ai_enabled: self.ai_config.enabled,
+            ai_server: self.ai_config.server.clone(),
+            ai_model: self.ai_config.model.clone(),
+            ai_refresh_minutes: self.ai_config.refresh_minutes().to_string(),
+            field_index: 0,
+            error: None,
+            ai_server_status: AiServerStatus::Unknown,
+            ai_models: Vec::new(),
+            ai_model_index: None,
+        };
+        // Probe AI server if AI is enabled
+        if self.ai_config.enabled {
+            self.probe_ai_server_for_settings();
+        }
+        self.mode = AppMode::Settings;
+    }
+
+    pub fn apply_settings_changes(&mut self) -> Result<()> {
+        // Validate and apply changes
+
+        // Validate AI refresh minutes
+        if self.settings_draft.ai_enabled {
+            let minutes_str = self.settings_draft.ai_refresh_minutes.trim();
+            if minutes_str.is_empty() {
+                return Err(anyhow!("AI refresh minutes cannot be empty"));
+            }
+
+            let minutes = minutes_str
+                .parse::<u64>()
+                .map_err(|_| anyhow!("AI refresh minutes must be a number between 1 and 60"))?;
+            if minutes == 0 || minutes > 60 {
+                return Err(anyhow!("AI refresh minutes must be between 1 and 60"));
+            }
+
+            self.ai_config.refresh = Duration::from_secs(minutes * 60);
+        }
+
+        // Apply location mode
+        self.location_mode = self.settings_draft.location_mode;
+
+        // Apply time sync settings
+        self.time_sync_disabled = !self.settings_draft.time_sync_enabled;
+        self.time_sync_server = self.settings_draft.time_sync_server.clone();
+
+        // Apply panel visibility
+        self.show_location_date = self.settings_draft.show_location_date;
+        self.show_events = self.settings_draft.show_events;
+        self.show_positions = self.settings_draft.show_positions;
+        self.show_moon = self.settings_draft.show_moon;
+        self.show_lunar_phases = self.settings_draft.show_lunar_phases;
+
+        // Apply AI settings
+        self.ai_config.enabled = self.settings_draft.ai_enabled;
+        self.ai_config.server = self.settings_draft.ai_server.clone();
+        self.ai_config.model = self.settings_draft.ai_model.clone();
+
+        // Reset AI refresh if settings changed
+        if self.ai_config.enabled {
+            self.ai_outcome = None;
+            self.ai_last_refresh = None;
+            self.start_ai_refresh_job();
+        }
+
+        self.should_save = true;
+        Ok(())
+    }
+
+    pub fn reset_settings_to_defaults(&mut self) {
+        self.settings_draft = SettingsDraft {
+            location_mode: config::LocationMode::Auto,
+            time_sync_enabled: true,
+            time_sync_server: "time.google.com".to_string(),
+            show_location_date: true,
+            show_events: true,
+            show_positions: true,
+            show_moon: true,
+            show_lunar_phases: true,
+            ai_enabled: false,
+            ai_server: "http://localhost:11434".to_string(),
+            ai_model: "llama3.2:latest".to_string(),
+            ai_refresh_minutes: "2".to_string(),
+            field_index: 0,
+            error: None,
+            ai_server_status: AiServerStatus::Unknown,
+            ai_models: Vec::new(),
+            ai_model_index: None,
+        };
+    }
+
+    pub fn probe_ai_server_for_settings(&mut self) {
+        if !self.settings_draft.ai_enabled {
+            return;
+        }
+
+        let normalized = ai::AiConfig::normalized_server(true, &self.settings_draft.ai_server);
+
+        match ai::probe_server(&normalized) {
+            Ok(mut models) => {
+                self.settings_draft.ai_server_status = AiServerStatus::Connected {
+                    server: normalized.clone(),
+                };
+                self.settings_draft.ai_server = normalized;
+                models.sort();
+                models.dedup();
+                self.settings_draft.ai_models = models.clone();
+                self.settings_draft.error = None;
+
+                if models.is_empty() {
+                    self.settings_draft.ai_model_index = None;
+                    return;
+                }
+
+                if let Some(idx) = models.iter().position(|name| name == &self.settings_draft.ai_model) {
+                    self.settings_draft.ai_model_index = Some(idx);
+                    self.settings_draft.ai_model = models[idx].clone();
+                } else {
+                    let idx = 0;
+                    self.settings_draft.ai_model_index = Some(idx);
+                    self.settings_draft.ai_model = models[idx].clone();
+                }
+            }
+            Err(err) => {
+                self.settings_draft.ai_server_status = AiServerStatus::Failed {
+                    server: normalized.clone(),
+                    message: err.to_string(),
+                };
+                self.settings_draft.ai_server = normalized;
+                self.settings_draft.ai_model_index = None;
+                self.settings_draft.ai_models.clear();
+            }
+        }
+    }
+
+    pub fn cycle_ai_model_in_settings(&mut self, delta: isize) {
+        if self.settings_draft.ai_models.is_empty() {
+            return;
+        }
+
+        let len = self.settings_draft.ai_models.len() as isize;
+        let current = self.settings_draft.ai_model_index.unwrap_or(0) as isize;
+        let mut next = current + delta;
+        if next < 0 {
+            next = (next % len + len) % len;
+        } else {
+            next %= len;
+        }
+
+        self.settings_draft.ai_model_index = Some(next as usize);
+        if let Some(model) = self.settings_draft.ai_models.get(next as usize) {
+            self.settings_draft.ai_model = model.clone();
+        }
+        self.settings_draft.error = None;
     }
 }

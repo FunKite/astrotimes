@@ -20,6 +20,7 @@ pub struct AiConfig {
     pub server: String,
     pub model: String,
     pub refresh: StdDuration,
+    pub refresh_mode: crate::config::AiRefreshMode,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -141,7 +142,13 @@ impl AiConfig {
             server: Self::normalized_server(enabled, &args.ai_server),
             model: args.ai_model.trim().to_string(),
             refresh: StdDuration::from_secs(refresh_minutes * 60),
+            refresh_mode: crate::config::AiRefreshMode::AutoAndManual,
         })
+    }
+
+    pub fn merge_with_saved(mut self, saved_settings: &crate::config::AiSettings) -> Self {
+        self.refresh_mode = saved_settings.refresh_mode;
+        self
     }
 
     pub fn endpoint(&self) -> String {
@@ -156,6 +163,13 @@ impl AiConfig {
             60
         } else {
             mins
+        }
+    }
+
+    pub fn refresh_mode_label(&self) -> &'static str {
+        match self.refresh_mode {
+            crate::config::AiRefreshMode::AutoAndManual => "Auto & Manual",
+            crate::config::AiRefreshMode::ManualOnly => "Manual Only",
         }
     }
 

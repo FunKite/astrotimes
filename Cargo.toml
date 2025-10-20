@@ -42,14 +42,27 @@ dirs = "5.0"
 # Parallel processing
 rayon = "1.10"
 
-# Standard release profile (all platforms)
+# CPU detection
+num_cpus = "1.16"
+
+# CPU Feature Flags for different architectures
+[features]
+default = ["cpu-portable"]
+cpu-portable = []            # Portable baseline (no CPU-specific features)
+cpu-native = []              # Native CPU with available features
+cpu-avx2 = []                # AVX2 for Intel/AMD x86_64
+cpu-neon = []                # NEON for ARM64 (Apple Silicon, etc.)
+cpu-sve = []                 # SVE for high-end ARM64
+parallel = []                # Use rayon for parallelization
+
+# Standard release profile (all platforms) - Portable baseline
 [profile.release]
 opt-level = 3
 lto = true
 codegen-units = 1
 strip = false
 
-# M1 Max-optimized profile (Apple Silicon)
+# M1/M3 Max-optimized profile (Apple Silicon)
 # Optimized for 10-core CPU (8 performance + 2 efficiency)
 # with 16-core GPU and 32MB L2 cache per performance core
 [profile.release-m1-max]
@@ -58,6 +71,29 @@ lto = "fat"
 codegen-units = 1
 strip = false
 debug = false
+
+# x86_64 with AVX2 (Intel Haswell+, AMD Ryzen+)
+[profile.release-x86-64-v3]
+inherits = "release"
+lto = "fat"
+codegen-units = 1
+
+# x86_64 with SIMD only (SSE/SSE2, no AVX2)
+[profile.release-x86-64-v2]
+inherits = "release"
+lto = true
+
+# Generic ARM64 (portable Apple Silicon, Linux ARM, etc.)
+[profile.release-aarch64-generic]
+inherits = "release"
+lto = true
+codegen-units = 1
+
+# High-end ARM64 with SVE support (server/workstation)
+[profile.release-aarch64-sve]
+inherits = "release"
+lto = "fat"
+codegen-units = 1
 
 # Development profile
 [profile.dev]
