@@ -3,8 +3,24 @@ name = "astrotimes"
 version = "0.1.0"
 edition = "2021"
 authors = ["Mike McLarney"]
-description = "A high-precision astronomical CLI for sun and moon calculations"
+description = "High-precision astronomical calculation library and CLI for sun/moon positions, rise/set times, and lunar phases"
 license = "MIT"
+repository = "https://github.com/FunKite/astrotimes"
+homepage = "https://github.com/FunKite/astrotimes"
+documentation = "https://docs.rs/astrotimes"
+readme = "README.md"
+keywords = ["astronomy", "sun", "moon", "sunrise", "astronomical"]
+categories = ["science", "command-line-utilities"]
+
+# Library configuration (default)
+[lib]
+name = "astrotimes"
+path = "src/lib.rs"
+
+# Main CLI binary
+[[bin]]
+name = "astrotimes"
+path = "src/main.rs"
 
 [dependencies]
 # CLI and terminal UI

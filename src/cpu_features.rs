@@ -152,6 +152,7 @@ pub mod runtime {
 }
 
 /// Optimization selection based on CPU features
+#[derive(Debug, Clone)]
 pub struct OptimizationProfile {
     pub name: &'static str,
     pub has_avx2: bool,

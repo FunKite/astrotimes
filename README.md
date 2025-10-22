@@ -4,9 +4,13 @@
 > **Beta Software**: This application is currently in beta. It is not recommended for use in safety-critical or professional applications where accuracy and reliability are paramount.
 
 > [!NOTE]
-> This is a high-precision Rust implementation of astrotimes - a standalone, offline-friendly CLI for sun and moon calculations
+> This is a high-precision Rust implementation of astrotimes - a standalone, offline-friendly CLI and library for sun and moon calculations
 
-A blazing-fast, standalone CLI that shows accurate sun and moon information for any location and date. Built in Rust for maximum performance and reliability.
+A blazing-fast astronomical calculation library and CLI that provides accurate sun and moon information for any location and date. Built in Rust for maximum performance and reliability.
+
+**Dual Purpose:**
+- **📚 Library**: Use in your Rust projects via a clean, well-documented API
+- **💻 CLI**: Standalone command-line tool with interactive TUI and JSON output
 
 ## Features
 
@@ -56,7 +60,51 @@ cargo install --path .
 cargo run --release -- --help
 ```
 
-## Usage
+### As a Library
+
+Add to your `Cargo.toml`:
+
+```toml
+[dependencies]
+astrotimes = { git = "https://github.com/FunKite/astrotimes" }
+chrono = "0.4"
+chrono-tz = "0.9"
+```
+
+Quick example:
+
+```rust
+use astrotimes::prelude::*;
+use chrono::Local;
+use chrono_tz::America::New_York;
+
+fn main() {
+    // Create a location (latitude, longitude)
+    let location = Location::new(40.7128, -74.0060).unwrap();
+    let now = Local::now().with_timezone(&New_York);
+
+    // Calculate sunrise and sunset
+    if let Some(sunrise) = calculate_sunrise(&location, &now) {
+        println!("Sunrise: {}", sunrise.format("%H:%M:%S"));
+    }
+
+    if let Some(sunset) = calculate_sunset(&location, &now) {
+        println!("Sunset: {}", sunset.format("%H:%M:%S"));
+    }
+
+    // Get current moon phase
+    let (phase_name, phase_emoji) = get_current_moon_phase(&location, &now);
+    println!("Moon phase: {} {}", phase_emoji, phase_name);
+}
+```
+
+See the [examples directory](./examples/) for more usage patterns including:
+- City database searching
+- Lunar phase calculations
+- Batch processing multiple dates
+- Custom twilight calculations
+
+## CLI Usage
 
 ### Basic Usage
 
