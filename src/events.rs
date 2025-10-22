@@ -116,10 +116,53 @@ pub fn collect_events_within_window(
     events
 }
 
+/// Check if the moon is sufficiently dark with buffer for moon glow.
+///
+/// Returns true if:
+/// - Moon is below horizon now
+/// - Moon was below horizon 15 minutes ago (glow has faded)
+/// - Moon will be below horizon 15 minutes from now (glow hasn't started)
+fn is_moon_sufficiently_dark(
+    location: &Location,
+    time: &DateTime<Tz>,
+    buffer_minutes: i64,
+) -> bool {
+    // Check moon is below horizon now
+    let moon_now = moon::lunar_position(location, time);
+    if moon_now.altitude >= 0.0 {
+        return false;
+    }
+
+    // Check moon was below horizon at buffer time ago (glow has faded)
+    if let Some(time_past) = time.checked_sub_signed(Duration::minutes(buffer_minutes)) {
+        let moon_past = moon::lunar_position(location, &time_past);
+        if moon_past.altitude >= 0.0 {
+            return false; // Moon set less than buffer time ago
+        }
+    }
+
+    // Check moon will be below horizon at buffer time from now (glow hasn't appeared)
+    if let Some(time_future) = time.checked_add_signed(Duration::minutes(buffer_minutes)) {
+        let moon_future = moon::lunar_position(location, &time_future);
+        if moon_future.altitude >= 0.0 {
+            return false; // Moon will rise within buffer time
+        }
+    }
+
+    true
+}
+
 /// Calculate dark window periods when observing conditions are optimal.
-/// A dark window occurs when:
+///
+/// Implements the DSD (Deep Sky Darkness) standard used by astrophotographers:
 /// - Sun is below astronomical twilight (-18°)
-/// - Moon is either below horizon OR dim (< 25% illumination)
+/// - Moon is below the horizon with a 15-minute buffer to account for moon glow
+///
+/// The 15-minute buffer after moonset and before moonrise accounts for atmospheric
+/// reflection and scattering of moonlight, which can brighten the sky even when
+/// the moon is technically below the horizon.
+///
+/// Reference: APT (Astro Photography Tool) Deep Sky Darkness Calculator
 fn calculate_dark_windows(
     location: &Location,
     reference: &DateTime<Tz>,
@@ -127,7 +170,7 @@ fn calculate_dark_windows(
     astro_dawn: Option<DateTime<Tz>>,
     astro_dusk: Option<DateTime<Tz>>,
 ) -> Vec<(DateTime<Tz>, &'static str)> {
-    const MOON_BRIGHTNESS_THRESHOLD: f64 = 0.25; // 25% illumination
+    const MOON_GLOW_BUFFER_MINUTES: i64 = 15; // Buffer for moon glow to fade
     const SAMPLE_INTERVAL_MINUTES: i64 = 1; // 1-minute sampling for precision
 
     let start_time = reference
@@ -148,9 +191,8 @@ fn calculate_dark_windows(
         let sun_pos = sun::solar_position(location, &current_time);
         let sun_dark = sun_pos.altitude < -18.0;
 
-        // Check moon conditions
-        let moon_pos = moon::lunar_position(location, &current_time);
-        let moon_dark = moon_pos.altitude < 0.0 || moon_pos.illumination < MOON_BRIGHTNESS_THRESHOLD;
+        // Check moon conditions (DSD standard: moon below horizon with glow buffer)
+        let moon_dark = is_moon_sufficiently_dark(location, &current_time, MOON_GLOW_BUFFER_MINUTES);
 
         let is_dark = sun_dark && moon_dark;
 
@@ -158,8 +200,7 @@ fn calculate_dark_windows(
         if is_dark && !in_dark_window {
             if !first_sample {
                 // Check if moon was already suitable at prev_time
-                let prev_moon = moon::lunar_position(location, &prev_time);
-                let prev_moon_dark = prev_moon.altitude < 0.0 || prev_moon.illumination < MOON_BRIGHTNESS_THRESHOLD;
+                let prev_moon_dark = is_moon_sufficiently_dark(location, &prev_time, MOON_GLOW_BUFFER_MINUTES);
 
                 // If moon conditions unchanged, use the exact astro dusk time from events
                 if prev_moon_dark && moon_dark {
@@ -240,7 +281,7 @@ fn refine_dark_window_transition(
     end: &DateTime<Tz>,
     looking_for_start: bool,
 ) -> DateTime<Tz> {
-    const MOON_BRIGHTNESS_THRESHOLD: f64 = 0.25;
+    const MOON_GLOW_BUFFER_MINUTES: i64 = 15; // Must match buffer in calculate_dark_windows
     const TOLERANCE_SECONDS: i64 = 5; // 5-second precision
 
     let mut left = start.clone();
@@ -253,8 +294,7 @@ fn refine_dark_window_transition(
         let sun_pos = sun::solar_position(location, &mid);
         let sun_dark = sun_pos.altitude < -18.0;
 
-        let moon_pos = moon::lunar_position(location, &mid);
-        let moon_dark = moon_pos.altitude < 0.0 || moon_pos.illumination < MOON_BRIGHTNESS_THRESHOLD;
+        let moon_dark = is_moon_sufficiently_dark(location, &mid, MOON_GLOW_BUFFER_MINUTES);
 
         let is_dark = sun_dark && moon_dark;
 
