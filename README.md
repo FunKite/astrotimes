@@ -29,11 +29,10 @@ A blazing-fast astronomical calculation library and CLI that provides accurate s
 
 - **High-Precision Calculations**: Uses NOAA solar algorithms and Meeus lunar algorithms for accuracy within 1-3 minutes.
 - **Offline-First Core**: All core astronomical calculations run locally.
-- **Intelligent Elevation Data**: Combines a built-in global elevation map (ETOPO) with an ML-driven model based on urban area data for higher accuracy.
 - **AI-Powered Insights**: Connects to Ollama for narrative summaries of astronomical events (optional).
 - **Time Sync Verification**: Checks system clock accuracy against internet time servers (optional).
 - **Interactive Watch Mode**: A live-updating TUI that refreshes automatically.
-- **City Database**: Built-in database of 50+ major cities worldwide.
+- **City Database**: Built-in database of 570+ cities worldwide.
 - **Auto Location Detection**: Optional IP-based geolocation.
 - **JSON & HTML Output**: Provides machine-readable JSON output and generates shareable HTML calendars.
 - **Configuration**: Remembers your last location for quick subsequent runs.
@@ -189,17 +188,15 @@ astrotimes --ai-insights --ai-model "llama3:8b" --ai-server "http://192.168.1.10
 ```
 In watch mode, press `a` to open the AI configuration screen, where you can enable/disable insights, change models, and set the refresh interval.
 
-### Calculation Standard & Location Services
+### Location Services
 
-**Sea Level Convention**: All astronomical calculations use sea level (0m elevation) as the reference point, consistent with U.S. Naval Observatory (USNO) celestial navigation standards. This approach:
-- Provides standardized, reproducible results that match USNO reference data
-- Eliminates elevation-related calculation variations for consistent accuracy
-- Follows the convention used in professional maritime and aviation almanacs
-
-**Location Services**:
-- **City Database**: Built-in database of 570 cities worldwide with coordinates and timezone data
+- **City Database**: Built-in database of 570+ cities worldwide with coordinates and timezone data
 - **IP Geolocation**: Optional automatic location detection via internet services
 - **Time Synchronization**: Checks system clock accuracy against NTP servers to ensure reliable event timing
+
+### Calculation Standard
+
+All astronomical calculations follow U.S. Naval Observatory (USNO) conventions for standardized, reproducible results that align with celestial navigation standards used in maritime and aviation almanacs.
 
 ### Command-Line Options
 
@@ -234,14 +231,10 @@ In watch mode, press `a` to open the AI configuration screen, where you can enab
 
 ### Accuracy
 
-**Standard**: All calculations use sea level (0m elevation) per USNO celestial navigation conventions. This standardizes results and ensures alignment with USNO reference data.
-
-**Precision**: When compared against U.S. Naval Observatory tables:
+When compared against U.S. Naval Observatory reference data:
 - Solar events (sunrise/sunset/twilight): ±1-3 minutes
 - Lunar events (moonrise/moonset): ±3 minutes at mid-latitudes
 - Lunar phase times: ±2 minutes
-
-**Note**: Observer elevation affects rise/set times by approximately 1 minute per 150 meters of elevation. For applications requiring elevation-specific calculations, results can be adjusted using the formula: `-2.076 × √(elevation_meters) / 60` minutes.
 
 ### Data Storage
 

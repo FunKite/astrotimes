@@ -1,0 +1,89 @@
+# AstroTimes Documentation
+
+Welcome to the AstroTimes documentation. This folder contains comprehensive guides for both users and developers.
+
+## For Users
+
+### Getting Started
+- **[Installation](installation/README.md)** - How to install and set up AstroTimes
+- **[Quick Start](installation/quick-start.md)** - Get running in 5 minutes
+
+### Features
+- **[Astronomical Calculations](features/README.md)** - Overview of supported calculations
+- **[CLI Reference](features/cli-reference.md)** - Complete command-line options guide
+- **[Interactive Mode](features/interactive-mode.md)** - Guide to the TUI watch mode
+- **[City Database](features/city-database.md)** - Using the built-in city database
+- **[JSON Output](features/json-output.md)** - Machine-readable output format
+- **[Calendar Generation](features/calendar.md)** - Generating astronomical calendars
+- **[AI Insights](features/ai-insights.md)** - Using Ollama for narrative summaries
+
+### Troubleshooting
+- **[Troubleshooting Guide](installation/troubleshooting.md)** - Common issues and solutions
+
+## For Developers
+
+### Getting Started
+- **[Development Setup](development/setup.md)** - Setting up your development environment
+- **[Architecture Overview](development/architecture.md)** - Project structure and module organization
+- **[How to Contribute](../CONTRIBUTING.md)** - Contributing guidelines
+
+### Deep Dives
+- **[Astronomical Accuracy](development/accuracy.md)** - Testing methodology and accuracy verification
+- **[Lunar Calculations](development/lunar-calculations.md)** - Deep dive into lunar algorithms
+- **[Solar Calculations](development/solar-calculations.md)** - Deep dive into solar algorithms
+- **[Performance Optimization](optimization/performance.md)** - Optimization techniques and benchmarks
+
+### Reference
+- **[API Documentation](https://docs.rs/astrotimes)** - Auto-generated API docs on docs.rs
+- **[Changelog](../CHANGELOG.md)** - Version history and changes
+
+## Documentation Index
+
+```
+docs/
+├── README.md (this file)
+├── development/
+│   ├── setup.md
+│   ├── architecture.md
+│   ├── accuracy.md
+│   ├── lunar-calculations.md
+│   └── solar-calculations.md
+├── features/
+│   ├── README.md
+│   ├── cli-reference.md
+│   ├── interactive-mode.md
+│   ├── city-database.md
+│   ├── json-output.md
+│   ├── calendar.md
+│   └── ai-insights.md
+├── installation/
+│   ├── README.md
+│   ├── quick-start.md
+│   └── troubleshooting.md
+└── optimization/
+    └── performance.md
+```
+
+## Quick Navigation
+
+**I want to...**
+
+- [Install AstroTimes](installation/README.md) → Installation guide
+- [Use the CLI](features/cli-reference.md) → Command-line reference
+- [Get programmatic output](features/json-output.md) → JSON output guide
+- [Contribute code](../CONTRIBUTING.md) → Contributing guidelines
+- [Understand how it works](development/architecture.md) → Architecture overview
+- [Verify accuracy](development/accuracy.md) → Accuracy testing
+- [Report a bug](https://github.com/FunKite/astrotimes/issues) → GitHub issues
+
+## Key Resources
+
+- **[Main README](../README.md)** - Project overview and features
+- **[License](../LICENSE)** - MIT License
+- **[Code of Conduct](../CODE_OF_CONDUCT.md)** - Community guidelines
+- **[GitHub Repository](https://github.com/FunKite/astrotimes)** - Source code
+- **[Crates.io](https://crates.io/crates/astrotimes)** - Rust package registry
+
+## Contributing to Documentation
+
+Found a typo or confusing section? Want to improve the docs? See [CONTRIBUTING.md](../CONTRIBUTING.md) for how to help!

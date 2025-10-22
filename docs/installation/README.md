@@ -1,0 +1,121 @@
+# Installation Guide
+
+Choose the installation method that works best for you.
+
+## Quick Start (5 minutes)
+
+For the fastest way to get started:
+
+```bash
+# Clone and build from source
+git clone https://github.com/FunKite/astrotimes.git
+cd astrotimes
+cargo build --release
+./target/release/astrotimes --help
+```
+
+See [Quick Start Guide](quick-start.md) for detailed steps.
+
+## Installation Methods
+
+### 1. Build from Source (Recommended for Developers)
+
+**Requirements:**
+- Rust 1.70 or later
+- Cargo (included with Rust)
+- Git
+
+**Steps:**
+
+```bash
+# Install Rust if needed
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Clone the repository
+git clone https://github.com/FunKite/astrotimes.git
+cd astrotimes
+
+# Build release binary
+cargo build --release
+
+# Install system-wide (optional)
+cargo install --path .
+
+# Or run directly
+./target/release/astrotimes --city "New York"
+```
+
+### 2. Install from Crates.io (For Library Use)
+
+If you want to use AstroTimes as a library in your Rust project:
+
+```toml
+[dependencies]
+astrotimes = "0.1"
+chrono = "0.4"
+chrono-tz = "0.9"
+```
+
+See the [examples directory](../../examples/) for usage patterns.
+
+### 3. Download Pre-built Binary (macOS)
+
+Pre-built binaries are available on the [GitHub Releases](https://github.com/FunKite/astrotimes/releases) page:
+
+```bash
+# Download the latest release
+wget https://github.com/FunKite/astrotimes/releases/download/v0.1.0/astrotimes-v0.1.0-macos-arm64.tar.gz
+
+# Verify checksum (optional but recommended)
+sha256sum -c astrotimes-v0.1.0-macos-arm64.tar.gz.sha256
+
+# Extract and install
+tar -xzf astrotimes-v0.1.0-macos-arm64.tar.gz
+sudo cp astrotimes-macos/astrotimes /usr/local/bin/
+
+# Verify installation
+astrotimes --version
+```
+
+## Platform Support
+
+### Tier 1 (Fully Tested)
+- **macOS** (Intel and Apple Silicon) - Primary development platform
+- **Linux** (x86_64) - Tested on Ubuntu 20.04+
+
+### Tier 2 (Builds Successfully)
+- **Windows** (x86_64 via WSL or native)
+- **macOS ARM64** (Apple Silicon M1/M2/M3)
+
+### Tier 3 (Community Supported)
+- Other Linux distributions
+- Other Unix-like systems
+
+## Verification
+
+After installation, verify it works:
+
+```bash
+# Show help
+astrotimes --help
+
+# Get sunrise/sunset for your location
+astrotimes --city "New York"
+
+# Output JSON
+astrotimes --city "Tokyo" --json
+
+# View moon phases for a month
+astrotimes --city "Paris" --calendar --calendar-start 2025-12-01 --calendar-end 2025-12-31
+```
+
+## Troubleshooting
+
+Having issues? See the [Troubleshooting Guide](troubleshooting.md).
+
+## Next Steps
+
+- **[Quick Start Guide](quick-start.md)** - Learn basic usage
+- **[CLI Reference](../features/cli-reference.md)** - Complete command options
+- **[Interactive Mode Guide](../features/interactive-mode.md)** - Master the TUI
+- **[Contributing](../../CONTRIBUTING.md)** - Help improve AstroTimes

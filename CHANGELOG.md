@@ -1,0 +1,45 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.1.0] - 2025-10-22
+
+### Added
+- Initial release of AstroTimes as a Rust library and CLI application
+- NOAA solar position and event calculations (sunrise, sunset, twilight times)
+- Meeus lunar position and phase calculations
+- Interactive terminal UI (watch mode) with keyboard controls
+- City database with 570+ worldwide locations
+- JSON output mode for programmatic access
+- HTML calendar generation for date ranges
+- AI-powered insights via local Ollama integration
+- System clock synchronization verification
+- Configuration persistence (~/.astro_times.json)
+- Library API for integration into Rust projects
+
+### Technical Highlights
+- Pure Rust implementation with no external astronomical calculation dependencies
+- Accuracy within 1-3 minutes of U.S. Naval Observatory reference data
+- Cross-platform support (macOS, Linux, Windows)
+- Single self-contained binary with embedded city database
+- Offline-first design with optional online features
+
+## Roadmap
+
+### Planned Features
+- [ ] Additional platforms: Windows binary packages, Linux distributions
+- [ ] Planetary positions (Mercury, Venus, Mars, Jupiter, Saturn)
+- [ ] Eclipse predictions (solar and lunar)
+- [ ] ISS pass predictions
+- [ ] iCalendar (.ics) export format
+- [ ] Custom location profiles
+- [ ] Configuration file examples
+
+### Future Enhancements
+- Performance optimization for batch processing
+- Additional city database expansion
+- Support for historical date calculations with historical timezone data
+- Advanced visualization features
