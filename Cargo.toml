@@ -47,19 +47,9 @@ fuzzy-matcher = "0.3"
 
 # Error handling
 anyhow = "1.0"
-thiserror = "1.0"
-
-# Math utilities
-num-traits = "0.2"
-
-# Home directory detection
-dirs = "5.0"
 
 # Parallel processing
 rayon = "1.10"
-
-# CPU detection
-num_cpus = "1.16"
 
 # CPU Feature Flags for different architectures
 [features]

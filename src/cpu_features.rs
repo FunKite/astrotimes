@@ -137,17 +137,25 @@ pub mod runtime {
 
     /// Get CPU core count
     pub fn cpu_count() -> usize {
-        num_cpus::get()
+        std::thread::available_parallelism()
+            .map(|n| n.get())
+            .unwrap_or(1)
     }
 
     /// Get logical CPU core count (including hyperthreads)
     pub fn logical_cpu_count() -> usize {
-        num_cpus::get()
+        std::thread::available_parallelism()
+            .map(|n| n.get())
+            .unwrap_or(1)
     }
 
     /// Get physical CPU core count (excluding hyperthreads)
+    /// Note: std library doesn't distinguish physical vs logical cores,
+    /// so this returns the same as logical_cpu_count()
     pub fn physical_cpu_count() -> usize {
-        num_cpus::get_physical()
+        std::thread::available_parallelism()
+            .map(|n| n.get())
+            .unwrap_or(1)
     }
 }
 

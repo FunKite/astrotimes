@@ -2,8 +2,7 @@
 
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
-use std::fs;
-use std::path::PathBuf;
+use std::{fs, path::PathBuf};
 
 fn default_true() -> bool {
     true
@@ -169,8 +168,10 @@ impl Config {
 
     /// Get the config file path (~/.astro_times.json)
     pub fn config_path() -> Result<PathBuf> {
-        let home = dirs::home_dir().context("Could not find home directory")?;
-        Ok(home.join(".astro_times.json"))
+        let home = std::env::var("HOME")
+            .or_else(|_| std::env::var("USERPROFILE"))
+            .context("Could not find home directory (HOME or USERPROFILE not set)")?;
+        Ok(PathBuf::from(home).join(".astro_times.json"))
     }
 
     /// Load configuration from file
@@ -200,5 +201,3 @@ impl Config {
         Ok(())
     }
 }
-
-// Add dirs dependency
