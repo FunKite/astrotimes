@@ -170,6 +170,7 @@ fn should_include_in_report(event_name: &str) -> bool {
     !event_name.contains("Nautical")
         && !event_name.contains("Astronomical")
         && !event_name.contains("Astro ")
+        && !event_name.contains("Dark win")
 }
 
 /// Generate validation report comparing astrotimes calculations with USNO data
@@ -244,19 +245,43 @@ pub fn generate_validation_report(
 
     let mut results = Vec::new();
 
-    // Compare each astrotimes event with the USNO event on the same date
-    // (filter out nautical and astronomical events since USNO doesn't provide them)
+    // Compare each astrotimes event with USNO data
+    // Strategy: For each astrotimes event, find the USNO event with the same name
+    // that occurs within ±2 hours. This handles timezone conversions where events
+    // may shift dates (e.g., sunset in UTC might be on a different day than in local time).
     for (event_name, at_dt) in &astrotimes_events {
-        // Skip nautical and astronomical twilight events
+        // Skip nautical and astronomical twilight events (USNO doesn't provide them)
         if !should_include_in_report(event_name) {
             continue;
         }
 
-        let at_date = at_dt.date_naive();
+        // Find matching USNO event within ±2 hours
+        // This window handles timezone-induced date shifts while ensuring we don't
+        // accidentally match the wrong occurrence of a recurring event
+        let mut matching_usno: Option<DateTime<Tz>> = None;
+        let max_window = ChronoDuration::hours(2);
 
-        // Look up USNO event for the same date and event type
-        if let Some(usno_dt) = usno_events.get(&(at_date, event_name.clone())) {
-            let duration = at_dt.signed_duration_since(*usno_dt);
+        for ((_, usno_event_name), usno_dt) in &usno_events {
+            if usno_event_name == event_name {
+                let time_diff = (*at_dt - *usno_dt).abs();
+
+                // Only accept matches within ±2 hours (should be same event)
+                if time_diff <= max_window {
+                    // If we already found a match, keep the closer one
+                    if let Some(existing_usno) = matching_usno {
+                        let existing_diff = (*at_dt - existing_usno).abs();
+                        if time_diff < existing_diff {
+                            matching_usno = Some(*usno_dt);
+                        }
+                    } else {
+                        matching_usno = Some(*usno_dt);
+                    }
+                }
+            }
+        }
+
+        if let Some(usno_dt) = matching_usno {
+            let duration = at_dt.signed_duration_since(usno_dt);
             let diff_minutes = duration.num_minutes();
 
             results.push(ValidationResult {
@@ -268,7 +293,7 @@ pub fn generate_validation_report(
                 _datetime: Some(*at_dt),
             });
         } else {
-            // No matching USNO event found
+            // No matching USNO event found within ±2 hours
             results.push(ValidationResult {
                 event_name: event_name.clone(),
                 astrotimes_value: Some(at_dt.format("%H:%M:%S").to_string()),
