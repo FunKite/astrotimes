@@ -147,7 +147,7 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
                 .add_modifier(Modifier::BOLD),
         )]));
 
-        // Combine Lat/Lon and Place on one line
+        // Combine Lat/Lon and Place/Nearest City on one line
         let location_text = if let Some(ref city) = app.city_name {
             if app.night_mode {
                 format!(
@@ -162,6 +162,29 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
                     app.location.latitude.value(),
                     app.location.longitude.value(),
                     city
+                )
+            }
+        } else if let Some((ref nearest_city, distance, bearing)) = app.nearest_city_info {
+            // Show nearest city with distance and bearing
+            use crate::city::bearing_to_compass;
+            let compass = bearing_to_compass(bearing);
+            if app.night_mode {
+                format!(
+                    "Lat,Lon~{:.3},{:.3}  {}km {} to {}",
+                    app.location.latitude.value(),
+                    app.location.longitude.value(),
+                    distance.round() as i32,
+                    compass,
+                    nearest_city
+                )
+            } else {
+                format!(
+                    "Lat,Lon~{:.3},{:.3}🧭 {}km {} to {}",
+                    app.location.latitude.value(),
+                    app.location.longitude.value(),
+                    distance.round() as i32,
+                    compass,
+                    nearest_city
                 )
             }
         } else {

@@ -136,6 +136,10 @@ fn main() -> Result<()> {
             timezone,
             city_name: city_name.clone(),
             location_source,
+            location_mode: config
+                .as_ref()
+                .map(|cfg| cfg.location_mode)
+                .unwrap_or(astrotimes::config::LocationMode::Auto),
             time_sync: time_sync_info.clone(),
             time_sync_disabled: skip_time_sync,
             time_sync_server,

@@ -840,6 +840,7 @@ pub struct App {
     pub location: Location,
     pub timezone: Tz,
     pub city_name: Option<String>,
+    pub nearest_city_info: Option<(String, f64, f64)>, // (city_name, distance_km, bearing_deg)
     pub location_source: LocationSource,
     pub current_time: DateTime<Local>,
     pub night_mode: bool,
@@ -887,6 +888,7 @@ pub struct AppConfig {
     pub timezone: Tz,
     pub city_name: Option<String>,
     pub location_source: LocationSource,
+    pub location_mode: config::LocationMode,
     pub time_sync: TimeSyncInfo,
     pub time_sync_disabled: bool,
     pub time_sync_server: String,
@@ -900,6 +902,7 @@ impl App {
         let timezone = config.timezone;
         let city_name = config.city_name;
         let location_source = config.location_source;
+        let location_mode = config.location_mode;
         let time_sync = config.time_sync;
         let time_sync_disabled = config.time_sync_disabled;
         let time_sync_server = config.time_sync_server;
@@ -918,10 +921,33 @@ impl App {
         let lunar_phases_generated_for = now_tz.date_naive();
         let prefs = watch_prefs.unwrap_or_default();
 
+        // Calculate nearest city info (only if no city_name is set, i.e., not using city picker)
+        let nearest_city_info = if city_name.is_none() {
+            if let Ok(db) = crate::city::CityDatabase::load() {
+                if let Some((city, distance, bearing)) =
+                    db.find_nearest(location.latitude.value(), location.longitude.value())
+                {
+                    let city_display = if let Some(ref state) = city.state {
+                        format!("{},{}", city.name, state)
+                    } else {
+                        city.name.clone()
+                    };
+                    Some((city_display, distance, bearing))
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+
         Self {
             location,
             timezone,
             city_name,
+            nearest_city_info,
             location_source,
             current_time: now,
             night_mode: prefs.night_mode,
@@ -953,7 +979,7 @@ impl App {
                 ai_models: Vec::new(),
                 ai_model_index: None,
             },
-            location_mode: config::LocationMode::Auto,
+            location_mode,
             reports_selected_item: ReportsMenuItem::Calendar,
             time_sync,
             time_sync_server,
@@ -1120,6 +1146,7 @@ impl App {
             self.timezone.name().to_string(),
             self.city_name.clone(),
         );
+        cfg.location_mode = self.location_mode;
         cfg.watch = self.watch_preferences();
         cfg.time_sync = config::TimeSyncSettings {
             enabled: !self.time_sync_disabled,
@@ -1272,6 +1299,7 @@ impl App {
         self.location = Location::new_unchecked(city.lat, city.lon);
         self.timezone = city.tz.parse().unwrap_or(chrono_tz::UTC);
         self.city_name = Some(city.name.clone());
+        self.nearest_city_info = None; // Clear nearest city info when using city picker
         self.location_source = LocationSource::CityDatabase;
         self.should_save = true;
         self.update_time();
