@@ -1,0 +1,61 @@
+name: Feature Request
+description: Suggest a new feature or enhancement for AstroTimes
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for your feature idea! Your suggestions help shape the future of AstroTimes.
+
+        **Note**: This project is maintained by the repository owner. While external pull requests are not currently being accepted, feature requests are welcomed and will be considered for future development.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Use Case
+      description: What problem does this feature solve? What would you like to be able to do?
+      placeholder: I would like to be able to...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How would you like this feature to work?
+      placeholder: The feature could work by...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered any alternative solutions or workarounds?
+      placeholder: I've also thought about...
+
+  - type: textarea
+    id: benefits
+    attributes:
+      label: Benefits
+      description: Why would this feature be valuable? Who would benefit from it?
+      placeholder: This would be valuable because...
+    validations:
+      required: true
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples
+      description: Can you provide examples of how this feature would be used?
+      placeholder: |
+        Example usage:
+        $ astrotimes --new-feature ...
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other context, screenshots, or references.
+      placeholder: Add any other context here...

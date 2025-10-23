@@ -23,9 +23,9 @@ Welcome to the AstroTimes documentation. This folder contains comprehensive guid
 ## For Developers
 
 ### Getting Started
-- **[Development Setup](development/setup.md)** - Setting up your development environment
+- **[Development Setup](development/setup.md)** - Building from source
 - **[Architecture Overview](development/architecture.md)** - Project structure and module organization
-- **[How to Contribute](../CONTRIBUTING.md)** - Contributing guidelines
+- **[User Feedback](../CONTRIBUTING.md)** - How to report bugs and request features
 
 ### Deep Dives
 - **[Astronomical Accuracy](development/accuracy.md)** - Testing methodology and accuracy verification
@@ -71,10 +71,10 @@ docs/
 - [Install AstroTimes](installation/README.md) → Installation guide
 - [Use the CLI](features/cli-reference.md) → Command-line reference
 - [Get programmatic output](features/json-output.md) → JSON output guide
-- [Contribute code](../CONTRIBUTING.md) → Contributing guidelines
+- [Build from source](development/setup.md) → Development setup
 - [Understand how it works](development/architecture.md) → Architecture overview
 - [Verify accuracy](development/accuracy.md) → Accuracy testing
-- [Report a bug](https://github.com/FunKite/astrotimes/issues) → GitHub issues
+- [Report a bug or request a feature](https://github.com/FunKite/astrotimes/issues) → GitHub issues
 
 ## Key Resources
 
@@ -84,6 +84,6 @@ docs/
 - **[GitHub Repository](https://github.com/FunKite/astrotimes)** - Source code
 - **[Crates.io](https://crates.io/crates/astrotimes)** - Rust package registry
 
-## Contributing to Documentation
+## Documentation Feedback
 
-Found a typo or confusing section? Want to improve the docs? See [CONTRIBUTING.md](../CONTRIBUTING.md) for how to help!
+Found a typo or confusing section? Want to suggest documentation improvements? Please open a [GitHub Issue](https://github.com/FunKite/astrotimes/issues) to let us know!

@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://github.com/FunKite/astrotimes/tree/main/docs
+    about: Browse the documentation for installation, usage, and development guides
+  - name: Build from Source
+    url: https://github.com/FunKite/astrotimes/blob/main/docs/development/setup.md
+    about: Instructions for building AstroTimes from source

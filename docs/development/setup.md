@@ -1,6 +1,6 @@
 # Development Setup
 
-Get your development environment ready for contributing to AstroTimes.
+Get your development environment ready for building AstroTimes from source.
 
 ## Prerequisites
 
@@ -68,9 +68,6 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 # Clone the repository
 git clone https://github.com/FunKite/astrotimes.git
 cd astrotimes
-
-# (Optional) Add upstream if you forked
-git remote add upstream https://github.com/FunKite/astrotimes.git
 ```
 
 ## Build the Project
@@ -245,20 +242,17 @@ docs/                   # User documentation
 tests/                  # Integration tests
 ```
 
-## Git Workflow
+## Building for Distribution
 
 ```bash
-# Create feature branch
-git checkout -b feature/my-feature
+# Build optimized release
+cargo build --release
 
-# Make changes and commit
-git add .
-git commit -m "Description of change"
+# Strip debug symbols for smaller binary
+strip target/release/astrotimes
 
-# Push to your fork
-git push origin feature/my-feature
-
-# Create pull request on GitHub
+# Install to system
+sudo cp target/release/astrotimes /usr/local/bin/
 ```
 
 ## Running Tests
@@ -300,14 +294,12 @@ cargo build -j 1
 ## Next Steps
 
 - **[Architecture Guide](architecture.md)** - Code structure overview
-- **[Contributing Guidelines](../../CONTRIBUTING.md)** - How to contribute
 - **[Accuracy Testing](accuracy.md)** - Verify calculation accuracy
 - **[API Documentation](https://docs.rs/astrotimes)** - Auto-generated docs
 
 ## Getting Help
 
-- **[GitHub Issues](https://github.com/FunKite/astrotimes/issues)** - Report bugs
-- **[Discussions](https://github.com/FunKite/astrotimes/discussions)** - Ask questions
+- **[GitHub Issues](https://github.com/FunKite/astrotimes/issues)** - Report bugs or request features
 - **[Rust Book](https://doc.rust-lang.org/book/)** - Learn Rust
 - **[Cargo Guide](https://doc.rust-lang.org/cargo/)** - Learn Cargo
 
