@@ -41,7 +41,7 @@ A blazing-fast astronomical calculation library and CLI that provides accurate s
 
 AstroTimes in watch mode showing live astronomical data for Los Angeles:
 
-![AstroTimes Watch Mode Screenshot](docs/astrotimesscreen_small.png)
+![AstroTimes Watch Mode Screenshot](docs/astrotimesscreen_small2.png)
 
 In watch mode (the default), this display updates in real-time every second, giving you a live view of the sky. Press `n` for night mode (red text to preserve night vision), `c` to switch locations, `s` to save, or `q` to quit.
 
