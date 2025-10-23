@@ -1,12 +1,6 @@
 # Astrotimes (Rust)
 
-> [!WARNING]
-> **Beta Software**: This application is currently in beta. It is not recommended for use in safety-critical or professional applications where accuracy and reliability are paramount.
-
-> [!NOTE]
-> This is a high-precision Rust implementation of astrotimes - a standalone, offline-friendly CLI and library for sun and moon calculations
-
-A blazing-fast astronomical calculation library and CLI that provides accurate sun and moon information for any location and date. Built in Rust for maximum performance and reliability.
+A blazing-fast astronomical calculation library and CLI that provides sun and moon information for any location and date. Built in Rust for maximum performance and reliability.
 
 **Dual Purpose:**
 - **📚 Library**: Use in your Rust projects via a clean, well-documented API
