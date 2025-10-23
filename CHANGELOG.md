@@ -27,19 +27,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Single self-contained binary with embedded city database
 - Offline-first design with optional online features
 
-## Roadmap
-
+## Roadmap 
+ - The roadmap is subject to change based on various factors.
+   
 ### Planned Features
-- [ ] Additional platforms: Windows binary packages, Linux distributions
 - [ ] Planetary positions (Mercury, Venus, Mars, Jupiter, Saturn)
 - [ ] Eclipse predictions (solar and lunar)
-- [ ] ISS pass predictions
-- [ ] iCalendar (.ics) export format
-- [ ] Custom location profiles
-- [ ] Configuration file examples
 
 ### Future Enhancements
 - Performance optimization for batch processing
 - Additional city database expansion
-- Support for historical date calculations with historical timezone data
-- Advanced visualization features
