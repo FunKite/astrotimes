@@ -298,7 +298,7 @@ All dependencies are well-maintained Rust crates:
 
 This application is built in Rust to leverage its unique strengths for creating high-performance, reliable command-line tools:
 
-- **Performance**: Rust is compiled to a native binary that runs directly on the CPU, offering C-like speed without the need for a runtime or garbage collector. This ensures a fast startup (<100ms) and low memory usage (~5-10 MB).
+- **Performance**: Rust is compiled to a native binary that runs directly on the CPU, offering C-like speed without the need for a runtime or garbage collector. This ensures a fast startup (~100ms) and low memory usage (~15 MB).
 - **Reliability**: Rust's strict compiler and ownership model eliminate entire classes of common bugs (e.g., null pointer dereferences, data races) at compile time. This is critical for a scientific application where calculation integrity is paramount.
 - **Single Binary**: The entire application, including the elevation map and city database, is compiled into a single, statically-linked executable. This makes installation and distribution trivial—just copy the file and run it.
 - **Cross-Platform**: Rust provides excellent cross-platform support, allowing AstroTimes to run natively on Windows, macOS, and Linux from the same codebase.
