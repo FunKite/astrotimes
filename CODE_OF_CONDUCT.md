@@ -24,8 +24,6 @@ Examples of unacceptable behavior include:
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by contacting the project team. All complaints will be reviewed and investigated promptly and fairly.
-
 If you experience or witness unacceptable behavior in any GitHub space, please report it directly to GitHub Support under their [Community Guidelines](https://docs.github.com/en/site-policy/github-terms/github-community-guidelines). For project-specific issues, you may also contact the repository owner privately if you feel comfortable doing so.
 
 Please remember that this is a volunteer open-source project. We expect participants to act in good faith and help maintain a kind, constructive atmosphere.
