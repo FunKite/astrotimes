@@ -135,7 +135,7 @@ pub struct Latitude(f64);
 
 impl Latitude {
     pub fn new(degrees: f64) -> Result<Self, String> {
-        if degrees < -90.0 || degrees > 90.0 {
+        if !(-90.0..=90.0).contains(&degrees) {
             Err(format!("Invalid latitude: {} (must be -90 to 90)", degrees))
         } else {
             Ok(Self(degrees))
@@ -172,7 +172,7 @@ pub struct Longitude(f64);
 
 impl Longitude {
     pub fn new(degrees: f64) -> Result<Self, String> {
-        if degrees < -180.0 || degrees > 180.0 {
+        if !(-180.0..=180.0).contains(&degrees) {
             Err(format!("Invalid longitude: {} (must be -180 to 180)", degrees))
         } else {
             Ok(Self(degrees))

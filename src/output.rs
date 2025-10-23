@@ -185,17 +185,17 @@ pub fn generate_json_output(
         let next_idx = events.iter().position(|(time, _)| *time > *dt);
         let summaries = ai::prepare_event_summaries(&events, dt, next_idx);
 
-        let ai_data = ai::build_ai_data(
+        let ai_data = ai::build_ai_data(ai::AiDataContext {
             location,
             timezone,
             dt,
-            city_name_ref,
-            &sun_pos,
-            &moon_pos,
-            summaries,
+            city_name: city_name_ref,
+            sun_pos: &sun_pos,
+            moon_pos: &moon_pos,
+            events: summaries,
             time_sync_info,
-            &phases,
-        );
+            lunar_phases: &phases,
+        });
 
         let outcome = match ai::fetch_insights(ai_config, &ai_data) {
             Ok(outcome) => outcome,

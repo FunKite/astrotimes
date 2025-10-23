@@ -127,7 +127,7 @@ fn hour_angle_for_altitude(lat: f64, dec: f64, altitude: f64) -> Option<f64> {
 
     let cos_ha = (alt_rad.sin() - lat_rad.sin() * dec_rad.sin()) / (lat_rad.cos() * dec_rad.cos());
 
-    if cos_ha < -1.0 || cos_ha > 1.0 {
+    if !(-1.0..=1.0).contains(&cos_ha) {
         None // Event doesn't occur (polar day/night)
     } else {
         Some(cos_ha.acos() * RAD_TO_DEG)

@@ -25,31 +25,21 @@ fn default_ai_model() -> String {
     "llama3.2:latest".to_string()
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum LocationMode {
+    #[default]
     Auto,
     City,
     Manual,
 }
 
-impl Default for LocationMode {
-    fn default() -> Self {
-        LocationMode::Auto
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum AiRefreshMode {
+    #[default]
     #[serde(rename = "auto_and_manual")]
     AutoAndManual,
     #[serde(rename = "manual_only")]
     ManualOnly,
-}
-
-impl Default for AiRefreshMode {
-    fn default() -> Self {
-        AiRefreshMode::AutoAndManual
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

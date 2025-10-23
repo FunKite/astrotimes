@@ -44,7 +44,7 @@ pub struct CachedPositions {
 impl CachedPositions {
     fn new(location: &Location, timestamp: &DateTime<Tz>) -> Self {
         Self {
-            timestamp: timestamp.clone(),
+            timestamp: *timestamp,
             sun: sun::solar_position(location, timestamp),
             moon: moon::lunar_position(location, timestamp),
         }
@@ -149,6 +149,12 @@ pub struct LocationInputDraft {
     pub error: Option<String>,
 }
 
+impl Default for LocationInputDraft {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl LocationInputDraft {
     const FIELD_COUNT: usize = 3;
 
@@ -231,7 +237,7 @@ impl LocationInputDraft {
             .parse::<f64>()
             .map_err(|_| anyhow!("Invalid latitude"))?;
 
-        if lat < -90.0 || lat > 90.0 {
+        if !(-90.0..=90.0).contains(&lat) {
             return Err(anyhow!("Latitude must be between -90 and 90"));
         }
 
@@ -242,7 +248,7 @@ impl LocationInputDraft {
             .parse::<f64>()
             .map_err(|_| anyhow!("Invalid longitude"))?;
 
-        if lon < -180.0 || lon > 180.0 {
+        if !(-180.0..=180.0).contains(&lon) {
             return Err(anyhow!("Longitude must be between -180 and 180"));
         }
 
@@ -878,18 +884,30 @@ pub struct App {
     ai_job_prev_outcome: Option<ai::AiOutcome>,
 }
 
+/// Initial configuration for creating an App instance
+pub struct AppConfig {
+    pub location: Location,
+    pub timezone: Tz,
+    pub city_name: Option<String>,
+    pub location_source: LocationSource,
+    pub time_sync: TimeSyncInfo,
+    pub time_sync_disabled: bool,
+    pub time_sync_server: String,
+    pub ai_config: ai::AiConfig,
+    pub watch_prefs: Option<WatchPreferences>,
+}
+
 impl App {
-    pub fn new(
-        location: Location,
-        timezone: Tz,
-        city_name: Option<String>,
-        location_source: LocationSource,
-        time_sync: TimeSyncInfo,
-        time_sync_disabled: bool,
-        time_sync_server: String,
-        ai_config: ai::AiConfig,
-        watch_prefs: Option<WatchPreferences>,
-    ) -> Self {
+    pub fn new(config: AppConfig) -> Self {
+        let location = config.location;
+        let timezone = config.timezone;
+        let city_name = config.city_name;
+        let location_source = config.location_source;
+        let time_sync = config.time_sync;
+        let time_sync_disabled = config.time_sync_disabled;
+        let time_sync_server = config.time_sync_server;
+        let ai_config = config.ai_config;
+        let watch_prefs = config.watch_prefs;
         let now = Local::now();
         let now_tz = now.with_timezone(&timezone);
         let events_entries = events::collect_events_within_window(
@@ -1409,17 +1427,17 @@ impl App {
         let sun_pos = self.positions_cache.sun;
         let moon_pos = self.positions_cache.moon;
 
-        let ai_data = ai::build_ai_data(
-            &self.location,
-            &self.timezone,
-            &now_tz,
-            self.city_name.as_deref(),
-            &sun_pos,
-            &moon_pos,
-            event_summaries,
-            &self.time_sync,
-            &self.lunar_phases_cache,
-        );
+        let ai_data = ai::build_ai_data(ai::AiDataContext {
+            location: &self.location,
+            timezone: &self.timezone,
+            dt: &now_tz,
+            city_name: self.city_name.as_deref(),
+            sun_pos: &sun_pos,
+            moon_pos: &moon_pos,
+            events: event_summaries,
+            time_sync_info: &self.time_sync,
+            lunar_phases: &self.lunar_phases_cache,
+        });
 
         let config = self.ai_config.clone();
         let (tx, rx) = mpsc::channel();

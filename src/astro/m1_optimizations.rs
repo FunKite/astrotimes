@@ -29,6 +29,12 @@ pub struct M1MaxThreadPool {
     worker_count: usize,
 }
 
+impl Default for M1MaxThreadPool {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl M1MaxThreadPool {
     /// Create thread pool optimized for M1 Max performance cores
     pub fn new() -> Self {
@@ -167,6 +173,12 @@ pub struct M1L2OptimizedState {
     pub trig_cache: [f64; 16],
 }
 
+impl Default for M1L2OptimizedState {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl M1L2OptimizedState {
     pub fn new() -> Self {
         Self {
@@ -195,6 +207,12 @@ impl M1L2OptimizedState {
 pub struct AllocationTracker {
     total_bytes: AtomicUsize,
     peak_bytes: AtomicUsize,
+}
+
+impl Default for AllocationTracker {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl AllocationTracker {

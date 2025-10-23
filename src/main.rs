@@ -131,17 +131,17 @@ fn main() -> Result<()> {
             .as_ref()
             .map(|cfg| cfg.time_sync.server.clone())
             .unwrap_or_default();
-        run_watch_mode(
+        run_watch_mode(tui::AppConfig {
             location,
             timezone,
-            city_name.clone(),
-            time_sync_info.clone(),
-            skip_time_sync,
-            time_sync_server,
+            city_name: city_name.clone(),
             location_source,
-            ai_config.clone(),
-            config.as_ref().map(|cfg| cfg.watch.clone()),
-        )?;
+            time_sync: time_sync_info.clone(),
+            time_sync_disabled: skip_time_sync,
+            time_sync_server,
+            ai_config: ai_config.clone(),
+            watch_prefs: config.as_ref().map(|cfg| cfg.watch.clone()),
+        })?;
     } else {
         // Single output mode (text)
         print_text_output(
@@ -262,17 +262,7 @@ fn determine_location(
     ))
 }
 
-fn run_watch_mode(
-    location: astro::Location,
-    timezone: Tz,
-    city_name: Option<String>,
-    time_sync_info: time_sync::TimeSyncInfo,
-    time_sync_disabled: bool,
-    time_sync_server: String,
-    location_source: LocationSource,
-    ai_config: ai::AiConfig,
-    watch_prefs: Option<config::WatchPreferences>,
-) -> Result<()> {
+fn run_watch_mode(config: tui::AppConfig) -> Result<()> {
     // Setup terminal
     enable_raw_mode()?;
     let mut stdout = io::stdout();
@@ -281,17 +271,7 @@ fn run_watch_mode(
     let mut terminal = Terminal::new(backend)?;
 
     // Create app
-    let mut app = tui::App::new(
-        location,
-        timezone,
-        city_name,
-        location_source,
-        time_sync_info,
-        time_sync_disabled,
-        time_sync_server,
-        ai_config,
-        watch_prefs,
-    );
+    let mut app = tui::App::new(config);
 
     if app.ai_config.enabled {
         app.refresh_ai_insights();
@@ -515,17 +495,17 @@ fn print_text_output(
     if ai_config.enabled {
         let ai_events = precomputed_ai_events
             .unwrap_or_else(|| ai::prepare_event_summaries(&events, dt, next_idx));
-        let ai_data = ai::build_ai_data(
+        let ai_data = ai::build_ai_data(ai::AiDataContext {
             location,
             timezone,
             dt,
-            city_name.as_deref(),
-            &sun_pos,
-            &moon_pos,
-            ai_events,
+            city_name: city_name.as_deref(),
+            sun_pos: &sun_pos,
+            moon_pos: &moon_pos,
+            events: ai_events,
             time_sync_info,
-            &phases,
-        );
+            lunar_phases: &phases,
+        });
 
         let ai_outcome = match ai::fetch_insights(ai_config, &ai_data) {
             Ok(outcome) => outcome,

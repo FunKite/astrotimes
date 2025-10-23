@@ -192,8 +192,8 @@ pub fn generate_validation_report(
         let normalized = name.trim_start_matches(|c: char| !c.is_ascii_alphabetic()).to_string();
 
         if let Some(&existing_dt) = astrotimes_events.get(&normalized) {
-            let delta_existing = existing_dt.signed_duration_since(date.clone()).num_seconds().abs();
-            let delta_new = dt.signed_duration_since(date.clone()).num_seconds().abs();
+            let delta_existing = existing_dt.signed_duration_since(*date).num_seconds().abs();
+            let delta_new = dt.signed_duration_since(*date).num_seconds().abs();
             if delta_new < delta_existing {
                 astrotimes_events.insert(normalized, dt);
             }
@@ -209,7 +209,7 @@ pub fn generate_validation_report(
     let mut usno_events: HashMap<(NaiveDate, String), DateTime<Tz>> = HashMap::new();
 
     for day_offset in -1..=1 {
-        let fetch_date = date.clone() + ChronoDuration::days(day_offset);
+        let fetch_date = *date + ChronoDuration::days(day_offset);
 
         if let Ok(usno_data) = fetch_usno_data(location, &fetch_date) {
             let usno_date = NaiveDate::from_ymd_opt(

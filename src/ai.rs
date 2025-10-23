@@ -130,7 +130,7 @@ impl AiConfig {
     pub fn from_args(args: &crate::cli::Args) -> Result<Self> {
         let enabled = args.ai_insights;
         let refresh_minutes = args.ai_refresh_minutes;
-        if refresh_minutes < 1 || refresh_minutes > 60 {
+        if !(1..=60).contains(&refresh_minutes) {
             return Err(anyhow!(
                 "AI refresh minutes must be between 1 and 60 (got {})",
                 refresh_minutes
@@ -231,17 +231,29 @@ pub fn prepare_event_summaries(
         .collect()
 }
 
-pub fn build_ai_data(
-    location: &astro::Location,
-    timezone: &Tz,
-    dt: &DateTime<Tz>,
-    city_name: Option<&str>,
-    sun_pos: &SolarPosition,
-    moon_pos: &LunarPosition,
-    events: Vec<AiEventSummary>,
-    time_sync_info: &TimeSyncInfo,
-    lunar_phases: &[LunarPhase],
-) -> AiData {
+/// Context for building AI data payload
+pub struct AiDataContext<'a> {
+    pub location: &'a astro::Location,
+    pub timezone: &'a Tz,
+    pub dt: &'a DateTime<Tz>,
+    pub city_name: Option<&'a str>,
+    pub sun_pos: &'a SolarPosition,
+    pub moon_pos: &'a LunarPosition,
+    pub events: Vec<AiEventSummary>,
+    pub time_sync_info: &'a TimeSyncInfo,
+    pub lunar_phases: &'a [LunarPhase],
+}
+
+pub fn build_ai_data(ctx: AiDataContext) -> AiData {
+    let location = ctx.location;
+    let timezone = ctx.timezone;
+    let dt = ctx.dt;
+    let city_name = ctx.city_name;
+    let sun_pos = ctx.sun_pos;
+    let moon_pos = ctx.moon_pos;
+    let events = ctx.events;
+    let time_sync_info = ctx.time_sync_info;
+    let lunar_phases = ctx.lunar_phases;
     let direction = time_sync_info.direction();
 
     AiData {
