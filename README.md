@@ -37,7 +37,7 @@ AstroTimes in watch mode showing live astronomical data for Los Angeles:
 
 ![AstroTimes Watch Mode Screenshot](docs/astrotimesscreen_small2.png)
 
-In watch mode (the default), this display updates in real-time every second, giving you a live view of the sky. Press `n` for night mode (red text to preserve night vision), `c` to switch locations, `s` to save, or `q` to quit.
+In watch mode (the default), this display updates in real-time every second, giving you a live view of the sky. Press `s` to open the settings menu, `r` for reports, or `q` to quit.
 
 ## Installation
 
@@ -130,12 +130,21 @@ The default mode is a live-updating display:
 | Key | Action |
 |-----|--------|
 | `q` | Quit the application |
-| `n` | Toggle Night Mode (red text) |
-| `s` | Save current location |
-| `c` | Switch city (open picker) |
-| `l` | Enter manual location |
-| `g` | Open calendar generator (HTML/JSON export) |
-| `a` | Configure AI insights |
+| `s` | Open Settings menu |
+| `r` | Open Reports menu (calendar, USNO validation, benchmark) |
+| `f` | Manually refresh AI insights (if enabled) |
+
+**Settings Menu (`s` key):**
+- Location mode (City / Manual / Auto IP detection)
+- Time sync settings (enable/disable, NTP server)
+- Display sections (Location/Date, Events, Positions, Moon, Lunar Phases)
+- Night mode (red text to preserve night vision)
+- AI insights configuration (enable/disable, server, model, refresh interval)
+
+**Reports Menu (`r` key):**
+- Calendar generator (HTML/JSON export for date ranges)
+- USNO validation (compare accuracy against U.S. Naval Observatory data)
+- Performance benchmark (test calculation speed across all cities)
 
 Watch mode updates the clock every second, refreshes sun/moon positions every 10 seconds, refreshes the detailed moon data hourly, and rebuilds the lunar phase list each night at local midnight to keep CPU usage minimal while keeping the numbers accurate.
 
@@ -168,7 +177,7 @@ astrotimes --lat 28.5721 --lon -80.6480 \
 
 Calendars can cover any range between astronomical years `-0999` (1000 BCE) and `3000`. BCE dates use the proleptic Gregorian format with a leading minus (e.g. `-0032-11-01`).
 
-In watch mode, press `g` to open an interactive calendar generator: adjust the range, toggle HTML/JSON, and export directly from the TUI.
+In watch mode, press `r` to open the Reports menu, then select the calendar generator to interactively adjust the range, toggle HTML/JSON, and export directly from the TUI.
 
 ## Advanced Features
 
@@ -188,7 +197,7 @@ astrotimes --ai-insights
 # Specify a custom model and server
 astrotimes --ai-insights --ai-model "llama3:8b" --ai-server "http://192.168.1.100:11434"
 ```
-In watch mode, press `a` to open the AI configuration screen, where you can enable/disable insights, change models, and set the refresh interval.
+In watch mode, press `s` to open the Settings menu where you can configure AI insights, including enabling/disabling them, selecting models, and setting the refresh interval.
 
 ### Location Services
 
