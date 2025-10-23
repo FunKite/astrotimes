@@ -1,0 +1,55 @@
+# Rust
+/target/
+**/*.rs.bk
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Config
+.env
+
+# Local development files and notes
+CLAUDE.md
+.claude/
+PRIVATE_FILES_SUMMARY.md
+BUILD_CPU_OPTIMIZATIONS.md
+LIBRARY_REFACTORING.md
+REPO_CONFIGURATION_SUMMARY.md
+
+# Local optimization and performance documents
+BUILD_OPTIMIZATION.md
+CPU_OPTIMIZATION_SUMMARY.md
+M1_MAX_OPTIMIZATION.md
+OPTIMIZATION_REPORT.md
+OPTIMIZATION_SUMMARY.md
+SIMD_OPTIMIZATION.md
+CALENDAR_OPTIMIZATION.md
+
+# Test and validation outputs
+Sample*.txt
+astrotimes-usno-validation-*.html
+astrotimes-calendar-*.html
+astrotimes-calendar-*.json
+test_moon_transit.sh
+validate_moon_transit.py
+accuracy_report.html
+
+# Local testing and benchmarking
+src/bin/accuracy_report.rs
+src/bin/perf_benchmark.rs
+src/bin/simd_benchmark.rs
+src/bin/m1_max_benchmark.rs
+src/bin/moonrise_moonset_benchmark.rs
+src/bin/calendar_benchmark.rs
+
+# Benchmark output files
+*.html
+test_benchmark.sh
