@@ -21,7 +21,6 @@
 /// Performance Benefits:
 /// - Expected: 15-25% improvement over generic ARM64
 /// - Specific: 40-50% improvement in batch operations
-
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 /// Thread pool for M1 Max multi-core utilization
@@ -75,8 +74,11 @@ impl CacheAlignedBatch {
 ///
 /// M1 has aggressive prefetching, but we can provide hints for
 /// sequential memory access patterns common in astronomical calculations
+///
+/// # Safety
+/// The caller must ensure that `ptr` is valid and points to at least `count` elements
 #[inline]
-pub fn prefetch_astronomical_data(ptr: *const f64, count: usize) {
+pub unsafe fn prefetch_astronomical_data(ptr: *const f64, count: usize) {
     // M1 prefetching is automatic, but we document the pattern
     // for consistency with other platforms (Intel/AMD explicit prefetch)
 
@@ -87,7 +89,7 @@ pub fn prefetch_astronomical_data(ptr: *const f64, count: usize) {
         // On M1, this is implicit with sequential memory access
         #[cfg(target_arch = "aarch64")]
         {
-            let _ptr = unsafe { ptr.add(i) };
+            let _ptr = ptr.add(i);
             // M1 will prefetch automatically
         }
     }

@@ -17,7 +17,6 @@
 /// - Native: --features cpu-native - optimizes for the current CPU
 /// - AVX2 specific: --features cpu-avx2 - x86_64 only
 /// - NEON specific: --features cpu-neon - ARM64 only
-
 use crate::astro::DEG_TO_RAD;
 
 /// Batch sine calculation for 4 angles (optimized for Apple Silicon NEON)

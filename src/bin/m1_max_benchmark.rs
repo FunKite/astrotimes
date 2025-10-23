@@ -127,7 +127,10 @@ fn main() {
 
     let b3 = benchmark("Sequential prefetch pattern - 100 iterations", ITERATIONS, || {
         for chunk in data.chunks(4) {
-            m1_optimizations::prefetch_astronomical_data(chunk.as_ptr(), chunk.len());
+            // Safety: chunk.as_ptr() points to valid data for chunk.len() elements
+            unsafe {
+                m1_optimizations::prefetch_astronomical_data(chunk.as_ptr(), chunk.len());
+            }
             let _sum: f64 = chunk.iter().sum();
         }
     });

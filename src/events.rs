@@ -73,11 +73,11 @@ pub fn collect_events_within_window(
 
     for offset in -1..=1 {
         let shifted = if offset == 0 {
-            reference.clone()
+            *reference
         } else {
             reference
                 .checked_add_signed(Duration::days(offset as i64))
-                .unwrap_or_else(|| reference.clone())
+                .unwrap_or(*reference)
         };
 
         for definition in EVENT_DEFINITIONS {
@@ -87,7 +87,7 @@ pub fn collect_events_within_window(
             };
 
             if let Some(event_time) = maybe_time {
-                let delta = event_time.signed_duration_since(reference.clone());
+                let delta = event_time.signed_duration_since(reference);
                 if delta.num_seconds().abs() <= max_delta {
                     events.push((event_time, definition.label));
                 }
@@ -99,11 +99,11 @@ pub fn collect_events_within_window(
     let astro_dawn = events
         .iter()
         .find(|(_, label)| label.contains("Astro dawn"))
-        .map(|(dt, _)| dt.clone());
+        .map(|(dt, _)| *dt);
     let astro_dusk = events
         .iter()
         .find(|(_, label)| label.contains("Astro dusk"))
-        .map(|(dt, _)| dt.clone());
+        .map(|(dt, _)| *dt);
 
     // Add dark window events using the actual astro twilight times
     let dark_windows = calculate_dark_windows(location, reference, window, astro_dawn, astro_dusk);
@@ -175,15 +175,15 @@ fn calculate_dark_windows(
 
     let start_time = reference
         .checked_sub_signed(window)
-        .unwrap_or_else(|| reference.clone());
+        .unwrap_or(*reference);
     let end_time = reference
         .checked_add_signed(window)
-        .unwrap_or_else(|| reference.clone());
+        .unwrap_or(*reference);
 
     let mut events = Vec::new();
     let mut in_dark_window = false;
-    let mut current_time = start_time.clone();
-    let mut prev_time = start_time.clone();
+    let mut current_time = start_time;
+    let mut prev_time = start_time;
     let mut first_sample = true;
 
     while current_time <= end_time {
@@ -207,15 +207,15 @@ fn calculate_dark_windows(
                     // Moon not limiting - use the provided astronomical dusk time
                     if let Some(ref dusk_time) = astro_dusk {
                         // Verify it's near our transition point
-                        let time_diff = dusk_time.signed_duration_since(prev_time.clone()).num_seconds().abs();
+                        let time_diff = dusk_time.signed_duration_since(prev_time).num_seconds().abs();
                         if time_diff <= 120 {
-                            events.push((dusk_time.clone(), "🌌 Dark win start"));
+                            events.push((*dusk_time, "🌌 Dark win start"));
                             in_dark_window = true;
                             first_sample = false;
-                            prev_time = current_time.clone();
+                            prev_time = current_time;
                             current_time = current_time
                                 .checked_add_signed(Duration::minutes(SAMPLE_INTERVAL_MINUTES))
-                                .unwrap_or(end_time.clone());
+                                .unwrap_or(end_time);
                             continue;
                         }
                     }
@@ -237,15 +237,15 @@ fn calculate_dark_windows(
                 if moon_dark {
                     // Moon still not limiting - use the provided astronomical dawn time
                     if let Some(ref dawn_time) = astro_dawn {
-                        let time_diff = dawn_time.signed_duration_since(prev_time.clone()).num_seconds().abs();
+                        let time_diff = dawn_time.signed_duration_since(prev_time).num_seconds().abs();
                         if time_diff <= 120 {
-                            events.push((dawn_time.clone(), "🌄 Dark win end"));
+                            events.push((*dawn_time, "🌄 Dark win end"));
                             in_dark_window = false;
                             first_sample = false;
-                            prev_time = current_time.clone();
+                            prev_time = current_time;
                             current_time = current_time
                                 .checked_add_signed(Duration::minutes(SAMPLE_INTERVAL_MINUTES))
-                                .unwrap_or(end_time.clone());
+                                .unwrap_or(end_time);
                             continue;
                         }
                     }
@@ -264,10 +264,10 @@ fn calculate_dark_windows(
         }
 
         first_sample = false;
-        prev_time = current_time.clone();
+        prev_time = current_time;
         current_time = current_time
             .checked_add_signed(Duration::minutes(SAMPLE_INTERVAL_MINUTES))
-            .unwrap_or(end_time.clone());
+            .unwrap_or(end_time);
     }
 
     // Don't record boundary artifacts - only actual transitions within the window
@@ -284,10 +284,10 @@ fn refine_dark_window_transition(
     const MOON_GLOW_BUFFER_MINUTES: i64 = 15; // Must match buffer in calculate_dark_windows
     const TOLERANCE_SECONDS: i64 = 5; // 5-second precision
 
-    let mut left = start.clone();
-    let mut right = end.clone();
+    let mut left = *start;
+    let mut right = *end;
 
-    while right.signed_duration_since(left.clone()).num_seconds() > TOLERANCE_SECONDS {
+    while right.signed_duration_since(left).num_seconds() > TOLERANCE_SECONDS {
         let mid_seconds = (left.timestamp() + right.timestamp()) / 2;
         let mid = left.timezone().timestamp_opt(mid_seconds, 0).unwrap();
 

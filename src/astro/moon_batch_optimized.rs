@@ -9,7 +9,6 @@
 ///
 /// The batch approach reduces computational overhead and enables better
 /// compiler vectorization of trigonometric operations.
-
 use chrono::{DateTime, Duration, TimeZone};
 use super::{Location, moon, moon::LunarEvent};
 
@@ -258,7 +257,7 @@ mod tests {
     #[ignore] // TODO: Fix this test - currently fails on some dates
     fn test_batch_search_returns_valid_times() {
         let location = Location::new_unchecked(40.7128, -74.0060); // New York
-        let date = Utc.ymd_opt(2025, 1, 15).unwrap().and_hms_opt(12, 0, 0).unwrap();
+        let date = Utc.with_ymd_and_hms(2025, 1, 15, 12, 0, 0).unwrap();
         let tz: Tz = "America/New_York".parse().unwrap();
         let date_tz = date.with_timezone(&tz);
 
@@ -272,7 +271,7 @@ mod tests {
     #[test]
     fn test_batch_altitude_returns_four_values() {
         let location = Location::new_unchecked(40.7128, -74.0060);
-        let date = Utc.ymd_opt(2025, 1, 15).unwrap().and_hms_opt(12, 0, 0).unwrap();
+        let date = Utc.with_ymd_and_hms(2025, 1, 15, 12, 0, 0).unwrap();
 
         let times = [
             date,

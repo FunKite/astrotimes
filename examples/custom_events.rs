@@ -88,7 +88,7 @@ fn main() {
 
     for hour in [6, 9, 12, 15, 18] {
         if let Some(time) = now.date_naive().and_hms_opt(hour, 0, 0) {
-            if let Some(datetime) = Denver.from_local_datetime(&time).single() {
+            if let Some(datetime) = time.and_local_timezone(Denver).single() {
                 let pos = solar_position(&location, &datetime);
                 if pos.altitude > -18.0 {  // Only show if sun is above astronomical twilight
                     println!("{:02}:00    {:>6.1}°  {:>6.0}°  {}",

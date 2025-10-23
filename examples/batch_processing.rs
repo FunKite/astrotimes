@@ -6,7 +6,7 @@
 //! ```
 
 use astrotimes::prelude::*;
-use chrono::{Duration, Local, NaiveDate};
+use chrono::{Duration, Local};
 use chrono_tz::America::New_York;
 use std::time::Instant;
 

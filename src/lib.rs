@@ -141,9 +141,10 @@ pub mod prelude {
 
     // Convenience functions
     pub use crate::{
-        calculate_civil_dawn, calculate_civil_dusk, calculate_moonrise, calculate_moonset,
-        calculate_solar_noon, calculate_sunrise, calculate_sunset, get_current_moon_phase,
-        get_lunar_phases_for_month, lunar_position, solar_position,
+        batch_calculate, calculate_civil_dawn, calculate_civil_dusk, calculate_moonrise,
+        calculate_moonset, calculate_solar_noon, calculate_sunrise, calculate_sunset,
+        get_current_moon_phase, get_lunar_phases_for_month, lunar_position, solar_position,
+        BatchResult,
     };
 }
 
