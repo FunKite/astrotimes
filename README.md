@@ -297,13 +297,11 @@ This application is built in Rust to leverage its unique strengths for creating 
 
 MIT
 
-## Contributing
+## Bug Reports and Feature Requests
 
-Contributions welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Submit a pull request
+Bug reports and feature requests are welcome and appreciated. Please open a GitHub Issue to describe any problems, ideas, or enhancement suggestions.
+
+At this time, development and maintenance are handled by the repository owner. While external pull requests are not being accepted, user feedback is invaluable in helping guide priorities, improve stability, and shape future releases.
 
 ---
 
