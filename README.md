@@ -39,38 +39,9 @@ A blazing-fast astronomical calculation library and CLI that provides accurate s
 
 ## Screenshot
 
-Here's AstroTimes in action, showing live astronomical data for Los Angeles:
+AstroTimes in watch mode showing live astronomical data for Los Angeles:
 
-```
-AstroTimes Beta 0.1.0 — github.com/FunKite/astrotimes
-— Location & Date —
-📍 Lat,Lon~34.052,-118.244 city
-🏙️ Place: Los Angeles
-📅 Oct 22 18:33:29 ⌚America/Los_Angeles@UTC-07
-🕒 Time sync (time.google.com (NTP)): -32.4ms (system in sync)
-— Events —
-06:38:40  🏙️ Civil dawn         11:54:49 ago
-07:04:06  🌅 Sunrise            11:29:23 ago
-08:14:30  🌕 Moonrise           10:18:59 ago
-12:37:22  ☀️ Solar noon         05:56:07 ago
-18:10:37  🌇 Sunset             00:22:52 ago
-18:36:04  🌆 Civil dusk         00:02:34 from now  (next)
-18:37:36  🌑 Moonset            00:04:06 from now
-19:05:17  ⛵ Nautical dusk      00:31:47 from now
-19:34:19  🌠 Astro dusk         01:00:49 from now
-— Position —
-☀️ Sun:  Alt  -5.6°, Az 260° W
-🌕 Moon: Alt  -0.1°, Az 244° WSW
-— Moon —
-🌒 Phase:           Waxing Crescent (Age 1.4 days)
-💡 Fraction Illum.: 2%
-🔭 Apparent size:   29.5' (Near Apogee)
-— Lunar Phases —
-🌕 Full:              Oct 06 20:49
-🌗 Last quarter:      Oct 13 11:13
-🌑 New:               Oct 21 05:28
-🌓 First quarter:     Oct 29 09:22
-```
+![AstroTimes Watch Mode Screenshot](docs/astrotimesscreen_small.png)
 
 In watch mode (the default), this display updates in real-time every second, giving you a live view of the sky. Press `n` for night mode (red text to preserve night vision), `c` to switch locations, `s` to save, or `q` to quit.
 
