@@ -12,9 +12,16 @@ Thank you for your interest in contributing to AstroTimes! We welcome contributi
 ## Getting Started
 
 ### Prerequisites
-- Rust 1.70 or later
-- Cargo (comes with Rust)
-- macOS, Linux, or Windows
+- **Rust** - Latest stable version (recommended) or Rust 1.70+
+- **Cargo** - Comes with Rust
+- **Platform** - macOS, Linux, or Windows
+
+**Important**: Please use the latest stable version of Rust for development. Update with:
+```bash
+rustup update stable
+```
+
+Using the latest stable ensures compatibility with current dependencies and tooling.
 
 ### Development Setup
 
