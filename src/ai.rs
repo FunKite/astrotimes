@@ -289,7 +289,7 @@ pub fn build_ai_data(ctx: AiDataContext) -> AiData {
             delta_seconds: time_sync_info.delta_seconds(),
             offset_display: time_sync_info
                 .delta
-                .map(|delta| time_sync::format_offset(delta)),
+                .map(time_sync::format_offset),
             direction_code: direction.map(|dir| time_sync::direction_code(dir).to_string()),
             direction_description: direction
                 .map(|dir| time_sync::describe_direction(dir).to_string()),
@@ -354,7 +354,7 @@ pub fn fetch_insights(config: &AiConfig, data: &AiData) -> Result<AiOutcome> {
     };
 
     let response = client
-        .post(&config.endpoint())
+        .post(config.endpoint())
         .header(reqwest::header::USER_AGENT, USER_AGENT)
         .json(&body)
         .send()

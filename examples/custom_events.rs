@@ -42,15 +42,13 @@ fn main() {
             let pos = solar_position(&location, &time);
             println!("{} {:20} {} (altitude: {:.1}°)",
                 emoji, name, time.format("%H:%M:%S"), pos.altitude);
+        } else if let Some(time) = solar_event_time(&location, &now, *event) {
+            let pos = solar_position(&location, &time);
+            println!("{} {:20} {} (azimuth: {:.0}° {})",
+                emoji, name, time.format("%H:%M:%S"),
+                pos.azimuth, azimuth_to_compass(pos.azimuth));
         } else {
-            if let Some(time) = solar_event_time(&location, &now, *event) {
-                let pos = solar_position(&location, &time);
-                println!("{} {:20} {} (azimuth: {:.0}° {})",
-                    emoji, name, time.format("%H:%M:%S"),
-                    pos.azimuth, azimuth_to_compass(pos.azimuth));
-            } else {
-                println!("{} {:20} Not occurring today", emoji, name);
-            }
+            println!("{} {:20} Not occurring today", emoji, name);
         }
     }
 

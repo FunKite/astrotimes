@@ -594,11 +594,7 @@ impl AiConfigDraft {
 
         let mut value = self.refresh_minutes.trim().parse::<i64>().unwrap_or(2);
         value += delta;
-        if value < 1 {
-            value = 1;
-        } else if value > 60 {
-            value = 60;
-        }
+        value = value.clamp(1, 60);
         self.refresh_minutes = value.to_string();
         self.clear_error();
     }

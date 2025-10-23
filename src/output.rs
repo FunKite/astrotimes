@@ -178,7 +178,7 @@ pub fn generate_json_output(
         })
         .collect();
 
-    let city_name_ref = city_name.as_ref().map(|name| name.as_str());
+    let city_name_ref = city_name.as_deref();
     let ai_insights = if ai_config.enabled {
         let events =
             events::collect_events_within_window(location, dt, chrono::Duration::hours(12));

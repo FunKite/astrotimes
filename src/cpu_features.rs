@@ -12,7 +12,7 @@
 /// 1. Compile-time: Use RUSTFLAGS or .cargo/config.toml
 /// 2. Runtime: Detect available CPU features
 /// 3. Graceful fallback: Use portable scalar implementations
-
+///
 /// CPU feature flags for compile-time detection
 pub mod compile_time {
     /// Check if we're compiling for x86_64

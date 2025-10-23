@@ -98,7 +98,7 @@ fn symbol_prefix<'a>(app: &App, symbol: &'a str) -> &'a str {
     }
 }
 
-fn strip_symbolic_prefix<'a>(text: &'a str) -> &'a str {
+fn strip_symbolic_prefix(text: &str) -> &str {
     if let Some((_, rest)) = text.split_once(' ') {
         rest.trim_start()
     } else {
@@ -515,24 +515,21 @@ fn render_main_content(f: &mut Frame, area: Rect, app: &App) {
                 .add_modifier(Modifier::BOLD),
         )]));
 
-        match &app.ai_outcome {
-            Some(outcome) => {
-                if let Some(content) = &outcome.content {
-                    for line in content.lines() {
-                        lines.push(Line::from(Span::raw(line.trim_end().to_string())));
-                    }
-                } else {
-                    lines.push(Line::from(Span::raw("No insights available.")));
+        if let Some(outcome) = &app.ai_outcome {
+            if let Some(content) = &outcome.content {
+                for line in content.lines() {
+                    lines.push(Line::from(Span::raw(line.trim_end().to_string())));
                 }
-
-                if let Some(err) = &outcome.error {
-                    lines.push(Line::from(Span::styled(
-                        format!("{}{}", symbol_prefix(app, "⚠️ "), err),
-                        Style::default().fg(get_color(app, Color::LightRed)),
-                    )));
-                }
+            } else {
+                lines.push(Line::from(Span::raw("No insights available.")));
             }
-            None => {}
+
+            if let Some(err) = &outcome.error {
+                lines.push(Line::from(Span::styled(
+                    format!("{}{}", symbol_prefix(app, "⚠️ "), err),
+                    Style::default().fg(get_color(app, Color::LightRed)),
+                )));
+            }
         }
 
         lines.push(Line::from(""));
@@ -611,12 +608,10 @@ fn footer_line_count(width: u16, ai_enabled: bool) -> u16 {
         if current_len != 0 && candidate_len > max_width {
             line_count += 1;
             current_len = entry_len;
+        } else if current_len != 0 {
+            current_len += 3 + entry_len;
         } else {
-            if current_len != 0 {
-                current_len += 3 + entry_len;
-            } else {
-                current_len = entry_len;
-            }
+            current_len = entry_len;
         }
     }
 

@@ -1,5 +1,4 @@
 use chrono::prelude::*;
-use reqwest;
 use serde::Deserialize;
 use std::fs::File;
 use std::io::Write;

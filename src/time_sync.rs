@@ -178,7 +178,7 @@ fn query_ntp(server: &str) -> anyhow::Result<chrono::DateTime<Utc>> {
 
 impl TimeSyncInfo {
     pub fn direction(&self) -> Option<TimeSyncDirection> {
-        self.delta.and_then(|delta| classify_direction(delta))
+        self.delta.and_then(classify_direction)
     }
 
     pub fn delta_seconds(&self) -> Option<f64> {

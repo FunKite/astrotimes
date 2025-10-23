@@ -5,7 +5,6 @@
 /// 2. Batch moonrise/moonset: Use moon_batch_optimized for 3-4x faster event calculation
 /// 3. Reduced DateTime clones: Create once, reuse throughout
 /// 4. Preallocated buffers: Reduce memory allocations
-
 use crate::astro::{moon, moon_batch_optimized, sun, Location};
 use anyhow::{anyhow, Context, Result};
 use chrono::{Datelike, Duration, NaiveDate, TimeZone, Utc, Weekday};

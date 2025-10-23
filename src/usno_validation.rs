@@ -330,7 +330,7 @@ pub fn generate_html_report(report: &ValidationReport) -> String {
     html.push_str("</style>\n");
     html.push_str("</head>\n<body>\n");
 
-    html.push_str(&format!("<h1>AstroTimes USNO Validation Report</h1>\n"));
+    html.push_str("<h1>AstroTimes USNO Validation Report</h1>\n");
 
     // Information section
     html.push_str("<div class=\"info\">\n");

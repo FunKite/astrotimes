@@ -58,10 +58,9 @@ fn earth_orbit_eccentricity(t: f64) -> f64 {
 /// Calculate the equation of center for the Sun (degrees)
 fn sun_eq_of_center(t: f64) -> f64 {
     let m = sun_geom_mean_anom(t) * DEG_TO_RAD;
-    let c = (1.914602 - t * (0.004817 + 0.000014 * t)) * m.sin()
+    (1.914602 - t * (0.004817 + 0.000014 * t)) * m.sin()
         + (0.019993 - 0.000101 * t) * (2.0 * m).sin()
-        + 0.000289 * (3.0 * m).sin();
-    c
+        + 0.000289 * (3.0 * m).sin()
 }
 
 /// Calculate true longitude of the Sun (degrees)
