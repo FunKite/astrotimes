@@ -28,6 +28,10 @@ Instances of abusive, harassing, or otherwise unacceptable behavior may be repor
 
 Project maintainers are obligated to maintain confidentiality with regard to the reporter of an incident.
 
+If you experience or witness unacceptable behavior in any GitHub space, please report it directly to GitHub Support under their [Community Guidelines](https://docs.github.com/en/site-policy/github-terms/github-community-guidelines). For project-specific issues, you may also contact the repository owner privately if you feel comfortable doing so.
+
+Please remember that this is a volunteer open-source project. We expect participants to act in good faith and help maintain a kind, constructive atmosphere.
+
 ## Attribution
 
 This Code of Conduct is adapted from the [Contributor Covenant](https://www.contributor-covenant.org/), version 1.4.
