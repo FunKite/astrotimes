@@ -311,12 +311,6 @@ Contributions welcome! Please:
 3. Add tests for new functionality
 4. Submit a pull request
 
-## Acknowledgments
-
-- Solar algorithms based on NOAA's solar calculator
-- Lunar algorithms from Jean Meeus' "Astronomical Algorithms"
-- City database compiled from various public sources
-
 ---
 
 🌅 Built with Rust for accuracy, speed, and reliability
