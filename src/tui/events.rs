@@ -437,14 +437,16 @@ fn handle_reports_keys(app: &mut App, key: KeyEvent) -> Result<()> {
         }
         KeyCode::Up => {
             app.reports_selected_item = match app.reports_selected_item {
-                ReportsMenuItem::Calendar => ReportsMenuItem::UsnoValidation,
+                ReportsMenuItem::Calendar => ReportsMenuItem::Benchmark,
                 ReportsMenuItem::UsnoValidation => ReportsMenuItem::Calendar,
+                ReportsMenuItem::Benchmark => ReportsMenuItem::UsnoValidation,
             };
         }
         KeyCode::Down => {
             app.reports_selected_item = match app.reports_selected_item {
                 ReportsMenuItem::Calendar => ReportsMenuItem::UsnoValidation,
-                ReportsMenuItem::UsnoValidation => ReportsMenuItem::Calendar,
+                ReportsMenuItem::UsnoValidation => ReportsMenuItem::Benchmark,
+                ReportsMenuItem::Benchmark => ReportsMenuItem::Calendar,
             };
         }
         KeyCode::Enter => {
@@ -481,6 +483,35 @@ fn handle_reports_keys(app: &mut App, key: KeyEvent) -> Result<()> {
                         }
                         Err(e) => {
                             app.set_status_message(format!("Error generating report: {}", e));
+                        }
+                    }
+                }
+                ReportsMenuItem::Benchmark => {
+                    // Run performance benchmark
+                    app.mode = AppMode::Watch;
+                    app.set_status_message("Running benchmark across all cities...".to_string());
+
+                    // Run benchmark (this may take a few seconds)
+                    let result = crate::benchmark::run_benchmark();
+
+                    let now_tz = app.current_time.with_timezone(&app.timezone);
+                    let html = crate::benchmark::generate_html_report(&result);
+                    let filename = format!(
+                        "astrotimes-benchmark-{}.html",
+                        now_tz.format("%Y%m%d-%H%M%S")
+                    );
+
+                    match std::fs::write(&filename, html) {
+                        Ok(_) => {
+                            app.set_status_message(format!(
+                                "Benchmark complete: {} cities in {:.2}s → {}",
+                                result.total_cities,
+                                result.total_duration_ms as f64 / 1000.0,
+                                filename
+                            ));
+                        }
+                        Err(e) => {
+                            app.set_status_message(format!("Error saving benchmark report: {}", e));
                         }
                     }
                 }

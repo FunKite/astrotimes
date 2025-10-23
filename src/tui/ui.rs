@@ -1538,6 +1538,24 @@ fn render_reports_menu(f: &mut Frame, app: &App) {
         "    Compare astrotimes calculations against U.S. Naval Observatory",
         Style::default().fg(get_color(app, Color::Gray)),
     )));
+    lines.push(Line::from(""));
+
+    let benchmark_selected = app.reports_selected_item == ReportsMenuItem::Benchmark;
+    let benchmark_style = if benchmark_selected {
+        Style::default()
+            .fg(get_color(app, Color::Yellow))
+            .add_modifier(Modifier::BOLD)
+    } else {
+        Style::default().fg(get_color(app, Color::White))
+    };
+    lines.push(Line::from(vec![
+        Span::raw(if benchmark_selected { "► " } else { "  " }),
+        Span::styled("Performance Benchmark", benchmark_style),
+    ]));
+    lines.push(Line::from(Span::styled(
+        "    Test calculation speed across all cities in database",
+        Style::default().fg(get_color(app, Color::Gray)),
+    )));
 
     let menu = Paragraph::new(lines)
         .style(Style::default().fg(get_color(app, Color::White)))

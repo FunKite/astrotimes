@@ -98,6 +98,7 @@ pub mod output;
 
 // Optional modules for advanced use cases
 pub mod ai;
+pub mod benchmark;
 pub mod calendar;
 pub mod time_sync;
 pub mod usno_validation;

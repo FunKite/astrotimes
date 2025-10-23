@@ -105,6 +105,7 @@ pub enum AppMode {
 pub enum ReportsMenuItem {
     Calendar,
     UsnoValidation,
+    Benchmark,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
