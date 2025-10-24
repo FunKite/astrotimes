@@ -47,15 +47,9 @@ The watch mode display shows:
 | Key | Action |
 |-----|--------|
 | `q` | Quit AstroTimes |
-| `n` | Toggle night mode (red text for night vision) |
-| `s` | Save current location to config |
-| `c` | Change city (opens city picker) |
-| `l` | Enter manual location (coordinates) |
-| `g` | Generate calendar (HTML/JSON) |
-| `a` | Configure AI insights |
-| `]` | Increase refresh rate (faster updates) |
-| `[` | Decrease refresh rate (slower updates) |
-| `=` | Reset refresh rate to default |
+| `s` | Open Settings menu (location, time sync, display sections, night mode, AI) |
+| `r` | Open Reports menu (calendar generation, USNO validation, benchmarks) |
+| `f` | Manually refresh AI insights (if enabled) |
 
 ### Additional Controls
 

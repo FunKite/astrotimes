@@ -45,7 +45,15 @@ cargo install --path .
 ./target/release/astrotimes --city "New York"
 ```
 
-### 2. Install from Crates.io (For Library Use)
+### 2. Install from Crates.io (Recommended)
+
+Install the CLI tool directly from crates.io:
+
+```bash
+cargo install astrotimes
+```
+
+#### Using as a Library
 
 If you want to use AstroTimes as a library in your Rust project:
 
@@ -58,24 +66,11 @@ chrono-tz = "0.9"
 
 See the [examples directory](../../examples/) for usage patterns.
 
-### 3. Download Pre-built Binary (macOS)
+### 3. Download Pre-built Binary (Linux)
 
-Pre-built binaries are available on the [GitHub Releases](https://github.com/FunKite/astrotimes/releases) page:
+Pre-built binaries for Linux are available on the [GitHub Releases](https://github.com/FunKite/astrotimes/releases) page.
 
-```bash
-# Download the latest release
-wget https://github.com/FunKite/astrotimes/releases/download/v0.1.0/astrotimes-v0.1.0-macos-arm64.tar.gz
-
-# Verify checksum (optional but recommended)
-sha256sum -c astrotimes-v0.1.0-macos-arm64.tar.gz.sha256
-
-# Extract and install
-tar -xzf astrotimes-v0.1.0-macos-arm64.tar.gz
-sudo cp astrotimes-macos/astrotimes /usr/local/bin/
-
-# Verify installation
-astrotimes --version
-```
+Check the releases page for available architectures and download instructions.
 
 ## Platform Support
 

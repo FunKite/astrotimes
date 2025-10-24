@@ -49,15 +49,9 @@ Live-updating terminal display with:
 
 **Keyboard Controls:**
 - `q` - Quit
-- `n` - Toggle night mode (red text)
-- `s` - Save location to config
-- `c` - Change city
-- `l` - Enter manual location
-- `g` - Generate calendar
-- `a` - Configure AI insights
-- `]` - Increase refresh rate
-- `[` - Decrease refresh rate
-- `=` - Reset to default refresh rate
+- `s` - Open Settings menu (location, time sync, display, night mode, AI)
+- `r` - Open Reports menu (calendar, USNO validation, benchmarks)
+- `f` - Manually refresh AI insights (if enabled)
 
 See [Interactive Mode Guide](interactive-mode.md) for details.
 
@@ -115,20 +109,11 @@ Specify latitude, longitude, and timezone explicitly:
 astrotimes --lat 40.7128 --lon -74.0060 --tz America/New_York
 ```
 
-### IP-based Geolocation
-Automatically detect location from IP address:
-
-```bash
-astrotimes  # Auto-detect location
-```
-
-Requires internet connection. Stored in config for offline use afterward.
-
 ### Configuration Persistence
 Save your preferred location:
 
 ```bash
-# In watch mode, press 's' to save
+# In watch mode, press 's' to open settings, then save from there
 # Or use
 astrotimes --city "New York" --save
 ```

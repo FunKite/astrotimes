@@ -8,7 +8,7 @@ Complete documentation of all AstroTimes command-line options.
 astrotimes [OPTIONS]
 ```
 
-All options are optional. Without arguments, AstroTimes attempts to auto-detect location.
+All options are optional. Without arguments, AstroTimes loads your saved location from `~/.astro_times.json` if available, or prompts you to select a city.
 
 ## Location Options
 
@@ -252,7 +252,7 @@ astrotimes -V
 
 ## Example Commands
 
-### Get sunrise/sunset for today (auto-detected location)
+### Get sunrise/sunset for today (saved location)
 ```bash
 astrotimes
 ```
@@ -362,7 +362,7 @@ cat full_data.json | jq .
 
 - Use `--no-prompt` for non-interactive scripts
 - Use `--json` for piping to other tools
-- Press `?` in watch mode for in-app help
+- Press `s` in watch mode to open settings menu
 - Use city picker (press `c`) for fastest city selection
 - Save frequently-used locations with `--save`
 - Check timezone spelling: Use IANA format, not abbreviations

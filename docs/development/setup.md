@@ -280,9 +280,9 @@ Install C compiler and build tools (see platform-specific setup above).
 Rust not installed or PATH not updated. Run: `source "$HOME/.cargo/env"`
 
 ### Tests fail on first run
-Some tests may require network access for geolocation. Use:
+Some tests may require network access for NTP time sync or USNO validation. Use:
 ```bash
-cargo test -- --test-threads=1
+ASTROTIMES_SKIP_TIME_SYNC=1 cargo test
 ```
 
 ### Out of memory during build

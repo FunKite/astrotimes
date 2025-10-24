@@ -183,7 +183,7 @@ cli.rs (Parse arguments)
   ├─ --lat/--lon/--tz: Direct use
   ├─ --city: Lookup in city.rs
   ├─ config.rs: Load from ~/.astro_times.json
-  └─ IP geolocation: Fallback
+  └─ Prompt user to select city: Fallback
   ↓
 [Mode Selection]
   ├─ --json: output.rs → JSON serialization
