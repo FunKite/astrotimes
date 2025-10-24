@@ -25,7 +25,7 @@ const EVENT_WINDOW_HOURS: i64 = 12;
 const EVENT_REFRESH_THRESHOLD_HOURS: i64 = 6;
 const POSITION_REFRESH_INTERVAL: Duration = Duration::from_secs(5);
 const MOON_REFRESH_INTERVAL: Duration = Duration::from_secs(600);
-const TIME_SYNC_REFRESH_INTERVAL: Duration = Duration::from_secs(900);
+const TIME_SYNC_REFRESH_INTERVAL: Duration = Duration::from_secs(1800); // 30 minutes (pool.ntp.org ToS compliance)
 // Allow a small buffer below the horizon before calling the Moon "Rising" so we
 // do not report rising while it is still deep below the horizon.
 #[derive(Debug, Clone)]

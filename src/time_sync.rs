@@ -1,6 +1,9 @@
 use anyhow::{anyhow, Context};
-use chrono::{Duration as ChronoDuration, TimeZone, Utc};
+use chrono::{DateTime, Duration as ChronoDuration, TimeZone, Utc};
+use serde::{Deserialize, Serialize};
+use std::fs;
 use std::net::UdpSocket;
+use std::path::PathBuf;
 use std::time::Duration as StdDuration;
 
 const TIME_SERVERS: [(&str, &str); 2] = [
@@ -9,6 +12,19 @@ const TIME_SERVERS: [(&str, &str); 2] = [
 ];
 pub const PRIMARY_SOURCE_LABEL: &str = TIME_SERVERS[0].1;
 const SYNC_THRESHOLD_MICROS: i64 = 50_000; // 50 ms tolerance treated as in sync
+
+// Cache settings - 30 minutes minimum between NTP queries (pool.ntp.org ToS compliance)
+const CACHE_MIN_INTERVAL_SECS: i64 = 1800; // 30 minutes
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct TimeSyncCache {
+    /// UTC timestamp when this cache entry was created
+    timestamp: DateTime<Utc>,
+    /// Source server that was queried
+    source: String,
+    /// Delta in microseconds (system time - NTP time)
+    delta_micros: i64,
+}
 
 /// Default NTP servers to use when none are specified
 pub fn default_servers() -> Vec<(String, String)> {
@@ -37,12 +53,50 @@ pub fn check_time_sync() -> TimeSyncInfo {
 }
 
 pub fn check_time_sync_with_servers(custom_server: Option<&str>) -> TimeSyncInfo {
+    // Determine which server we're targeting (for cache key matching)
+    let target_server = custom_server
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or(TIME_SERVERS[0].0); // Default to primary server
+
+    // Try to load from cache first
+    if let Ok(cache) = load_cache() {
+        let age = Utc::now().signed_duration_since(cache.timestamp);
+
+        // Check if cache matches our target server and is fresh (< 30 minutes old)
+        // Note: We normalize server names for comparison (strip port if present in cache)
+        let cache_server_normalized = cache.source.split(':').next().unwrap_or(&cache.source);
+        let target_server_normalized = target_server.split(':').next().unwrap_or(target_server);
+
+        if cache_server_normalized == target_server_normalized
+            && age.num_seconds() < CACHE_MIN_INTERVAL_SECS {
+            let delta = ChronoDuration::microseconds(cache.delta_micros);
+            return TimeSyncInfo {
+                source: PRIMARY_SOURCE_LABEL, // Use static label for consistency
+                delta: Some(delta),
+                error: None,
+            };
+        }
+    }
+
+    // Cache is stale, missing, or for different server - perform fresh NTP query
     match fetch_delta(custom_server) {
-        Ok((delta, source)) => TimeSyncInfo {
-            source,
-            delta: Some(delta),
-            error: None,
-        },
+        Ok((delta, source, server_addr)) => {
+            // Save to cache for future calls
+            if let Some(micros) = delta.num_microseconds() {
+                let cache = TimeSyncCache {
+                    timestamp: Utc::now(),
+                    source: server_addr, // Store actual server address for cache matching
+                    delta_micros: micros,
+                };
+                let _ = save_cache(&cache); // Ignore save errors
+            }
+
+            TimeSyncInfo {
+                source,
+                delta: Some(delta),
+                error: None,
+            }
+        }
         Err(err) => TimeSyncInfo {
             source: PRIMARY_SOURCE_LABEL,
             delta: None,
@@ -89,7 +143,8 @@ pub fn direction_code(direction: TimeSyncDirection) -> &'static str {
     }
 }
 
-fn fetch_delta(custom_server: Option<&str>) -> anyhow::Result<(ChronoDuration, &'static str)> {
+/// Returns (delta, label, server_address)
+fn fetch_delta(custom_server: Option<&str>) -> anyhow::Result<(ChronoDuration, &'static str, String)> {
     let mut last_err: Option<anyhow::Error> = None;
 
     // If custom server is specified, try it first
@@ -106,8 +161,8 @@ fn fetch_delta(custom_server: Option<&str>) -> anyhow::Result<(ChronoDuration, &
                 Ok(server_time) => {
                     let system_time = Utc::now();
                     let delta = system_time.signed_duration_since(server_time);
-                    // Return static string for custom servers
-                    return Ok((delta, PRIMARY_SOURCE_LABEL));
+                    // Return server address for cache tracking
+                    return Ok((delta, PRIMARY_SOURCE_LABEL, server_trimmed.to_string()));
                 }
                 Err(err) => {
                     last_err = Some(anyhow!("{} query failed: {}", server_trimmed, err));
@@ -122,7 +177,9 @@ fn fetch_delta(custom_server: Option<&str>) -> anyhow::Result<(ChronoDuration, &
             Ok(server_time) => {
                 let system_time = Utc::now();
                 let delta = system_time.signed_duration_since(server_time);
-                return Ok((delta, *label));
+                // Extract server address without port for cache tracking
+                let server_addr = server.split(':').next().unwrap_or(server).to_string();
+                return Ok((delta, *label, server_addr));
             }
             Err(err) => {
                 last_err = Some(anyhow!("{} query failed: {}", label, err));
@@ -216,4 +273,39 @@ fn classify_direction(delta: ChronoDuration) -> Option<TimeSyncDirection> {
     } else {
         None
     }
+}
+
+/// Get the cache file path
+fn cache_file_path() -> Option<PathBuf> {
+    dirs::home_dir().map(|home| home.join(".astrotimes_ntp_cache.json"))
+}
+
+/// Load cached time sync result
+fn load_cache() -> anyhow::Result<TimeSyncCache> {
+    let path = cache_file_path().ok_or_else(|| anyhow!("cannot determine home directory"))?;
+
+    if !path.exists() {
+        return Err(anyhow!("cache file does not exist"));
+    }
+
+    let contents = fs::read_to_string(&path)
+        .with_context(|| format!("failed to read cache file: {}", path.display()))?;
+
+    let cache: TimeSyncCache = serde_json::from_str(&contents)
+        .context("failed to parse cache file")?;
+
+    Ok(cache)
+}
+
+/// Save time sync result to cache
+fn save_cache(cache: &TimeSyncCache) -> anyhow::Result<()> {
+    let path = cache_file_path().ok_or_else(|| anyhow!("cannot determine home directory"))?;
+
+    let json = serde_json::to_string_pretty(cache)
+        .context("failed to serialize cache")?;
+
+    fs::write(&path, json)
+        .with_context(|| format!("failed to write cache file: {}", path.display()))?;
+
+    Ok(())
 }
