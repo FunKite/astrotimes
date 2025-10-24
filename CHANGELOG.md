@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- Updated `clap` from 4.5.48 to 4.5.50
+- Updated `reqwest` from 0.12.23 to 0.12.24
+- Updated `ratatui` from 0.28.1 to 0.29.0
+- Updated `crossterm` from 0.28.1 to 0.29.0
+- Updated `chrono-tz` from 0.9.0 to 0.10.4
+
 ## [0.1.1] - 2025-10-24
 
 ### Fixed
