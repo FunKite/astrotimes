@@ -143,7 +143,7 @@ The default mode is a live-updating display:
 - USNO validation (compare accuracy against U.S. Naval Observatory data)
 - Performance benchmark (test calculation speed across all cities)
 
-Watch mode updates the clock every second, refreshes sun/moon positions every 10 seconds, refreshes the detailed moon data hourly, and rebuilds the lunar phase list each night at local midnight to keep CPU usage minimal while keeping the numbers accurate.
+Watch mode continuously updates the clock and refreshes sun/moon positions every 5 seconds, detailed moon data every 10 minutes, and rebuilds the lunar phase list at local midnight to balance accuracy with CPU efficiency.
 
 ### JSON Output
 
