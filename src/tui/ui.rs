@@ -1224,6 +1224,54 @@ fn render_settings(f: &mut Frame, app: &App) {
         location_mode_str.to_string(),
         Some(location_hint.to_string()),
     );
+
+    // Display selected city or nearest city if location is set
+    if draft.location_mode == crate::config::LocationMode::City {
+        if let Some(city) = &app.city_name {
+            render_setting_field(
+                &mut lines,
+                app,
+                false,
+                "Selected City",
+                city.clone(),
+                None,
+            );
+        }
+    } else {
+        // Manual mode - show nearest city if available
+        if let Some((nearest_city, distance_km, _bearing)) = &app.nearest_city_info {
+            let distance_str = format!("{} ({:.1} km away)", nearest_city, distance_km);
+            render_setting_field(
+                &mut lines,
+                app,
+                false,
+                "Nearest City",
+                distance_str,
+                None,
+            );
+        }
+    }
+
+    // Always display current coordinates and timezone
+    let coords_str = format!("{:.3}, {:.3}", app.location.lat_degrees(), app.location.lon_degrees());
+    render_setting_field(
+        &mut lines,
+        app,
+        false,
+        "Coordinates",
+        coords_str,
+        None,
+    );
+
+    render_setting_field(
+        &mut lines,
+        app,
+        false,
+        "Timezone",
+        app.timezone.to_string(),
+        None,
+    );
+
     lines.push(Line::from(""));
 
     // Time Sync section
