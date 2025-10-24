@@ -1,0 +1,49 @@
+name: "CodeQL Security Scanning"
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    # Run at 3:00 AM UTC every Monday (weekly scan)
+    - cron: '0 3 * * 1'
+
+jobs:
+  analyze:
+    name: Analyze Rust Code
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    permissions:
+      # Required for all workflows
+      security-events: write
+      # Required to fetch internal or private CodeQL packs
+      packages: read
+      # Only required for workflows in private repositories
+      actions: read
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'rust' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+        # CodeQL supports 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby', 'swift', and 'rust'
+        # Use 'config-file' to specify a custom queries configuration
+        # queries: security-extended,security-and-quality
+
+    # Rust CodeQL now supports build-less scanning (as of Oct 2025)
+    # No need to build the project - CodeQL will analyze without compilation
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{matrix.language}}"
