@@ -1,6 +1,6 @@
 [package]
 name = "astrotimes"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Mike McLarney"]
 description = "High-precision astronomical calculation library and CLI for sun/moon positions, rise/set times, and lunar phases"
@@ -11,6 +11,13 @@ documentation = "https://docs.rs/astrotimes"
 readme = "README.md"
 keywords = ["astronomy", "sun", "moon", "sunrise", "astronomical"]
 categories = ["science", "command-line-utilities"]
+exclude = [
+    "dist/*",
+    "*.html",
+    "CPU_QUICK_REFERENCE.txt",
+    ".cargo/",
+    "CLAUDE.md",
+]
 
 # Library configuration (default)
 [lib]

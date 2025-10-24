@@ -41,11 +41,17 @@ In watch mode (the default), this display updates in real-time every second, giv
 
 ## Installation
 
+### From crates.io (Recommended)
+
+```bash
+cargo install astrotimes
+```
+
 ### From Source
 
 ```bash
 # Clone the repository
-git clone https://github.com/funkite/astrotimes.git
+git clone https://github.com/FunKite/astrotimes.git
 cd astrotimes
 
 # Build release version
@@ -55,19 +61,13 @@ cargo build --release
 cargo install --path .
 ```
 
-### Run Directly
-
-```bash
-cargo run --release -- --help
-```
-
 ### As a Library
 
 Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-astrotimes = { git = "https://github.com/FunKite/astrotimes" }
+astrotimes = "0.1"
 chrono = "0.4"
 chrono-tz = "0.9"
 ```

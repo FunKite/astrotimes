@@ -310,7 +310,7 @@ pub fn get_lunar_phases_for_month(year: i32, month: u32) -> Result<Vec<LunarPhas
 ///
 /// ```rust
 /// use astrotimes::prelude::*;
-/// use chrono::{NaiveDate, Local};
+/// use chrono::{NaiveDate, Local, TimeZone};
 /// use chrono_tz::America::Los_Angeles;
 ///
 /// let location = Location::new(34.0522, -118.2437).unwrap();
