@@ -111,8 +111,6 @@ pub mod cli;
 #[doc(hidden)]
 pub mod cpu_features;
 #[doc(hidden)]
-pub mod location;
-#[doc(hidden)]
 pub mod tui;
 
 // Re-export key types at crate root for convenience

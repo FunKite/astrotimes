@@ -29,7 +29,6 @@ A blazing-fast astronomical calculation library and CLI that provides sun and mo
 - **Time Sync Verification**: Checks system clock accuracy against internet time servers (optional).
 - **Interactive Watch Mode**: A live-updating TUI that refreshes automatically.
 - **City Database**: Built-in database of 570+ cities worldwide.
-- **Auto Location Detection**: Optional IP-based geolocation.
 - **JSON & HTML Output**: Provides machine-readable JSON output and generates shareable HTML calendars.
 - **Configuration**: Remembers your last location for quick subsequent runs.
 
@@ -112,14 +111,11 @@ See the [examples directory](./examples/) for more usage patterns including:
 ### Basic Usage
 
 ```bash
-# Auto-detect location
-astrotimes
+# Use a city from the database
+astrotimes --city "New York"
 
 # Specify location with coordinates
 astrotimes --lat 40.7128 --lon=-74.0060 --tz=America/New_York
-
-# Use a city from the database
-astrotimes --city "New York"
 
 # Show help
 astrotimes --help
@@ -204,7 +200,7 @@ In watch mode, press `s` to open the Settings menu where you can configure AI in
 ### Location Services
 
 - **City Database**: Built-in database of 570+ cities worldwide with coordinates and timezone data
-- **IP Geolocation**: Optional automatic location detection via internet services
+- **Manual Coordinates**: Specify exact latitude, longitude, elevation, and timezone for any location
 - **Time Synchronization**: Checks system clock accuracy against NTP servers to ensure reliable event timing
 
 ### Calculation Standard
@@ -278,7 +274,6 @@ The project is organized into focused modules:
 - `cli.rs` - Command-line argument parsing
 - `city.rs` - City database and search functionality
 - `config.rs` - Configuration persistence
-- `location.rs` - IP-based location detection
 - `output.rs` - JSON output formatting
 - `main.rs` - Application entry point and orchestration
 

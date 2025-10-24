@@ -1,10 +1,8 @@
 // Event handling for TUI
 
 use super::app::{AiConfigField, App, AppMode, CalendarField};
-use crate::astro::Location;
 use crate::location_source::LocationSource;
 use anyhow::Result;
-use chrono_tz::Tz;
 use crossterm::event::{self, Event, KeyCode, KeyEvent};
 use std::time::Duration;
 
@@ -82,56 +80,6 @@ fn handle_settings_keys(app: &mut App, key: KeyEvent) -> Result<()> {
                         app.mode = AppMode::LocationInput;
                         app.location_input_draft = crate::tui::app::LocationInputDraft::new();
                         return Ok(());
-                    }
-                    LocationMode::Auto => {
-                        // Perform IP-based location detection
-                        use crate::location;
-
-                        match location::detect_location() {
-                            Ok(detected) => {
-                                // Parse timezone
-                                let tz: Tz = detected.timezone.parse().unwrap_or(chrono_tz::UTC);
-
-                                // Update app location
-                                app.location = Location::new_unchecked(
-                                    detected.latitude,
-                                    detected.longitude,
-                                );
-                                app.timezone = tz;
-                                app.city_name = None;
-                                app.location_source = LocationSource::IpLookup;
-
-                                // Find nearest city for reference
-                                if let Ok(db) = crate::city::CityDatabase::load() {
-                                    if let Some((city, distance, bearing)) = db.find_nearest(
-                                        detected.latitude,
-                                        detected.longitude,
-                                    ) {
-                                        let city_display = if let Some(ref state) = city.state {
-                                            format!("{},{}", city.name, state)
-                                        } else {
-                                            city.name.clone()
-                                        };
-                                        app.nearest_city_info = Some((city_display, distance, bearing));
-                                    }
-                                }
-
-                                // Reset cached data for new location
-                                app.update_time();
-                                app.reset_cached_data();
-                                app.ai_last_refresh = None;
-                                app.ai_outcome = None;
-
-                                app.set_status_message("Location auto-detected via IP");
-                            }
-                            Err(e) => {
-                                app.settings_draft.set_error(format!(
-                                    "Failed to detect location: {}. Try City or Manual mode.",
-                                    e
-                                ));
-                                return Ok(());
-                            }
-                        }
                     }
                 }
             }

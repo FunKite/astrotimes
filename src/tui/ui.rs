@@ -1209,14 +1209,12 @@ fn render_settings(f: &mut Frame, app: &App) {
     )));
 
     let location_mode_str = match draft.location_mode {
-        crate::config::LocationMode::Auto => "Auto (IP-based)",
         crate::config::LocationMode::City => "City (pick from database)",
         crate::config::LocationMode::Manual => "Manual (lat/lon)",
     };
     let location_hint = match draft.location_mode {
         crate::config::LocationMode::City => "(Space: cycle | Enter: pick city)",
         crate::config::LocationMode::Manual => "(Space: cycle | Enter: input coords)",
-        crate::config::LocationMode::Auto => "(Space: cycle)",
     };
     render_setting_field(
         &mut lines,

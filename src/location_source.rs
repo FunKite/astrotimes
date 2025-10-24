@@ -5,7 +5,6 @@ pub enum LocationSource {
     ManualCli,
     CityDatabase,
     SavedConfig,
-    IpLookup,
 }
 
 impl LocationSource {
@@ -14,7 +13,6 @@ impl LocationSource {
             LocationSource::ManualCli => "manual",
             LocationSource::CityDatabase => "city",
             LocationSource::SavedConfig => "saved",
-            LocationSource::IpLookup => "ip",
         }
     }
 }

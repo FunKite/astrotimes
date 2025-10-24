@@ -27,7 +27,6 @@ fn default_ai_model() -> String {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum LocationMode {
     #[default]
-    Auto,
     City,
     Manual,
 }
@@ -144,7 +143,7 @@ impl Default for Config {
             lon: 0.0,
             tz: "UTC".to_string(),
             city: None,
-            location_mode: LocationMode::Auto,
+            location_mode: LocationMode::City,
             watch: WatchPreferences::default(),
             time_sync: TimeSyncSettings::default(),
             ai: AiSettings::default(),
@@ -159,7 +158,7 @@ impl Config {
             lon,
             tz,
             city,
-            location_mode: LocationMode::Auto,
+            location_mode: LocationMode::City,
             watch: WatchPreferences::default(),
             time_sync: TimeSyncSettings::default(),
             ai: AiSettings::default(),

@@ -1,6 +1,6 @@
 // Astrotimes - High-precision astronomical CLI for sun and moon calculations
 
-use astrotimes::{ai, astro, calendar, city, cli, config, events, location, location_source, output, time_sync, tui};
+use astrotimes::{ai, astro, calendar, city, cli, config, events, location_source, output, time_sync, tui};
 
 use anyhow::{anyhow, Context, Result};
 use chrono::{Datelike, Duration, Local, NaiveDate, Offset, TimeZone};
@@ -139,7 +139,7 @@ fn main() -> Result<()> {
             location_mode: config
                 .as_ref()
                 .map(|cfg| cfg.location_mode)
-                .unwrap_or(astrotimes::config::LocationMode::Auto),
+                .unwrap_or(astrotimes::config::LocationMode::City),
             time_sync: time_sync_info.clone(),
             time_sync_disabled: skip_time_sync,
             time_sync_server,
@@ -207,14 +207,7 @@ fn determine_location(
 
     // Check CLI arguments
     if let (Some(lat), Some(lon)) = (args.lat, args.lon) {
-        let tz_str = args.tz.clone().unwrap_or_else(|| {
-            // Try to detect timezone
-            if let Ok(loc) = location::detect_location() {
-                loc.timezone
-            } else {
-                "UTC".to_string()
-            }
-        });
+        let tz_str = args.tz.clone().unwrap_or_else(|| "UTC".to_string());
         let tz: Tz = tz_str.parse().unwrap_or(chrono_tz::UTC);
         let location = astro::Location::new(lat, lon)
             .map_err(|e| anyhow!("Invalid location: {}", e))?;
@@ -233,36 +226,8 @@ fn determine_location(
         ));
     }
 
-    // Try auto-detection
-    if !args.no_prompt {
-        println!("Attempting to auto-detect location...");
-        if let Ok(detected) = location::detect_location() {
-            println!(
-                "Detected location: {:.4}, {:.4} ({})",
-                detected.latitude, detected.longitude, detected.timezone
-            );
-            let location = astro::Location::new_unchecked(detected.latitude, detected.longitude);
-            let tz: Tz = detected.timezone.parse().unwrap_or(chrono_tz::UTC);
-
-            // Update config
-            *config = Some(config::Config::new(
-                location.latitude.value(),
-                location.longitude.value(),
-                tz.name().to_string(),
-                None,
-            ));
-
-            return Ok((
-                location,
-                tz,
-                None,
-                LocationSource::IpLookup,
-            ));
-        }
-    }
-
     Err(anyhow!(
-        "No location specified. Use --lat/--lon, --city, or allow auto-detection"
+        "No location specified. Use --lat/--lon/--tz or --city \"City Name\""
     ))
 }
 

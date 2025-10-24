@@ -714,7 +714,7 @@ impl SettingsDraft {
 
     pub fn from_app(app: &App) -> Self {
         Self {
-            location_mode: config::LocationMode::Auto, // Will be loaded from config
+            location_mode: config::LocationMode::City, // Will be loaded from config
             time_sync_enabled: !app.time_sync_disabled,
             time_sync_server: "time.google.com".to_string(), // Will be loaded from config
             show_location_date: app.show_location_date,
@@ -780,9 +780,8 @@ impl SettingsDraft {
 
     pub fn cycle_location_mode(&mut self) {
         self.location_mode = match self.location_mode {
-            config::LocationMode::Auto => config::LocationMode::City,
             config::LocationMode::City => config::LocationMode::Manual,
-            config::LocationMode::Manual => config::LocationMode::Auto,
+            config::LocationMode::Manual => config::LocationMode::City,
         };
         self.clear_error();
     }
@@ -960,7 +959,7 @@ impl App {
             location_input_draft: LocationInputDraft::new(),
             calendar_draft: CalendarDraft::new(now),
             settings_draft: SettingsDraft {
-                location_mode: config::LocationMode::Auto,
+                location_mode: config::LocationMode::City,
                 time_sync_enabled: !time_sync_disabled,
                 time_sync_server: time_sync_server.clone(),
                 show_location_date: prefs.show_location_date,
@@ -1676,7 +1675,7 @@ impl App {
 
     pub fn reset_settings_to_defaults(&mut self) {
         self.settings_draft = SettingsDraft {
-            location_mode: config::LocationMode::Auto,
+            location_mode: config::LocationMode::City,
             time_sync_enabled: true,
             time_sync_server: "time.google.com".to_string(),
             show_location_date: true,
