@@ -133,7 +133,7 @@ The default mode is a live-updating display:
 | `f` | Manually refresh AI insights (if enabled) |
 
 **Settings Menu (`s` key):**
-- Location mode (City / Manual / Auto IP detection)
+- Location mode (City / Manual)
 - Time sync settings (enable/disable, NTP server)
 - Display sections (Location/Date, Events, Positions, Moon, Lunar Phases)
 - Night mode (red text to preserve night vision)
