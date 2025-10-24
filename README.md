@@ -1,6 +1,6 @@
-# Astrotimes (Rust)
+# Astrotimes
 
-A blazing-fast astronomical calculation library and CLI that provides sun and moon information for any location and date. Built in Rust for maximum performance and reliability.
+An astronomical calculation library and CLI that provides sun and moon information for any location and date.
 
 **Dual Purpose:**
 - **📚 Library**: Use in your Rust projects via a clean, well-documented API
@@ -23,7 +23,6 @@ A blazing-fast astronomical calculation library and CLI that provides sun and mo
 
 ### Key Features
 
-- **High-Precision Calculations**: Uses NOAA solar algorithms and Meeus lunar algorithms for accuracy within 1-3 minutes.
 - **Offline-First Core**: All core astronomical calculations run locally.
 - **AI-Powered Insights**: Connects to Ollama for narrative summaries of astronomical events (optional).
 - **Time Sync Verification**: Checks system clock accuracy against internet time servers (optional).
@@ -233,17 +232,10 @@ All astronomical calculations follow U.S. Naval Observatory (USNO) conventions f
 
 ### Calculation Methods
 
-- **Solar Calculations**: NOAA solar calculation algorithms - accuracy within 1-3 minutes for mid-latitudes
-- **Lunar Position**: High-precision topocentric model accounting for Earth's flattening and parallax
-- **Lunar Phases**: Meeus "Phases of the Moon" algorithm from "Astronomical Algorithms" - minute-level accuracy
+- **Solar Calculations**: NOAA solar calculation algorithms
+- **Lunar Position**: Topocentric model accounting for Earth's flattening and parallax
+- **Lunar Phases**: Meeus "Phases of the Moon" algorithm from "Astronomical Algorithms"
 - **Rise/Set Times**: Bisection root-finding with standard atmospheric refraction corrections
-
-### Accuracy
-
-When compared against U.S. Naval Observatory reference data:
-- Solar events (sunrise/sunset/twilight): ±1-3 minutes
-- Lunar events (moonrise/moonset): ±3 minutes at mid-latitudes
-- Lunar phase times: ±2 minutes
 
 ### Data Storage
 
@@ -289,16 +281,6 @@ All dependencies are well-maintained Rust crates:
 - `fuzzy-matcher` - City search
 - `anyhow` + `thiserror` - Error handling
 
-## Why Rust? The Benefits
-
-This application is built in Rust to leverage its unique strengths for creating high-performance, reliable command-line tools:
-
-- **Performance**: Rust is compiled to a native binary that runs directly on the CPU, offering C-like speed without the need for a runtime or garbage collector. This ensures a fast startup (~100ms) and low memory usage (~15 MB).
-- **Reliability**: Rust's strict compiler and ownership model eliminate entire classes of common bugs (e.g., null pointer dereferences, data races) at compile time. This is critical for a scientific application where calculation integrity is paramount.
-- **Single Binary**: The entire application, including the elevation map and city database, is compiled into a single, statically-linked executable. This makes installation and distribution trivial—just copy the file and run it.
-- **Cross-Platform**: Rust provides excellent cross-platform support, allowing AstroTimes to run natively on Windows, macOS, and Linux from the same codebase.
-- **Modern Tooling**: The project benefits from Rust's modern ecosystem, including its built-in package manager (`cargo`), testing framework, and high-quality, community-vetted libraries (crates).
-
 ## License
 
 MIT
@@ -311,4 +293,4 @@ At this time, development and maintenance are handled by the repository owner. W
 
 ---
 
-🌅 Built with Rust for accuracy, speed, and reliability
+🌅 Astronomical calculations for any location and date
