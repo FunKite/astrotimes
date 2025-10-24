@@ -37,7 +37,7 @@ crossterm = "0.28"
 
 # Date and time handling
 chrono = { version = "0.4", features = ["serde"] }
-chrono-tz = "0.9"
+chrono-tz = "0.10"
 
 # JSON serialization
 serde = { version = "1.0", features = ["derive"] }
