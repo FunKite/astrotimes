@@ -1,5 +1,5 @@
 ═══════════════════════════════════════════════════════════════════════════════
-  AstroTimes CPU Optimization - Quick Reference Guide
+  Solunatus CPU Optimization - Quick Reference Guide
 ═══════════════════════════════════════════════════════════════════════════════
 
 BUILD COMMANDS (Choose based on your use case)
@@ -11,17 +11,17 @@ BUILD COMMANDS (Choose based on your use case)
   macOS (Apple Silicon M1/M2/M3):
     cargo build --release
     → Works on: All Apple Silicon Macs
-    → Binary: target/release/astrotimes
+    → Binary: target/release/solunatus
 
   Linux/Windows x86_64 (Haswell or newer - 2013+):
     cargo x86-64-avx2
     → Works on: i5/i7/i9 4th gen+, AMD Ryzen+
-    → Binary: target/release-x86-64-v3/astrotimes
+    → Binary: target/release-x86-64-v3/solunatus
 
   Linux ARM64 (all systems):
     cargo aarch64-portable
     → Works on: All ARM64 Linux systems
-    → Binary: target/release-aarch64-generic/astrotimes
+    → Binary: target/release-aarch64-generic/solunatus
 
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │ LOCAL DEVELOPMENT (maximum performance for your machine)                    │
@@ -31,7 +31,7 @@ BUILD COMMANDS (Choose based on your use case)
     cargo native-release
     → Optimizes for: Your exact CPU
     → Performance: 3-8% faster than portable
-    → Binary: target/release-native/astrotimes
+    → Binary: target/release-native/solunatus
     → WARNING: Binary may not work on other CPU models
 
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -130,5 +130,5 @@ For detailed information, see:
   • src/cpu_features.rs              - CPU detection code
 
 ═══════════════════════════════════════════════════════════════════════════════
-Updated: 2025-10-19 | AstroTimes Beta 0.1
+Updated: 2025-10-19 | Solunatus Beta 0.1
 ═══════════════════════════════════════════════════════════════════════════════

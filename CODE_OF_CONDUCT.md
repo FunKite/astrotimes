@@ -2,7 +2,7 @@
 
 ## Our Pledge
 
-We are committed to providing a welcoming and inspiring community for all. We pledge that everyone participating in the AstroTimes project and its community will be treated with respect regardless of levels of experience, gender, gender identity and expression, sexual orientation, disability, personal appearance, body size, race, ethnicity, age, religion, or nationality.
+We are committed to providing a welcoming and inspiring community for all. We pledge that everyone participating in the Solunatus project and its community will be treated with respect regardless of levels of experience, gender, gender identity and expression, sexual orientation, disability, personal appearance, body size, race, ethnicity, age, religion, or nationality.
 
 ## Our Standards
 
