@@ -1,4 +1,4 @@
-# Astrotimes
+# Solunatus
 
 An astronomical calculation library and CLI that provides sun and moon information for any location and date.
 
@@ -35,7 +35,7 @@ An astronomical calculation library and CLI that provides sun and moon informati
 
 Solunatus in watch mode showing live astronomical data for Los Angeles:
 
-![Solunatus Watch Mode Screenshot](docs/solunatusscreen_small2.png)
+![Solunatus Watch Mode Screenshot](docs/astrotimesscreen_small2.png)
 
 In watch mode (the default), this display updates in real-time every second, giving you a live view of the sky. Press `s` to open the settings menu, `r` for reports, or `q` to quit.
 
