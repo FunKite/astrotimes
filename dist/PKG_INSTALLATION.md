@@ -14,10 +14,10 @@ A `.pkg` file is a native macOS installer package that provides a GUI installati
 
 1. **Download the PKG:**
    ```bash
-   curl -L https://github.com/FunKite/astrotimes/releases/download/v0.1.0-beta/astrotimes-0.1.0-macos-arm64.pkg -o astrotimes.pkg
+   curl -L https://github.com/FunKite/solunatus/releases/download/v0.1.0-beta/solunatus-0.1.0-macos-arm64.pkg -o solunatus.pkg
    ```
 
-2. **Double-click** `astrotimes.pkg` in Finder
+2. **Double-click** `solunatus.pkg` in Finder
 
 3. **Follow the installation wizard:**
    - Click "Continue"
@@ -28,20 +28,20 @@ A `.pkg` file is a native macOS installer package that provides a GUI installati
 
 4. **Verify installation:**
    ```bash
-   astrotimes --help
+   solunatus --help
    ```
 
 ### Method 2: Command-Line Installation
 
 ```bash
 # Download
-curl -L https://github.com/FunKite/astrotimes/releases/download/v0.1.0-beta/astrotimes-0.1.0-macos-arm64.pkg -o astrotimes.pkg
+curl -L https://github.com/FunKite/solunatus/releases/download/v0.1.0-beta/solunatus-0.1.0-macos-arm64.pkg -o solunatus.pkg
 
 # Install
-sudo installer -pkg astrotimes.pkg -target /
+sudo installer -pkg solunatus.pkg -target /
 
 # Verify
-astrotimes --help
+solunatus --help
 ```
 
 ---
@@ -52,13 +52,13 @@ astrotimes --help
 
 ```bash
 # Download checksum
-curl -L https://github.com/FunKite/astrotimes/releases/download/v0.1.0-beta/astrotimes-0.1.0-macos-arm64.pkg.sha256 -o checksum.sha256
+curl -L https://github.com/FunKite/solunatus/releases/download/v0.1.0-beta/solunatus-0.1.0-macos-arm64.pkg.sha256 -o checksum.sha256
 
 # Verify
 shasum -a 256 -c checksum.sha256
 ```
 
-Expected output: `astrotimes-0.1.0-macos-arm64.pkg: OK`
+Expected output: `solunatus-0.1.0-macos-arm64.pkg: OK`
 
 **SHA256:** `23ec07ccac1b62eb33cdbf51c8518a01be962e795f02ab300be51a8f62dade11`
 
@@ -66,20 +66,20 @@ Expected output: `astrotimes-0.1.0-macos-arm64.pkg: OK`
 
 ## What Gets Installed
 
-- **Binary:** `/usr/local/bin/astrotimes`
+- **Binary:** `/usr/local/bin/solunatus`
 - **Documentation:** `/usr/local/bin/README.txt`
 - **Size:** 3.9 MB (binary)
 
-The installer automatically adds `/usr/local/bin` to your PATH, so `astrotimes` will be immediately available after installation.
+The installer automatically adds `/usr/local/bin` to your PATH, so `solunatus` will be immediately available after installation.
 
 ---
 
 ## Uninstallation
 
-To uninstall astrotimes:
+To uninstall solunatus:
 
 ```bash
-sudo rm /usr/local/bin/astrotimes
+sudo rm /usr/local/bin/solunatus
 sudo rm /usr/local/bin/README.txt
 
 # Optional: Remove configuration
@@ -90,10 +90,10 @@ Or use `pkgutil` to check what was installed:
 
 ```bash
 # List installed files
-pkgutil --files com.funkite.astrotimes
+pkgutil --files com.funkite.solunatus
 
 # Uninstall (removes package receipt)
-sudo pkgutil --forget com.funkite.astrotimes
+sudo pkgutil --forget com.funkite.solunatus
 ```
 
 ---
@@ -104,7 +104,7 @@ sudo pkgutil --forget com.funkite.astrotimes
 
 This package is **unsigned** because it doesn't have an Apple Developer ID certificate. When you try to install it, macOS may show:
 
-> "astrotimes-0.1.0-macos-arm64.pkg" cannot be opened because it is from an unidentified developer.
+> "solunatus-0.1.0-macos-arm64.pkg" cannot be opened because it is from an unidentified developer.
 
 **To bypass this (macOS 13+):**
 1. Right-click the PKG file
@@ -113,7 +113,7 @@ This package is **unsigned** because it doesn't have an Apple Developer ID certi
 
 **Alternative:**
 ```bash
-sudo installer -pkg astrotimes.pkg -target / -allowUntrusted
+sudo installer -pkg solunatus.pkg -target / -allowUntrusted
 ```
 
 **Why unsigned?**
@@ -149,11 +149,11 @@ sudo installer -pkg astrotimes.pkg -target / -allowUntrusted
 - Ensure `/usr/local/bin` exists: `sudo mkdir -p /usr/local/bin`
 - Try command-line installation with verbose output:
   ```bash
-  sudo installer -pkg astrotimes.pkg -target / -verbose
+  sudo installer -pkg solunatus.pkg -target / -verbose
   ```
 
 ### "Command not found" after installation
-- Verify installation: `ls -la /usr/local/bin/astrotimes`
+- Verify installation: `ls -la /usr/local/bin/solunatus`
 - Check PATH: `echo $PATH | grep /usr/local/bin`
 - Restart terminal or run: `source ~/.zshrc`
 
@@ -176,24 +176,24 @@ After installation:
 
 ```bash
 # Auto-detect location
-astrotimes
+solunatus
 
 # Specify a city
-astrotimes --city "Tokyo"
+solunatus --city "Tokyo"
 
 # Use coordinates
-astrotimes --lat 40.7128 --lon=-74.0060
+solunatus --lat 40.7128 --lon=-74.0060
 
 # JSON output
-astrotimes --city "Paris" --json
+solunatus --city "Paris" --json
 
 # Help
-astrotimes --help
+solunatus --help
 ```
 
 ---
 
 **Release:** v0.1.0-beta (Pre-release)
-**Package ID:** com.funkite.astrotimes
+**Package ID:** com.funkite.solunatus
 **Created:** October 8, 2025
 **Built with:** Rust + Claude Code

@@ -11,7 +11,7 @@ We currently support the following versions with security updates:
 
 ## Reporting a Vulnerability
 
-We take the security of AstroTimes seriously. If you discover a security vulnerability, please report it responsibly.
+We take the security of Solunatus seriously. If you discover a security vulnerability, please report it responsibly.
 
 ### How to Report
 
@@ -19,7 +19,7 @@ We take the security of AstroTimes seriously. If you discover a security vulnera
 
 Instead, please report security issues using GitHub's private security advisory feature:
 
-1. Go to https://github.com/FunKite/astrotimes/security/advisories
+1. Go to https://github.com/FunKite/solunatus/security/advisories
 2. Click "New draft security advisory"
 3. Fill in the details:
    - A description of the vulnerability
@@ -55,10 +55,10 @@ Once a vulnerability is confirmed:
 
 ```bash
 # Always install from official sources
-cargo install astrotimes
+cargo install solunatus
 
 # Or download from official GitHub releases
-# https://github.com/FunKite/astrotimes/releases
+# https://github.com/FunKite/solunatus/releases
 ```
 
 ### Verify Checksums
@@ -67,25 +67,25 @@ When downloading binaries from GitHub releases:
 
 ```bash
 # Download the binary and checksum file
-curl -LO https://github.com/FunKite/astrotimes/releases/download/v0.1.1/astrotimes-v0.1.1-linux-x86_64.tar.gz
-curl -LO https://github.com/FunKite/astrotimes/releases/download/v0.1.1/astrotimes-v0.1.1-linux-x86_64.tar.gz.sha256
+curl -LO https://github.com/FunKite/solunatus/releases/download/v0.1.1/solunatus-v0.1.1-linux-x86_64.tar.gz
+curl -LO https://github.com/FunKite/solunatus/releases/download/v0.1.1/solunatus-v0.1.1-linux-x86_64.tar.gz.sha256
 
 # Verify checksum (Linux/macOS)
-sha256sum -c astrotimes-v0.1.1-linux-x86_64.tar.gz.sha256
+sha256sum -c solunatus-v0.1.1-linux-x86_64.tar.gz.sha256
 ```
 
 ### Keep Your Installation Updated
 
 ```bash
 # Update to the latest version
-cargo install astrotimes --force
+cargo install solunatus --force
 ```
 
 ## Known Security Considerations
 
 ### Configuration File
 
-AstroTimes stores your location preferences in `~/.astro_times.json`. This file contains:
+Solunatus stores your location preferences in `~/.astro_times.json`. This file contains:
 - Latitude/longitude coordinates
 - Timezone information
 - City name (if selected)
@@ -94,7 +94,7 @@ AstroTimes stores your location preferences in `~/.astro_times.json`. This file 
 
 ### Network Requests
 
-AstroTimes makes network requests for:
+Solunatus makes network requests for:
 
 - **NTP time synchronization**: Queries time.google.com or pool.ntp.org
   - Purpose: Detect system clock drift
@@ -136,8 +136,8 @@ All dependency updates are reviewed before merging, with special attention to:
 ## Scope
 
 This security policy covers:
-- ✅ The AstroTimes CLI application
-- ✅ The AstroTimes Rust library (published on crates.io)
+- ✅ The Solunatus CLI application
+- ✅ The Solunatus Rust library (published on crates.io)
 - ✅ Build scripts and release binaries
 - ✅ Dependencies with known vulnerabilities
 

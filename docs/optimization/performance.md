@@ -1,6 +1,6 @@
 # Performance & Optimization
 
-Guide to performance characteristics and optimization strategies for AstroTimes.
+Guide to performance characteristics and optimization strategies for Solunatus.
 
 ## Performance Characteristics
 
@@ -82,7 +82,7 @@ This balances accuracy with CPU usage.
 ### Adjusting Refresh Rates
 
 ```bash
-astrotimes --city "New York"
+solunatus --city "New York"
 # Then press [ to slow down or ] to speed up
 ```
 
@@ -97,7 +97,7 @@ Speed levels (1-600 seconds):
 ```bash
 # Generate multiple months efficiently
 for month in {01..12}; do
-  astrotimes --city "Boston" --calendar \
+  solunatus --city "Boston" --calendar \
     --calendar-start "2025-$month-01" \
     --calendar-end "2025-$month-31" \
     --calendar-format json \
@@ -118,7 +118,7 @@ Time complexity: O(n) where n = number of days
 With AI insights enabled:
 
 ```bash
-astrotimes --city "New York" --ai-insights
+solunatus --city "New York" --ai-insights
 ```
 
 - **First response:** 3-10 seconds (model load)
@@ -137,13 +137,13 @@ astrotimes --city "New York" --ai-insights
 ### Measure Startup Time
 
 ```bash
-time astrotimes --city "New York" --no-prompt
+time solunatus --city "New York" --no-prompt
 ```
 
 ### Measure Calendar Generation
 
 ```bash
-time astrotimes --city "Boston" --calendar \
+time solunatus --city "Boston" --calendar \
   --calendar-start 2025-01-01 --calendar-end 2025-12-31 \
   --calendar-format json --calendar-output /dev/null
 ```

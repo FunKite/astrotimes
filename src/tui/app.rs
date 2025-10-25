@@ -458,7 +458,7 @@ impl CalendarDraft {
 
     fn default_output_filename(format: CalendarFormat, start: NaiveDate, end: NaiveDate) -> String {
         format!(
-            "astrotimes-calendar-{}-{}.{}",
+            "solunatus-calendar-{}-{}.{}",
             start.format("%Y%m%d"),
             end.format("%Y%m%d"),
             Self::format_extension(format)

@@ -1,6 +1,6 @@
 # Accuracy Testing & Verification
 
-How to verify and test the accuracy of AstroTimes calculations.
+How to verify and test the accuracy of Solunatus calculations.
 
 ## Reference Sources
 
@@ -20,9 +20,9 @@ https://aa.usno.navy.mil/data/RS_OneDay
 1. Go to https://aa.usno.navy.mil/data/RS_OneDay
 2. Enter location (city or coordinates)
 3. Select date
-4. Compare with AstroTimes output
+4. Compare with Solunatus output
 
-## AstroTimes Accuracy
+## Solunatus Accuracy
 
 Typical accuracy when compared to USNO:
 - **Solar events:** ±1-3 minutes
@@ -41,7 +41,7 @@ Typical accuracy when compared to USNO:
 ### Solar Events Test
 
 ```bash
-astrotimes --lat 42.3601 --lon -71.0589 --tz America/New_York --date 2025-10-22 --no-prompt
+solunatus --lat 42.3601 --lon -71.0589 --tz America/New_York --date 2025-10-22 --no-prompt
 ```
 
 Compare output with USNO for same location and date:
@@ -83,7 +83,7 @@ If you find a discrepancy:
 3. **Report** - Open GitHub issue with:
    - Your location
    - Date and time
-   - AstroTimes result
+   - Solunatus result
    - USNO result
    - Difference
 

@@ -1,6 +1,6 @@
-// Astrotimes - High-precision astronomical CLI for sun and moon calculations
+// Solunatus - High-precision astronomical CLI for sun and moon calculations
 
-use astrotimes::{ai, astro, calendar, city, cli, config, events, location_source, output, time_sync, tui};
+use solunatus::{ai, astro, calendar, city, cli, config, events, location_source, output, time_sync, tui};
 
 use anyhow::{anyhow, Context, Result};
 use chrono::{Datelike, Duration, Local, NaiveDate, Offset, TimeZone};
@@ -22,12 +22,12 @@ fn main() -> Result<()> {
     let mut config = config::Config::load().ok().flatten();
 
     // Check system clock against authoritative source (unless explicitly skipped)
-    let skip_time_sync = env::var("ASTROTIMES_SKIP_TIME_SYNC").is_ok();
+    let skip_time_sync = env::var("SOLUNATUS_SKIP_TIME_SYNC").is_ok();
     let time_sync_info = if skip_time_sync {
         time_sync::TimeSyncInfo {
             source: time_sync::PRIMARY_SOURCE_LABEL,
             delta: None,
-            error: Some("time sync skipped by ASTROTIMES_SKIP_TIME_SYNC".into()),
+            error: Some("time sync skipped by SOLUNATUS_SKIP_TIME_SYNC".into()),
         }
     } else {
         time_sync::check_time_sync()
@@ -94,25 +94,25 @@ fn main() -> Result<()> {
         }
     } else if args.validate {
         // Validation mode - compare with USNO data
-        let report = astrotimes::usno_validation::generate_validation_report(
+        let report = solunatus::usno_validation::generate_validation_report(
             &location,
             &timezone,
             city_name.clone(),
             &dt,
         )?;
 
-        let html = astrotimes::usno_validation::generate_html_report(&report);
+        let html = solunatus::usno_validation::generate_html_report(&report);
 
         // Generate filename with timestamp
         let timestamp = chrono::Local::now().format("%Y%m%d-%H%M%S");
-        let filename = format!("astrotimes-usno-validation-{}.html", timestamp);
+        let filename = format!("solunatus-usno-validation-{}.html", timestamp);
         fs::write(&filename, html)?;
         println!("✓ Validation report written to: {}", filename);
         println!("\nSummary:");
-        println!("  Pass:    {} (0-7 min)", report.results.iter().filter(|r| r.status == astrotimes::usno_validation::ValidationStatus::Pass).count());
-        println!("  Caution: {} (7-10 min)", report.results.iter().filter(|r| r.status == astrotimes::usno_validation::ValidationStatus::Warning).count());
-        println!("  Fail:    {} (>10 min)", report.results.iter().filter(|r| r.status == astrotimes::usno_validation::ValidationStatus::Fail).count());
-        println!("  Missing: {}", report.results.iter().filter(|r| r.status == astrotimes::usno_validation::ValidationStatus::Missing).count());
+        println!("  Pass:    {} (0-7 min)", report.results.iter().filter(|r| r.status == solunatus::usno_validation::ValidationStatus::Pass).count());
+        println!("  Caution: {} (7-10 min)", report.results.iter().filter(|r| r.status == solunatus::usno_validation::ValidationStatus::Warning).count());
+        println!("  Fail:    {} (>10 min)", report.results.iter().filter(|r| r.status == solunatus::usno_validation::ValidationStatus::Fail).count());
+        println!("  Missing: {}", report.results.iter().filter(|r| r.status == solunatus::usno_validation::ValidationStatus::Missing).count());
     } else if args.json {
         // JSON output mode
         let json = output::generate_json_output(
@@ -139,7 +139,7 @@ fn main() -> Result<()> {
             location_mode: config
                 .as_ref()
                 .map(|cfg| cfg.location_mode)
-                .unwrap_or(astrotimes::config::LocationMode::City),
+                .unwrap_or(solunatus::config::LocationMode::City),
             time_sync: time_sync_info.clone(),
             time_sync_disabled: skip_time_sync,
             time_sync_server,
@@ -299,7 +299,7 @@ fn print_text_output(
     location_source: LocationSource,
     ai_config: &ai::AiConfig,
 ) -> Result<()> {
-    println!("AstroTimes Beta 0.1.0 — github.com/FunKite/astrotimes");
+    println!("Solunatus 0.2.0 — github.com/FunKite/solunatus");
 
     // Location
     println!("— Location & Date —");

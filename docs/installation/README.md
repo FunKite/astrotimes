@@ -8,10 +8,10 @@ For the fastest way to get started:
 
 ```bash
 # Clone and build from source
-git clone https://github.com/FunKite/astrotimes.git
-cd astrotimes
+git clone https://github.com/FunKite/solunatus.git
+cd solunatus
 cargo build --release
-./target/release/astrotimes --help
+./target/release/solunatus --help
 ```
 
 See [Quick Start Guide](quick-start.md) for detailed steps.
@@ -32,8 +32,8 @@ See [Quick Start Guide](quick-start.md) for detailed steps.
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 # Clone the repository
-git clone https://github.com/FunKite/astrotimes.git
-cd astrotimes
+git clone https://github.com/FunKite/solunatus.git
+cd solunatus
 
 # Build release binary
 cargo build --release
@@ -42,7 +42,7 @@ cargo build --release
 cargo install --path .
 
 # Or run directly
-./target/release/astrotimes --city "New York"
+./target/release/solunatus --city "New York"
 ```
 
 ### 2. Install from Crates.io (Recommended)
@@ -50,16 +50,16 @@ cargo install --path .
 Install the CLI tool directly from crates.io:
 
 ```bash
-cargo install astrotimes
+cargo install solunatus
 ```
 
 #### Using as a Library
 
-If you want to use AstroTimes as a library in your Rust project:
+If you want to use Solunatus as a library in your Rust project:
 
 ```toml
 [dependencies]
-astrotimes = "0.1"
+solunatus = "0.1"
 chrono = "0.4"
 chrono-tz = "0.9"
 ```
@@ -68,7 +68,7 @@ See the [examples directory](../../examples/) for usage patterns.
 
 ### 3. Download Pre-built Binary (Linux)
 
-Pre-built binaries for Linux are available on the [GitHub Releases](https://github.com/FunKite/astrotimes/releases) page.
+Pre-built binaries for Linux are available on the [GitHub Releases](https://github.com/FunKite/solunatus/releases) page.
 
 Check the releases page for available architectures and download instructions.
 
@@ -92,16 +92,16 @@ After installation, verify it works:
 
 ```bash
 # Show help
-astrotimes --help
+solunatus --help
 
 # Get sunrise/sunset for your location
-astrotimes --city "New York"
+solunatus --city "New York"
 
 # Output JSON
-astrotimes --city "Tokyo" --json
+solunatus --city "Tokyo" --json
 
 # View moon phases for a month
-astrotimes --city "Paris" --calendar --calendar-start 2025-12-01 --calendar-end 2025-12-31
+solunatus --city "Paris" --calendar --calendar-start 2025-12-01 --calendar-end 2025-12-31
 ```
 
 ## Troubleshooting
@@ -113,4 +113,4 @@ Having issues? See the [Troubleshooting Guide](troubleshooting.md).
 - **[Quick Start Guide](quick-start.md)** - Learn basic usage
 - **[CLI Reference](../features/cli-reference.md)** - Complete command options
 - **[Interactive Mode Guide](../features/interactive-mode.md)** - Master the TUI
-- **[Contributing](../../CONTRIBUTING.md)** - Help improve AstroTimes
+- **[Contributing](../../CONTRIBUTING.md)** - Help improve Solunatus

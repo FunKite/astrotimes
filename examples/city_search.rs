@@ -5,12 +5,12 @@
 //! cargo run --example city_search
 //! ```
 
-use astrotimes::prelude::*;
+use solunatus::prelude::*;
 use chrono::Local;
 use chrono_tz::Tz;
 
 fn main() {
-    println!("=== AstroTimes Library - City Search ===\n");
+    println!("=== Solunatus Library - City Search ===\n");
 
     // Load the city database
     let db = CityDatabase::load().expect("Failed to load city database");

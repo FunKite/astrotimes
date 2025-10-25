@@ -1,4 +1,4 @@
-// USNO validation module - compare astrotimes calculations against U.S. Naval Observatory data
+// USNO validation module - compare solunatus calculations against U.S. Naval Observatory data
 
 use crate::astro::*;
 use crate::events;
@@ -329,7 +329,7 @@ pub fn generate_html_report(report: &ValidationReport) -> String {
     html.push_str("<html lang=\"en\">\n<head>\n");
     html.push_str("<meta charset=\"UTF-8\">\n");
     html.push_str("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n");
-    html.push_str("<title>AstroTimes USNO Validation Report</title>\n");
+    html.push_str("<title>Solunatus USNO Validation Report</title>\n");
     html.push_str("<style>\n");
     html.push_str("body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }\n");
     html.push_str("h1 { color: #2c3e50; }\n");
@@ -355,13 +355,13 @@ pub fn generate_html_report(report: &ValidationReport) -> String {
     html.push_str("</style>\n");
     html.push_str("</head>\n<body>\n");
 
-    html.push_str("<h1>AstroTimes USNO Validation Report</h1>\n");
+    html.push_str("<h1>Solunatus USNO Validation Report</h1>\n");
 
     // Information section
     html.push_str("<div class=\"info\">\n");
     html.push_str("<h2>Configuration</h2>\n");
     html.push_str("<div class=\"info-grid\">\n");
-    html.push_str(&format!("<div class=\"info-label\">AstroTimes Version:</div><div>{}</div>\n", report.version));
+    html.push_str(&format!("<div class=\"info-label\">Solunatus Version:</div><div>{}</div>\n", report.version));
     html.push_str(&format!("<div class=\"info-label\">USNO API Version:</div><div>{}</div>\n", report.usno_apiversion));
     html.push_str(&format!("<div class=\"info-label\">Date:</div><div>{}</div>\n", report.date.format("%Y-%m-%d %H:%M:%S %Z")));
     html.push_str(&format!("<div class=\"info-label\">Timezone:</div><div>{}</div>\n", report.timezone.name()));
@@ -395,7 +395,7 @@ pub fn generate_html_report(report: &ValidationReport) -> String {
     html.push_str("<p style=\"margin: 0; font-size: 13px; color: #2c3e50;\">\n");
     html.push_str("<strong>Important Notes:</strong><br>\n");
     html.push_str("• USNO API provides times in UTC with <strong>minute-level granularity only</strong> (HH:MM)<br>\n");
-    html.push_str("• AstroTimes calculates times with <strong>second-level precision</strong> (HH:MM:SS)<br>\n");
+    html.push_str("• Solunatus calculates times with <strong>second-level precision</strong> (HH:MM:SS)<br>\n");
     html.push_str("• All USNO times below have been converted from UTC to your local timezone for comparison<br>\n");
     html.push_str("• Differences within 0-7 minutes are considered a PASS<br>\n");
     html.push_str("• Differences of 7-10 minutes are flagged as CAUTION<br>\n");
@@ -406,7 +406,7 @@ pub fn generate_html_report(report: &ValidationReport) -> String {
     html.push_str("<thead>\n");
     html.push_str("<tr>\n");
     html.push_str("<th>Event</th>\n");
-    html.push_str("<th>AstroTimes (HH:MM:SS)</th>\n");
+    html.push_str("<th>Solunatus (HH:MM:SS)</th>\n");
     html.push_str("<th>USNO Local Time (HH:MM)</th>\n");
     html.push_str("<th>Difference</th>\n");
     html.push_str("<th>Status</th>\n");

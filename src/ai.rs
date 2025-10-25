@@ -11,7 +11,7 @@ use crate::astro::{self, coordinates};
 use crate::time_sync::{self, TimeSyncInfo};
 
 const DEFAULT_TIMEOUT_SECS: u64 = 15;
-const USER_AGENT: &str = "AstroTimes AI Insights";
+const USER_AGENT: &str = "Solunatus AI Insights";
 const ERROR_SUMMARY_LIMIT: usize = 120;
 
 #[derive(Debug, Clone)]

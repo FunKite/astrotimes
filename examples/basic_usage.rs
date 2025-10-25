@@ -5,12 +5,12 @@
 //! cargo run --example basic_usage
 //! ```
 
-use astrotimes::prelude::*;
+use solunatus::prelude::*;
 use chrono::Local;
 use chrono_tz::America::New_York;
 
 fn main() {
-    println!("=== AstroTimes Library - Basic Usage ===\n");
+    println!("=== Solunatus Library - Basic Usage ===\n");
 
     // Create a location (New York City)
     let location = Location::new(40.7128, -74.0060).expect("Invalid coordinates");

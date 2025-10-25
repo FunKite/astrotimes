@@ -1,4 +1,4 @@
-//! # AstroTimes
+//! # Solunatus
 //!
 //! A high-precision astronomical calculation library for computing sun and moon positions,
 //! rise/set times, twilight periods, and lunar phases.
@@ -15,7 +15,7 @@
 //! ## Quick Start
 //!
 //! ```rust
-//! use astrotimes::prelude::*;
+//! use solunatus::prelude::*;
 //! use chrono::Local;
 //! use chrono_tz::America::New_York;
 //!
@@ -40,7 +40,7 @@
 //! ## Using the City Database
 //!
 //! ```rust
-//! use astrotimes::prelude::*;
+//! use solunatus::prelude::*;
 //!
 //! // Load the city database
 //! let db = CityDatabase::load().unwrap();
@@ -61,8 +61,8 @@
 //! ## Advanced Usage: Custom Solar Events
 //!
 //! ```rust
-//! use astrotimes::prelude::*;
-//! use astrotimes::astro::sun::{SolarEvent, solar_event_time};
+//! use solunatus::prelude::*;
+//! use solunatus::astro::sun::{SolarEvent, solar_event_time};
 //! use chrono::Local;
 //! use chrono_tz::America::Los_Angeles;
 //!
@@ -76,7 +76,7 @@
 //!
 //! ## Architecture Support
 //!
-//! AstroTimes is optimized for all Rust tier 1 targets:
+//! Solunatus is optimized for all Rust tier 1 targets:
 //!
 //! - **x86_64**: SSE2 baseline, AVX2 on capable CPUs
 //! - **aarch64**: NEON on Apple Silicon and ARM64 Linux
@@ -130,7 +130,7 @@ pub use astro::moon::{
 /// Import everything from this module to get started quickly:
 ///
 /// ```rust
-/// use astrotimes::prelude::*;
+/// use solunatus::prelude::*;
 /// ```
 pub mod prelude {
     pub use crate::astro::sun::{SolarEvent, SolarPosition};
@@ -161,7 +161,7 @@ use chrono::{DateTime, TimeZone};
 /// # Examples
 ///
 /// ```rust
-/// use astrotimes::prelude::*;
+/// use solunatus::prelude::*;
 /// use chrono::Local;
 /// use chrono_tz::America::New_York;
 ///
@@ -222,7 +222,7 @@ pub fn calculate_civil_dusk<Tz: TimeZone>(
 /// # Examples
 ///
 /// ```rust
-/// use astrotimes::prelude::*;
+/// use solunatus::prelude::*;
 /// use chrono::Local;
 /// use chrono_tz::America::Chicago;
 ///
@@ -257,7 +257,7 @@ pub fn calculate_moonset<Tz: TimeZone>(
 /// # Examples
 ///
 /// ```rust
-/// use astrotimes::prelude::*;
+/// use solunatus::prelude::*;
 /// use chrono::Utc;
 /// use chrono_tz::UTC;
 ///
@@ -284,7 +284,7 @@ pub fn get_current_moon_phase<Tz: TimeZone>(
 /// # Examples
 ///
 /// ```rust
-/// use astrotimes::prelude::*;
+/// use solunatus::prelude::*;
 /// use chrono::Utc;
 ///
 /// let phases = get_lunar_phases_for_month(2025, 10).unwrap();
@@ -309,7 +309,7 @@ pub fn get_lunar_phases_for_month(year: i32, month: u32) -> Result<Vec<LunarPhas
 /// # Examples
 ///
 /// ```rust
-/// use astrotimes::prelude::*;
+/// use solunatus::prelude::*;
 /// use chrono::{NaiveDate, Local, TimeZone};
 /// use chrono_tz::America::Los_Angeles;
 ///
@@ -370,7 +370,7 @@ pub struct BatchResult<Tz: TimeZone> {
 // Library Metadata
 // ============================================================================
 
-/// Returns the version of the astrotimes library.
+/// Returns the version of the solunatus library.
 pub fn version() -> &'static str {
     env!("CARGO_PKG_VERSION")
 }

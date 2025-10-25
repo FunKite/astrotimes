@@ -1,13 +1,13 @@
 [package]
-name = "astrotimes"
-version = "0.1.1"
+name = "solunatus"
+version = "0.2.0"
 edition = "2021"
 authors = ["Mike McLarney"]
 description = "High-precision astronomical calculation library and CLI for sun/moon positions, rise/set times, and lunar phases"
 license = "MIT"
-repository = "https://github.com/FunKite/astrotimes"
-homepage = "https://github.com/FunKite/astrotimes"
-documentation = "https://docs.rs/astrotimes"
+repository = "https://github.com/FunKite/solunatus"
+homepage = "https://github.com/FunKite/solunatus"
+documentation = "https://docs.rs/solunatus"
 readme = "README.md"
 keywords = ["astronomy", "sun", "moon", "sunrise", "astronomical"]
 categories = ["science", "command-line-utilities"]
@@ -21,12 +21,12 @@ exclude = [
 
 # Library configuration (default)
 [lib]
-name = "astrotimes"
+name = "solunatus"
 path = "src/lib.rs"
 
 # Main CLI binary
 [[bin]]
-name = "astrotimes"
+name = "solunatus"
 path = "src/main.rs"
 
 [dependencies]
@@ -70,6 +70,7 @@ cpu-avx2 = []                # AVX2 for Intel/AMD x86_64
 cpu-neon = []                # NEON for ARM64 (Apple Silicon, etc.)
 cpu-sve = []                 # SVE for high-end ARM64
 parallel = []                # Use rayon for parallelization
+benchmarks = []              # Build benchmark binaries (not installed by default)
 
 # Standard release profile (all platforms) - Portable baseline
 [profile.release]
@@ -128,23 +129,29 @@ debug = true
 [[bin]]
 name = "accuracy_report"
 path = "src/bin/accuracy_report.rs"
+required-features = ["benchmarks"]
 
 [[bin]]
 name = "perf_benchmark"
 path = "src/bin/perf_benchmark.rs"
+required-features = ["benchmarks"]
 
 [[bin]]
 name = "simd_benchmark"
 path = "src/bin/simd_benchmark.rs"
+required-features = ["benchmarks"]
 
 [[bin]]
 name = "m1_max_benchmark"
 path = "src/bin/m1_max_benchmark.rs"
+required-features = ["benchmarks"]
 
 [[bin]]
 name = "moonrise_moonset_benchmark"
 path = "src/bin/moonrise_moonset_benchmark.rs"
+required-features = ["benchmarks"]
 
 [[bin]]
 name = "calendar_benchmark"
 path = "src/bin/calendar_benchmark.rs"
+required-features = ["benchmarks"]

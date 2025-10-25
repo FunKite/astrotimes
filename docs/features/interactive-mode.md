@@ -1,15 +1,15 @@
 # Interactive Watch Mode Guide
 
-Master the AstroTimes interactive terminal interface.
+Master the Solunatus interactive terminal interface.
 
 ## Starting Watch Mode
 
 ```bash
 # Default - starts in watch mode
-astrotimes --city "New York"
+solunatus --city "New York"
 
 # Explicitly disable watch mode
-astrotimes --city "New York" --no-prompt
+solunatus --city "New York" --no-prompt
 ```
 
 ## Display Layout
@@ -17,7 +17,7 @@ astrotimes --city "New York" --no-prompt
 The watch mode display shows:
 
 ```
-🌅 AstroTimes — Sunrise, Sunset, Moonrise, Moonset
+🌅 Solunatus — Sunrise, Sunset, Moonrise, Moonset
 — Location & Date —
 📍 Location: New York, US
 📅 Date: 2025-10-22 14:30:45 EDT  ⌚ Zone: America/New_York (UTC-5)
@@ -46,7 +46,7 @@ The watch mode display shows:
 
 | Key | Action |
 |-----|--------|
-| `q` | Quit AstroTimes |
+| `q` | Quit Solunatus |
 | `s` | Open Settings menu (location, time sync, display sections, night mode, AI) |
 | `r` | Open Reports menu (calendar generation, USNO validation, benchmarks) |
 | `f` | Manually refresh AI insights (if enabled) |
@@ -103,7 +103,7 @@ The Settings menu allows you to configure:
 
 #### Save Configuration
 
-Settings are automatically saved to `~/.astro_times.json`:
+Settings are automatically saved to `~/.solunatus.json`:
 
 ```json
 {
@@ -114,7 +114,7 @@ Settings are automatically saved to `~/.astro_times.json`:
 }
 ```
 
-Automatically loaded next time you run AstroTimes.
+Automatically loaded next time you run Solunatus.
 
 ### Reports Menu (Press `r`)
 
@@ -131,7 +131,7 @@ The Reports menu provides access to:
 - **JSON** - Machine-readable format for integration
 
 #### USNO Validation
-- Compare AstroTimes calculations against U.S. Naval Observatory data
+- Compare Solunatus calculations against U.S. Naval Observatory data
 - Generates accuracy report showing differences for each event type
 - Helps verify astronomical calculation accuracy
 
@@ -253,7 +253,7 @@ Changes take effect immediately and are automatically saved to configuration fil
 
 1. **Quick location switch:** Press `s` → select City mode → search and select
 2. **Find nearby cities:** Use Settings menu city picker with fuzzy search
-3. **Save multiple setups:** Manually edit `~/.astro_times.json`
+3. **Save multiple setups:** Manually edit `~/.solunatus.json`
 4. **Enable night mode:** Press `s` → toggle Night Mode setting
 5. **Check accuracy:** Press `r` → USNO Validation to compare with Naval Observatory data
 

@@ -6,7 +6,7 @@
 
 ## Download
 
-- **Binary Package:** `astrotimes-v0.1.0-macos-arm64.tar.gz`
+- **Binary Package:** `solunatus-v0.1.0-macos-arm64.tar.gz`
 - **SHA256:** `e24f53db7a578d4a0ef94b8b2ca89f1e9523ab02a51585ffdab1304a226459a8`
 
 ## Installation
@@ -14,10 +14,10 @@
 ### Quick Install (Recommended)
 
 ```bash
-curl -L https://github.com/FunKite/astrotimes/releases/download/v0.1.0/astrotimes-v0.1.0-macos-arm64.tar.gz -o astrotimes-v0.1.0-macos-arm64.tar.gz
-tar -xzf astrotimes-v0.1.0-macos-arm64.tar.gz
-cd astrotimes-macos
-./astrotimes --help
+curl -L https://github.com/FunKite/solunatus/releases/download/v0.1.0/solunatus-v0.1.0-macos-arm64.tar.gz -o solunatus-v0.1.0-macos-arm64.tar.gz
+tar -xzf solunatus-v0.1.0-macos-arm64.tar.gz
+cd solunatus-macos
+./solunatus --help
 ```
 
 Or use the install script:
@@ -29,9 +29,9 @@ Or use the install script:
 ### Manual Install
 
 ```bash
-tar -xzf astrotimes-v0.1.0-macos-arm64.tar.gz
-sudo cp astrotimes-macos/astrotimes /usr/local/bin/
-astrotimes --help
+tar -xzf solunatus-v0.1.0-macos-arm64.tar.gz
+sudo cp solunatus-macos/solunatus /usr/local/bin/
+solunatus --help
 ```
 
 ## System Requirements
@@ -45,10 +45,10 @@ astrotimes --help
 ## Verify Download
 
 ```bash
-shasum -a 256 -c astrotimes-v0.1.0-macos-arm64.tar.gz.sha256
+shasum -a 256 -c solunatus-v0.1.0-macos-arm64.tar.gz.sha256
 ```
 
-Expected output: `astrotimes-v0.1.0-macos-arm64.tar.gz: OK`
+Expected output: `solunatus-v0.1.0-macos-arm64.tar.gz: OK`
 
 ## Features
 
@@ -83,19 +83,19 @@ Expected output: `astrotimes-v0.1.0-macos-arm64.tar.gz: OK`
 
 ```bash
 # Auto-detect location and show live watch mode
-astrotimes
+solunatus
 
 # Specify a city
-astrotimes --city "Tokyo"
+solunatus --city "Tokyo"
 
 # Use coordinates
-astrotimes --lat 40.7128 --lon=-74.0060
+solunatus --lat 40.7128 --lon=-74.0060
 
 # JSON output for scripting
-astrotimes --city "Paris" --json
+solunatus --city "Paris" --json
 
 # Specific date
-astrotimes --city "London" --date 2025-12-25
+solunatus --city "London" --date 2025-12-25
 ```
 
 ## Keyboard Controls (Watch Mode)
@@ -128,8 +128,8 @@ astrotimes --city "London" --date 2025-12-25
 
 ## Documentation
 
-- **GitHub:** https://github.com/FunKite/astrotimes
-- **Issues:** https://github.com/FunKite/astrotimes/issues
+- **GitHub:** https://github.com/FunKite/solunatus
+- **Issues:** https://github.com/FunKite/solunatus/issues
 - **License:** See LICENSE file in repository
 
 ## Build Information

@@ -10,8 +10,8 @@ pub enum CalendarFormatArg {
 }
 
 #[derive(Parser, Debug, Clone)]
-#[command(name = "astrotimes")]
-#[command(version = "1.0.0")]
+#[command(name = "solunatus")]
+#[command(version = "0.2.0")]
 #[command(about = "High-precision astronomical CLI for sun and moon calculations", long_about = None)]
 pub struct Args {
     /// Latitude in decimal degrees (positive North, negative South)

@@ -165,12 +165,12 @@ impl Config {
         }
     }
 
-    /// Get the config file path (~/.astro_times.json)
+    /// Get the config file path (~/.solunatus.json)
     pub fn config_path() -> Result<PathBuf> {
         let home = std::env::var("HOME")
             .or_else(|_| std::env::var("USERPROFILE"))
             .context("Could not find home directory (HOME or USERPROFILE not set)")?;
-        Ok(PathBuf::from(home).join(".astro_times.json"))
+        Ok(PathBuf::from(home).join(".solunatus.json"))
     }
 
     /// Load configuration from file

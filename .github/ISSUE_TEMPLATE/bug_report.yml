@@ -1,12 +1,12 @@
 name: Bug Report
-description: Report a bug or issue with AstroTimes
+description: Report a bug or issue with Solunatus
 title: "[Bug]: "
 labels: ["bug"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to report a bug! Your feedback helps make AstroTimes better for everyone.
+        Thanks for taking the time to report a bug! Your feedback helps make Solunatus better for everyone.
 
         **Note**: This project is maintained by the repository owner. While external pull requests are not currently being accepted, bug reports are highly valued and will be reviewed.
 
@@ -52,8 +52,8 @@ body:
   - type: input
     id: version
     attributes:
-      label: AstroTimes Version
-      description: What version of AstroTimes are you using?
+      label: Solunatus Version
+      description: What version of Solunatus are you using?
       placeholder: "e.g., 0.1.0, built from source on 2025-10-23"
     validations:
       required: true

@@ -1,6 +1,6 @@
 # Troubleshooting Guide
 
-Solutions to common issues when installing and using AstroTimes.
+Solutions to common issues when installing and using Solunatus.
 
 ## Installation Issues
 
@@ -76,7 +76,7 @@ cargo build --release --features vendored
 
 ```bash
 # Find your coordinates on Google Maps
-astrotimes --lat XX.XXXX --lon -YY.YYYY --tz "Your/Timezone"
+solunatus --lat XX.XXXX --lon -YY.YYYY --tz "Your/Timezone"
 ```
 
 The project includes 570+ cities. Check if your city is nearby and use that as a starting point.
@@ -91,10 +91,10 @@ The project includes 570+ cities. Check if your city is nearby and use that as a
 
 ```bash
 # Correct
-astrotimes --city "New York" --tz "America/New_York"
+solunatus --city "New York" --tz "America/New_York"
 
 # Wrong (won't work)
-astrotimes --city "New York" --tz "EST"
+solunatus --city "New York" --tz "EST"
 ```
 
 2. Check system timezone:
@@ -106,14 +106,14 @@ date
 3. Set manually if needed:
 
 ```bash
-astrotimes --lat 40.7128 --lon -74.0060 --tz "America/New_York"
+solunatus --lat 40.7128 --lon -74.0060 --tz "America/New_York"
 ```
 
 ### Azimuth shows "NaN" or weird values
 
 **Problem:** Rare edge case with sun directly overhead or at horizon.
 
-**Solution:** This is rare and usually occurs near the poles. Results should be valid elsewhere. [Report the issue](https://github.com/FunKite/astrotimes/issues) with your location.
+**Solution:** This is rare and usually occurs near the poles. Results should be valid elsewhere. [Report the issue](https://github.com/FunKite/solunatus/issues) with your location.
 
 ### Times differ from other sources
 
@@ -121,7 +121,7 @@ astrotimes --lat 40.7128 --lon -74.0060 --tz "America/New_York"
 
 **Solution:**
 
-AstroTimes matches U.S. Naval Observatory (USNO) calculations. Small differences (±2-3 minutes) are normal due to:
+Solunatus matches U.S. Naval Observatory (USNO) calculations. Small differences (±2-3 minutes) are normal due to:
 - Atmospheric refraction assumptions
 - Different calculation methods
 - Precision of input data
@@ -142,7 +142,7 @@ AstroTimes matches U.S. Naval Observatory (USNO) calculations. Small differences
 
 ```bash
 # Try with simpler output
-astrotimes --city "New York" --no-prompt
+solunatus --city "New York" --no-prompt
 ```
 
 ### High CPU usage in watch mode
@@ -154,13 +154,13 @@ astrotimes --city "New York" --no-prompt
 Press `[` (slower) to decrease refresh rate, or set on command line:
 
 ```bash
-astrotimes --city "New York"
+solunatus --city "New York"
 # Then press [ multiple times
 ```
 
 ## macOS-Specific Issues
 
-### "astrotimes" is not recognized as an internal or external command
+### "solunatus" is not recognized as an internal or external command
 
 **Problem:** Binary isn't in your PATH.
 
@@ -168,13 +168,13 @@ astrotimes --city "New York"
 
 ```bash
 # Full path
-/Users/yourname/astrotimes
+/Users/yourname/solunatus
 
 # Or install
 cargo install --path .
 
 # Then use from anywhere
-astrotimes
+solunatus
 ```
 
 ### "cannot be opened because the developer cannot be verified" (Apple Silicon)
@@ -185,7 +185,7 @@ astrotimes
 
 ```bash
 # Allow the application
-xattr -d com.apple.quarantine ./target/release/astrotimes
+xattr -d com.apple.quarantine ./target/release/solunatus
 ```
 
 ## Linux-Specific Issues
@@ -200,7 +200,7 @@ Rebuild for your architecture:
 
 ```bash
 cargo build --release
-./target/release/astrotimes --help
+./target/release/solunatus --help
 ```
 
 ## JSON Output Issues
@@ -213,7 +213,7 @@ cargo build --release
 
 ```bash
 # Pipe to file instead
-astrotimes --city "Tokyo" --json > output.json
+solunatus --city "Tokyo" --json > output.json
 
 # Check file
 cat output.json | jq .
@@ -223,7 +223,7 @@ cat output.json | jq .
 
 If you can't find a solution:
 
-1. **Check [GitHub Issues](https://github.com/FunKite/astrotimes/issues)** - Your issue might already be documented
+1. **Check [GitHub Issues](https://github.com/FunKite/solunatus/issues)** - Your issue might already be documented
 2. **Search the Documentation** - [Main docs](../README.md)
 3. **Open a new issue** - Include:
    - Operating system and version

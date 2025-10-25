@@ -196,7 +196,7 @@ pub fn generate_html_report(result: &BenchmarkResult) -> String {
     html.push_str("<html>\n");
     html.push_str("<head>\n");
     html.push_str("<meta charset=\"UTF-8\">\n");
-    html.push_str("<title>AstroTimes Benchmark Report</title>\n");
+    html.push_str("<title>Solunatus Benchmark Report</title>\n");
     html.push_str("<style>\n");
     html.push_str("body { font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace; max-width: 1200px; margin: 40px auto; padding: 20px; background: #0a0e1a; color: #e0e6f0; }\n");
     html.push_str("h1 { color: #60a5fa; border-bottom: 2px solid #1e40af; padding-bottom: 10px; }\n");
@@ -216,7 +216,7 @@ pub fn generate_html_report(result: &BenchmarkResult) -> String {
     html.push_str("</head>\n");
     html.push_str("<body>\n");
 
-    html.push_str("<h1>🚀 AstroTimes Benchmark Report</h1>\n");
+    html.push_str("<h1>🚀 Solunatus Benchmark Report</h1>\n");
 
     html.push_str("<div class=\"summary\">\n");
     html.push_str("<h2>Summary</h2>\n");

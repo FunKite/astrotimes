@@ -1,8 +1,8 @@
 blank_issues_enabled: true
 contact_links:
   - name: Documentation
-    url: https://github.com/FunKite/astrotimes/tree/main/docs
+    url: https://github.com/FunKite/solunatus/tree/main/docs
     about: Browse the documentation for installation, usage, and development guides
   - name: Build from Source
-    url: https://github.com/FunKite/astrotimes/blob/main/docs/development/setup.md
-    about: Instructions for building AstroTimes from source
+    url: https://github.com/FunKite/solunatus/blob/main/docs/development/setup.md
+    about: Instructions for building Solunatus from source

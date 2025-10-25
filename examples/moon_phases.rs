@@ -5,12 +5,12 @@
 //! cargo run --example moon_phases
 //! ```
 
-use astrotimes::prelude::*;
+use solunatus::prelude::*;
 use chrono::Datelike;
 use chrono::Local;
 
 fn main() {
-    println!("=== AstroTimes Library - Lunar Phases ===\n");
+    println!("=== Solunatus Library - Lunar Phases ===\n");
 
     let now = Local::now();
     let year = now.year();

@@ -33,9 +33,9 @@ An astronomical calculation library and CLI that provides sun and moon informati
 
 ## Screenshot
 
-AstroTimes in watch mode showing live astronomical data for Los Angeles:
+Solunatus in watch mode showing live astronomical data for Los Angeles:
 
-![AstroTimes Watch Mode Screenshot](docs/astrotimesscreen_small2.png)
+![Solunatus Watch Mode Screenshot](docs/solunatusscreen_small2.png)
 
 In watch mode (the default), this display updates in real-time every second, giving you a live view of the sky. Press `s` to open the settings menu, `r` for reports, or `q` to quit.
 
@@ -44,15 +44,15 @@ In watch mode (the default), this display updates in real-time every second, giv
 ### From crates.io (Recommended)
 
 ```bash
-cargo install astrotimes
+cargo install solunatus
 ```
 
 ### From Source
 
 ```bash
 # Clone the repository
-git clone https://github.com/FunKite/astrotimes.git
-cd astrotimes
+git clone https://github.com/FunKite/solunatus.git
+cd solunatus
 
 # Build release version
 cargo build --release
@@ -67,7 +67,7 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-astrotimes = "0.1"
+solunatus = "0.1"
 chrono = "0.4"
 chrono-tz = "0.9"
 ```
@@ -75,7 +75,7 @@ chrono-tz = "0.9"
 Quick example:
 
 ```rust
-use astrotimes::prelude::*;
+use solunatus::prelude::*;
 use chrono::Local;
 use chrono_tz::America::New_York;
 
@@ -111,13 +111,13 @@ See the [examples directory](./examples/) for more usage patterns including:
 
 ```bash
 # Use a city from the database
-astrotimes --city "New York"
+solunatus --city "New York"
 
 # Specify location with coordinates
-astrotimes --lat 40.7128 --lon=-74.0060 --tz=America/New_York
+solunatus --lat 40.7128 --lon=-74.0060 --tz=America/New_York
 
 # Show help
-astrotimes --help
+solunatus --help
 ```
 
 ### Interactive Watch Mode
@@ -148,7 +148,7 @@ Watch mode continuously updates the clock and refreshes sun/moon positions every
 ### JSON Output
 
 ```bash
-astrotimes --city "Tokyo" --json
+solunatus --city "Tokyo" --json
 ```
 
 ### Calendar Generation
@@ -157,7 +157,7 @@ Produce full-range astronomical calendars with daily sunrise, sunset, twilight, 
 
 ```bash
 # Generate an HTML calendar for January 2026
-astrotimes --city "Lisbon" \
+solunatus --city "Lisbon" \
   --calendar \
   --calendar-start 2026-01-01 \
   --calendar-end 2026-01-31 \
@@ -165,7 +165,7 @@ astrotimes --city "Lisbon" \
   --calendar-output lisbon-jan-2026.html
 
 # JSON calendar spanning the Apollo 11 mission window
-astrotimes --lat 28.5721 --lon -80.6480 \
+solunatus --lat 28.5721 --lon -80.6480 \
   --calendar \
   --calendar-start 1969-07-15 \
   --calendar-end 1969-07-27 \
@@ -180,19 +180,19 @@ In watch mode, press `r` to open the Reports menu, then select the calendar gene
 
 ### AI-Powered Insights (Optional)
 
-AstroTimes can connect to a local [Ollama](https://ollama.com/) instance to provide narrative, AI-generated insights based on the current astronomical data. This feature can summarize the sky view, highlight interesting events, and offer context beyond the raw numbers.
+Solunatus can connect to a local [Ollama](https://ollama.com/) instance to provide narrative, AI-generated insights based on the current astronomical data. This feature can summarize the sky view, highlight interesting events, and offer context beyond the raw numbers.
 
 **To use this feature:**
 1. Ensure you have Ollama installed and running.
 2. Pull a model (e.g., `ollama pull llama3:8b`).
-3. Run AstroTimes with the `--ai-insights` flag.
+3. Run Solunatus with the `--ai-insights` flag.
 
 ```bash
 # Enable AI insights with a default model
-astrotimes --ai-insights
+solunatus --ai-insights
 
 # Specify a custom model and server
-astrotimes --ai-insights --ai-model "llama3:8b" --ai-server "http://192.168.1.100:11434"
+solunatus --ai-insights --ai-model "llama3:8b" --ai-server "http://192.168.1.100:11434"
 ```
 In watch mode, press `s` to open the Settings menu where you can configure AI insights, including enabling/disabling them, selecting models, and setting the refresh interval.
 
@@ -239,7 +239,7 @@ All astronomical calculations follow U.S. Naval Observatory (USNO) conventions f
 
 ### Data Storage
 
-Configuration is saved to `~/.astro_times.json`:
+Configuration is saved to `~/.solunatus.json`:
 
 ```json
 {

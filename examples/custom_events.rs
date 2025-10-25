@@ -5,14 +5,14 @@
 //! cargo run --example custom_events
 //! ```
 
-use astrotimes::astro::sun::{SolarEvent, solar_event_time};
-use astrotimes::astro::coordinates::azimuth_to_compass;
-use astrotimes::prelude::*;
+use solunatus::astro::sun::{SolarEvent, solar_event_time};
+use solunatus::astro::coordinates::azimuth_to_compass;
+use solunatus::prelude::*;
 use chrono::Local;
 use chrono_tz::America::Denver;
 
 fn main() {
-    println!("=== AstroTimes Library - Custom Solar Events ===\n");
+    println!("=== Solunatus Library - Custom Solar Events ===\n");
 
     // Location: Denver, Colorado (Mile High City)
     let location = Location::new(39.7392, -104.9903).expect("Invalid coordinates");

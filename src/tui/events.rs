@@ -480,7 +480,7 @@ fn handle_reports_keys(app: &mut App, key: KeyEvent) -> Result<()> {
                         Ok(report) => {
                             let html = crate::usno_validation::generate_html_report(&report);
                             let filename = format!(
-                                "astrotimes-usno-validation-{}.html",
+                                "solunatus-usno-validation-{}.html",
                                 now_tz.format("%Y%m%d-%H%M%S")
                             );
 
@@ -509,7 +509,7 @@ fn handle_reports_keys(app: &mut App, key: KeyEvent) -> Result<()> {
                     let now_tz = app.current_time.with_timezone(&app.timezone);
                     let html = crate::benchmark::generate_html_report(&result);
                     let filename = format!(
-                        "astrotimes-benchmark-{}.html",
+                        "solunatus-benchmark-{}.html",
                         now_tz.format("%Y%m%d-%H%M%S")
                     );
 

@@ -1,6 +1,6 @@
 # GitHub Repository Settings for Maintainer-Only Development
 
-This document outlines the recommended GitHub repository settings for AstroTimes, configured for maintainer-only development while welcoming user feedback.
+This document outlines the recommended GitHub repository settings for Solunatus, configured for maintainer-only development while welcoming user feedback.
 
 ## ✅ Settings Applied via API
 

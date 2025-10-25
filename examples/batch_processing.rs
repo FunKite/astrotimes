@@ -5,13 +5,13 @@
 //! cargo run --example batch_processing --release
 //! ```
 
-use astrotimes::prelude::*;
+use solunatus::prelude::*;
 use chrono::{Duration, Local};
 use chrono_tz::America::New_York;
 use std::time::Instant;
 
 fn main() {
-    println!("=== AstroTimes Library - Batch Processing ===\n");
+    println!("=== Solunatus Library - Batch Processing ===\n");
 
     // Location: New York City
     let location = Location::new(40.7128, -74.0060).expect("Invalid coordinates");

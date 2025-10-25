@@ -1,6 +1,6 @@
 # Quick Start Guide (5 Minutes)
 
-Get AstroTimes running in 5 minutes!
+Get Solunatus running in 5 minutes!
 
 ## Step 1: Install Rust (if needed)
 
@@ -21,26 +21,26 @@ rustc --version
 
 ```bash
 # Clone the repository
-git clone https://github.com/FunKite/astrotimes.git
-cd astrotimes
+git clone https://github.com/FunKite/solunatus.git
+cd solunatus
 
 # Build (takes 1-2 minutes on first build)
 cargo build --release
 ```
 
-The binary is now at: `./target/release/astrotimes`
+The binary is now at: `./target/release/solunatus`
 
 ## Step 3: Run Your First Command
 
 ```bash
 # Get sunrise/sunset for New York
-./target/release/astrotimes --city "New York"
+./target/release/solunatus --city "New York"
 ```
 
 You should see output like:
 
 ```
-🌅 AstroTimes — Sunrise, Sunset, Moonrise, Moonset
+🌅 Solunatus — Sunrise, Sunset, Moonrise, Moonset
 
 📍 Location: New York, US
 📅 Date: 2025-10-22 14:30:45 EDT
@@ -57,7 +57,7 @@ Remove the `--no-prompt` flag to enter live-updating watch mode:
 
 ```bash
 # Interactive mode (updates every second)
-./target/release/astrotimes --city "New York"
+./target/release/solunatus --city "New York"
 ```
 
 Press `q` to quit, `n` for night mode, `c` to change city.
@@ -68,16 +68,16 @@ Try some of these commands:
 
 ```bash
 # Show help
-./target/release/astrotimes --help
+./target/release/solunatus --help
 
 # Use coordinates instead of city
-./target/release/astrotimes --lat 40.7128 --lon -74.0060 --tz America/New_York
+./target/release/solunatus --lat 40.7128 --lon -74.0060 --tz America/New_York
 
 # Get JSON output
-./target/release/astrotimes --city "Tokyo" --json
+./target/release/solunatus --city "Tokyo" --json
 
 # Generate calendar for December
-./target/release/astrotimes --city "London" \
+./target/release/solunatus --city "London" \
   --calendar \
   --calendar-start 2025-12-01 \
   --calendar-end 2025-12-31 \
@@ -92,7 +92,7 @@ Try some of these commands:
 cargo install --path .
 
 # Now you can use it from anywhere
-astrotimes --city "Paris"
+solunatus --city "Paris"
 ```
 
 ## Common Tasks
@@ -100,20 +100,20 @@ astrotimes --city "Paris"
 ### Check if a city is available
 
 ```bash
-./target/release/astrotimes --city "Sydney" --no-prompt
+./target/release/solunatus --city "Sydney" --no-prompt
 ```
 
 If the city isn't found, you can use coordinates:
 
 ```bash
 # Sydney coordinates
-./target/release/astrotimes --lat -33.8688 --lon 151.2093 --tz Australia/Sydney --no-prompt
+./target/release/solunatus --lat -33.8688 --lon 151.2093 --tz Australia/Sydney --no-prompt
 ```
 
 ### Get next full moon
 
 ```bash
-./target/release/astrotimes --city "Tokyo" --calendar \
+./target/release/solunatus --city "Tokyo" --calendar \
   --calendar-start 2025-11-01 --calendar-end 2025-12-31 \
   --calendar-format json | grep -i "full"
 ```
@@ -131,7 +131,7 @@ Add to `Cargo.toml`:
 
 ```toml
 [dependencies]
-astrotimes = "0.1"
+solunatus = "0.1"
 chrono = "0.4"
 chrono-tz = "0.9"
 ```
@@ -139,7 +139,7 @@ chrono-tz = "0.9"
 Create `src/main.rs`:
 
 ```rust
-use astrotimes::prelude::*;
+use solunatus::prelude::*;
 use chrono::Local;
 use chrono_tz::America::New_York;
 
@@ -167,7 +167,7 @@ cargo run --release
 - **[Full CLI Reference](../features/cli-reference.md)** - All command options
 - **[Troubleshooting](troubleshooting.md)** - Common issues
 - **[Interactive Mode Guide](../features/interactive-mode.md)** - Master the TUI
-- **[GitHub Issues](https://github.com/FunKite/astrotimes/issues)** - Report problems
+- **[GitHub Issues](https://github.com/FunKite/solunatus/issues)** - Report problems
 
 ## What's Next?
 

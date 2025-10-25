@@ -312,7 +312,7 @@ fn render_html(
     let mut html = String::with_capacity(1024 * 100); // Pre-allocate for efficiency
     html.push_str("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"/>");
     html.push_str("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"/>");
-    html.push_str("<title>AstroTimes Calendar</title>");
+    html.push_str("<title>Solunatus Calendar</title>");
     html.push_str("<style>");
     html.push_str("body{font-family:'Helvetica Neue',Arial,sans-serif;background:#0d1117;color:#e6edf3;margin:0;padding:0 0 3rem 0;}");
     html.push_str("header{padding:2.5rem 1.5rem 1.5rem;background:linear-gradient(135deg,#1f6feb,#8b949e);color:#fff;}");
@@ -337,7 +337,7 @@ fn render_html(
     html.push_str("</style></head><body>");
 
     html.push_str("<header>");
-    html.push_str("<h1>AstroTimes Astronomical Calendar</h1>");
+    html.push_str("<h1>Solunatus Astronomical Calendar</h1>");
     html.push_str("<div class=\"meta\">");
     if let Some(city) = city_name {
         html.push_str(&escape_html(city));

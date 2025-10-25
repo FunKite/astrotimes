@@ -1,14 +1,14 @@
 # CLI Reference Guide
 
-Complete documentation of all AstroTimes command-line options.
+Complete documentation of all Solunatus command-line options.
 
 ## Basic Syntax
 
 ```bash
-astrotimes [OPTIONS]
+solunatus [OPTIONS]
 ```
 
-All options are optional. Without arguments, AstroTimes loads your saved location from `~/.astro_times.json` if available, or prompts you to select a city.
+All options are optional. Without arguments, Solunatus loads your saved location from `~/.solunatus.json` if available, or prompts you to select a city.
 
 ## Location Options
 
@@ -16,23 +16,23 @@ All options are optional. Without arguments, AstroTimes loads your saved locatio
 Select a city from the built-in database.
 
 ```bash
-astrotimes --city "New York"
-astrotimes --city "Tokyo"
-astrotimes --city "London"
+solunatus --city "New York"
+solunatus --city "Tokyo"
+solunatus --city "London"
 ```
 
 Supports fuzzy search for partial matches:
 
 ```bash
-astrotimes --city "San"  # Might suggest San Francisco, San Diego, etc.
+solunatus --city "San"  # Might suggest San Francisco, San Diego, etc.
 ```
 
 ### `--lat <LAT>`
 Latitude in decimal degrees (range: -90 to +90).
 
 ```bash
-astrotimes --lat 40.7128  # New York
-astrotimes --lat -33.8688  # Sydney
+solunatus --lat 40.7128  # New York
+solunatus --lat -33.8688  # Sydney
 ```
 
 **Required with:** `--lon` and `--tz`
@@ -41,8 +41,8 @@ astrotimes --lat -33.8688  # Sydney
 Longitude in decimal degrees (range: -180 to +180).
 
 ```bash
-astrotimes --lon -74.0060  # New York
-astrotimes --lon 151.2093  # Sydney
+solunatus --lon -74.0060  # New York
+solunatus --lon 151.2093  # Sydney
 ```
 
 **Required with:** `--lat` and `--tz`
@@ -51,9 +51,9 @@ astrotimes --lon 151.2093  # Sydney
 Timezone in IANA format (e.g., `America/New_York`).
 
 ```bash
-astrotimes --lat 40.7128 --lon -74.0060 --tz America/New_York
+solunatus --lat 40.7128 --lon -74.0060 --tz America/New_York
 
-astrotimes --lat 35.6762 --lon 139.6503 --tz Asia/Tokyo
+solunatus --lat 35.6762 --lon 139.6503 --tz Asia/Tokyo
 ```
 
 **Common timezones:**
@@ -70,9 +70,9 @@ See [IANA Timezone Database](https://en.wikipedia.org/wiki/List_of_tz_database_t
 Calculate for a specific date in `YYYY-MM-DD` format.
 
 ```bash
-astrotimes --city "Boston" --date 2025-12-25  # Christmas 2025
+solunatus --city "Boston" --date 2025-12-25  # Christmas 2025
 
-astrotimes --lat 40.7128 --lon -74.0060 --tz America/New_York --date 1969-07-20  # Apollo 11 landing
+solunatus --lat 40.7128 --lon -74.0060 --tz America/New_York --date 1969-07-20  # Apollo 11 landing
 ```
 
 Default: Today's date
@@ -85,13 +85,13 @@ Default: Today's date
 Output in JSON format instead of text.
 
 ```bash
-astrotimes --city "Paris" --json
+solunatus --city "Paris" --json
 
 # Pipe to file
-astrotimes --city "Tokyo" --json > tokyo.json
+solunatus --city "Tokyo" --json > tokyo.json
 
 # Parse with jq
-astrotimes --city "Sydney" --json | jq '.events'
+solunatus --city "Sydney" --json | jq '.events'
 ```
 
 Useful for:
@@ -105,7 +105,7 @@ See [JSON Output Guide](json-output.md) for schema details.
 Suppress interactive mode and output single snapshot.
 
 ```bash
-astrotimes --city "New York" --no-prompt
+solunatus --city "New York" --no-prompt
 ```
 
 Useful for:
@@ -114,10 +114,10 @@ Useful for:
 - Pipe to other programs
 
 ### `--save`
-Save current location to configuration file (`~/.astro_times.json`).
+Save current location to configuration file (`~/.solunatus.json`).
 
 ```bash
-astrotimes --city "New York" --save
+solunatus --city "New York" --save
 ```
 
 **In watch mode:** Press `s` to save.
@@ -126,7 +126,7 @@ astrotimes --city "New York" --save
 Don't save configuration even if `--save` is used or during watch mode.
 
 ```bash
-astrotimes --city "Paris" --no-save
+solunatus --city "Paris" --no-save
 ```
 
 ## Calendar Options
@@ -137,7 +137,7 @@ Generate astronomical calendars for date ranges.
 Enable calendar generation mode.
 
 ```bash
-astrotimes --city "London" --calendar --calendar-start 2025-12-01 --calendar-end 2025-12-31
+solunatus --city "London" --calendar --calendar-start 2025-12-01 --calendar-end 2025-12-31
 ```
 
 **Required with:** `--calendar-start` and `--calendar-end`
@@ -146,14 +146,14 @@ astrotimes --city "London" --calendar --calendar-start 2025-12-01 --calendar-end
 Start date for calendar in `YYYY-MM-DD` format.
 
 ```bash
-astrotimes --city "Paris" --calendar --calendar-start 2025-01-01 --calendar-end 2025-01-31
+solunatus --city "Paris" --calendar --calendar-start 2025-01-01 --calendar-end 2025-01-31
 ```
 
 ### `--calendar-end <DATE>`
 End date for calendar in `YYYY-MM-DD` format.
 
 ```bash
-astrotimes --city "Tokyo" --calendar --calendar-start 2025-06-01 --calendar-end 2025-06-30
+solunatus --city "Tokyo" --calendar --calendar-start 2025-06-01 --calendar-end 2025-06-30
 ```
 
 ### `--calendar-format <FORMAT>`
@@ -161,13 +161,13 @@ Output format for calendar: `html` or `json`.
 
 ```bash
 # HTML calendar (viewable in browser)
-astrotimes --city "Boston" --calendar \
+solunatus --city "Boston" --calendar \
   --calendar-start 2025-12-01 \
   --calendar-end 2025-12-31 \
   --calendar-format html
 
 # JSON calendar (machine-readable)
-astrotimes --city "Sydney" --calendar \
+solunatus --city "Sydney" --calendar \
   --calendar-start 2025-03-01 \
   --calendar-end 2025-03-31 \
   --calendar-format json
@@ -179,7 +179,7 @@ Default: `html`
 Save calendar to file. If not specified, prints to stdout.
 
 ```bash
-astrotimes --city "Paris" --calendar \
+solunatus --city "Paris" --calendar \
   --calendar-start 2025-12-01 \
   --calendar-end 2025-12-31 \
   --calendar-format html \
@@ -198,7 +198,7 @@ Integrate with local Ollama for narrative summaries (optional).
 Enable AI insights. Requires Ollama to be running.
 
 ```bash
-astrotimes --city "New York" --ai-insights
+solunatus --city "New York" --ai-insights
 ```
 
 **Setup required:** See [AI Insights Guide](ai-insights.md)
@@ -207,14 +207,14 @@ astrotimes --city "New York" --ai-insights
 Ollama server address (default: `http://localhost:11434`).
 
 ```bash
-astrotimes --city "Boston" --ai-insights --ai-server "http://192.168.1.100:11434"
+solunatus --city "Boston" --ai-insights --ai-server "http://192.168.1.100:11434"
 ```
 
 ### `--ai-model <MODEL>`
 LLM model to use for insights.
 
 ```bash
-astrotimes --city "Tokyo" --ai-insights --ai-model "llama2"
+solunatus --city "Tokyo" --ai-insights --ai-model "llama2"
 ```
 
 **Common models:**
@@ -227,7 +227,7 @@ astrotimes --city "Tokyo" --ai-insights --ai-model "llama2"
 How often to refresh AI insights (1-60 minutes).
 
 ```bash
-astrotimes --city "Paris" --ai-insights --ai-refresh-minutes 5
+solunatus --city "Paris" --ai-insights --ai-refresh-minutes 5
 ```
 
 Default: 2 minutes
@@ -238,48 +238,48 @@ Default: 2 minutes
 Show help message.
 
 ```bash
-astrotimes --help
-astrotimes -h
+solunatus --help
+solunatus -h
 ```
 
 ### `--version`
 Show version information.
 
 ```bash
-astrotimes --version
-astrotimes -V
+solunatus --version
+solunatus -V
 ```
 
 ## Example Commands
 
 ### Get sunrise/sunset for today (saved location)
 ```bash
-astrotimes
+solunatus
 ```
 
 ### Specific city
 ```bash
-astrotimes --city "San Francisco"
+solunatus --city "San Francisco"
 ```
 
 ### Manual coordinates
 ```bash
-astrotimes --lat 51.5074 --lon -0.1278 --tz Europe/London
+solunatus --lat 51.5074 --lon -0.1278 --tz Europe/London
 ```
 
 ### Specific date
 ```bash
-astrotimes --city "Sydney" --date 2025-12-25
+solunatus --city "Sydney" --date 2025-12-25
 ```
 
 ### JSON for scripting
 ```bash
-astrotimes --city "Tokyo" --json | jq '.events'
+solunatus --city "Tokyo" --json | jq '.events'
 ```
 
 ### Calendar for December
 ```bash
-astrotimes --city "New York" --calendar \
+solunatus --city "New York" --calendar \
   --calendar-start 2025-12-01 \
   --calendar-end 2025-12-31 \
   --calendar-format html \
@@ -288,12 +288,12 @@ astrotimes --city "New York" --calendar \
 
 ### With AI insights
 ```bash
-astrotimes --city "Paris" --ai-insights --ai-model "llama2"
+solunatus --city "Paris" --ai-insights --ai-model "llama2"
 ```
 
 ### Silent mode (no prompt, just data)
 ```bash
-astrotimes --city "Boston" --no-prompt --json > boston_today.json
+solunatus --city "Boston" --no-prompt --json > boston_today.json
 ```
 
 ## Environment Variables
@@ -303,7 +303,7 @@ Skip system clock synchronization check at startup.
 
 ```bash
 export ASTROTIMES_SKIP_TIME_SYNC=1
-astrotimes --city "New York"
+solunatus --city "New York"
 ```
 
 Useful for:
@@ -313,7 +313,7 @@ Useful for:
 
 ## Configuration File
 
-Settings are saved to `~/.astro_times.json`:
+Settings are saved to `~/.solunatus.json`:
 
 ```json
 {
@@ -331,14 +331,14 @@ Automatically loaded if no arguments specified.
 ### Cron Job: Daily sunrise reminder
 ```bash
 #!/bin/bash
-SUNRISE=$(astrotimes --city "Boston" --no-prompt --json | jq -r '.events[0].time')
+SUNRISE=$(solunatus --city "Boston" --no-prompt --json | jq -r '.events[0].time')
 echo "Sunrise is at $SUNRISE"
 ```
 
 ### Generate astronomical yearbook
 ```bash
 for month in {01..12}; do
-  astrotimes --city "London" --calendar \
+  solunatus --city "London" --calendar \
     --calendar-start "2025-$month-01" \
     --calendar-end "2025-$month-31" \
     --calendar-format html \
@@ -348,13 +348,13 @@ done
 
 ### Watch mode with custom refresh
 ```bash
-astrotimes --city "Tokyo"
+solunatus --city "Tokyo"
 # Then press [ to slow down or ] to speed up
 ```
 
 ### Get all astronomical data as JSON
 ```bash
-astrotimes --city "Sydney" --json > full_data.json
+solunatus --city "Sydney" --json > full_data.json
 cat full_data.json | jq .
 ```
 

@@ -5,7 +5,7 @@ Use JSON format for machine-readable output and scripting.
 ## Basic Usage
 
 ```bash
-astrotimes --city "New York" --json
+solunatus --city "New York" --json
 ```
 
 ## Output Structure
@@ -25,26 +25,26 @@ JSON output includes:
 
 ```bash
 # Get just events
-astrotimes --city "Tokyo" --json | jq '.events'
+solunatus --city "Tokyo" --json | jq '.events'
 
 # Get sunrise time
-astrotimes --city "Boston" --json | jq '.events[] | select(.event_type=="Sunrise") | .time'
+solunatus --city "Boston" --json | jq '.events[] | select(.event_type=="Sunrise") | .time'
 
 # Get moon phase
-astrotimes --city "Paris" --json | jq '.moon.phase_name'
+solunatus --city "Paris" --json | jq '.moon.phase_name'
 ```
 
 ### Export to File
 
 ```bash
-astrotimes --city "London" --json > london_astronomy.json
+solunatus --city "London" --json > london_astronomy.json
 ```
 
 ### Use in Shell Scripts
 
 ```bash
 #!/bin/bash
-DATA=$(astrotimes --city "Sydney" --json)
+DATA=$(solunatus --city "Sydney" --json)
 SUNRISE=$(echo $DATA | jq -r '.events[0].time')
 echo "Sunrise in Sydney: $SUNRISE"
 ```

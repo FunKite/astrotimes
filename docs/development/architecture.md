@@ -1,13 +1,13 @@
 # Architecture Overview
 
-High-level guide to the AstroTimes codebase structure and design principles.
+High-level guide to the Solunatus codebase structure and design principles.
 
 ## Design Philosophy
 
-AstroTimes is designed as a **dual-purpose Rust project**:
+Solunatus is designed as a **dual-purpose Rust project**:
 
-1. **Library** (`astrotimes` crate) - Reusable astronomical calculations
-2. **CLI** (Binary `astrotimes`) - Standalone command-line application
+1. **Library** (`solunatus` crate) - Reusable astronomical calculations
+2. **CLI** (Binary `solunatus`) - Standalone command-line application
 
 This separation allows:
 - Clean API for Rust developers
@@ -18,7 +18,7 @@ This separation allows:
 ## Project Structure
 
 ```
-astrotimes/
+solunatus/
 ├── src/
 │   ├── lib.rs                 # Library root - exports public API
 │   ├── main.rs                # CLI entry point
@@ -136,7 +136,7 @@ astrotimes/
 
 **Purpose:** Save/load user preferences.
 
-**Saved Location:** `~/.astro_times.json`
+**Saved Location:** `~/.solunatus.json`
 
 **Stored Data:**
 - Last used location (latitude, longitude)
@@ -182,7 +182,7 @@ cli.rs (Parse arguments)
 [Location Resolution]
   ├─ --lat/--lon/--tz: Direct use
   ├─ --city: Lookup in city.rs
-  ├─ config.rs: Load from ~/.astro_times.json
+  ├─ config.rs: Load from ~/.solunatus.json
   └─ Prompt user to select city: Fallback
   ↓
 [Mode Selection]
@@ -385,4 +385,4 @@ When making significant changes:
 - **[Setup Guide](setup.md)** - Get your development environment ready
 - **[Contributing](../../CONTRIBUTING.md)** - How to contribute code
 - **[Accuracy Testing](accuracy.md)** - Verify calculations
-- **[API Docs](https://docs.rs/astrotimes)** - Auto-generated documentation
+- **[API Docs](https://docs.rs/solunatus)** - Auto-generated documentation

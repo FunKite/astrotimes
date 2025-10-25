@@ -6,7 +6,7 @@
 ## Create Release via GitHub Web Interface
 
 ### Step 1: Navigate to Releases
-1. Go to: https://github.com/FunKite/astrotimes/releases
+1. Go to: https://github.com/FunKite/solunatus/releases
 2. Click **"Draft a new release"**
 
 ### Step 2: Configure Release
@@ -56,43 +56,43 @@ Copy and paste this markdown:
 
 **Option 1: Using install script (recommended)**
 ```bash
-curl -L https://github.com/FunKite/astrotimes/releases/download/v0.1.0-beta/astrotimes-v0.1.0-macos-arm64.tar.gz -o astrotimes.tar.gz
-curl -L https://github.com/FunKite/astrotimes/releases/download/v0.1.0-beta/install.sh -o install.sh
-tar -xzf astrotimes.tar.gz
+curl -L https://github.com/FunKite/solunatus/releases/download/v0.1.0-beta/solunatus-v0.1.0-macos-arm64.tar.gz -o solunatus.tar.gz
+curl -L https://github.com/FunKite/solunatus/releases/download/v0.1.0-beta/install.sh -o install.sh
+tar -xzf solunatus.tar.gz
 chmod +x install.sh
 ./install.sh
 ```
 
 **Option 2: Manual installation**
 ```bash
-curl -L https://github.com/FunKite/astrotimes/releases/download/v0.1.0-beta/astrotimes-v0.1.0-macos-arm64.tar.gz -o astrotimes.tar.gz
-tar -xzf astrotimes.tar.gz
-sudo cp astrotimes-macos/astrotimes /usr/local/bin/
+curl -L https://github.com/FunKite/solunatus/releases/download/v0.1.0-beta/solunatus-v0.1.0-macos-arm64.tar.gz -o solunatus.tar.gz
+tar -xzf solunatus.tar.gz
+sudo cp solunatus-macos/solunatus /usr/local/bin/
 ```
 
 ### Verify Download
 
 ```bash
-curl -L https://github.com/FunKite/astrotimes/releases/download/v0.1.0-beta/astrotimes-v0.1.0-macos-arm64.tar.gz.sha256 -o checksum.sha256
+curl -L https://github.com/FunKite/solunatus/releases/download/v0.1.0-beta/solunatus-v0.1.0-macos-arm64.tar.gz.sha256 -o checksum.sha256
 shasum -a 256 -c checksum.sha256
 ```
 
-Expected: `astrotimes-v0.1.0-macos-arm64.tar.gz: OK`
+Expected: `solunatus-v0.1.0-macos-arm64.tar.gz: OK`
 
 ## 🚀 Quick Start
 
 ```bash
 # Auto-detect location and show live watch mode
-astrotimes
+solunatus
 
 # Specify a city
-astrotimes --city "Tokyo"
+solunatus --city "Tokyo"
 
 # Use coordinates
-astrotimes --lat 40.7128 --lon=-74.0060
+solunatus --lat 40.7128 --lon=-74.0060
 
 # JSON output for scripting
-astrotimes --city "Paris" --json
+solunatus --city "Paris" --json
 ```
 
 ## ⌨️ Keyboard Controls (Watch Mode)
@@ -117,8 +117,8 @@ astrotimes --city "Paris" --json
 
 ## 📋 Files in This Release
 
-- **`astrotimes-v0.1.0-macos-arm64.tar.gz`** (1.4 MB) - Main distributable
-- **`astrotimes-v0.1.0-macos-arm64.tar.gz.sha256`** - SHA256 checksum
+- **`solunatus-v0.1.0-macos-arm64.tar.gz`** (1.4 MB) - Main distributable
+- **`solunatus-v0.1.0-macos-arm64.tar.gz.sha256`** - SHA256 checksum
 - **`install.sh`** - Automatic installation script
 
 ## 🐛 Known Issues
@@ -129,7 +129,7 @@ astrotimes --city "Paris" --json
 
 ## 📚 Documentation
 
-Full documentation: [README.md](https://github.com/FunKite/astrotimes/blob/main/README.md)
+Full documentation: [README.md](https://github.com/FunKite/solunatus/blob/main/README.md)
 
 ## 🛠️ Technical Details
 
@@ -142,15 +142,15 @@ Full documentation: [README.md](https://github.com/FunKite/astrotimes/blob/main/
 
 **Built with Rust + Claude Code**
 
-Please report issues at: https://github.com/FunKite/astrotimes/issues
+Please report issues at: https://github.com/FunKite/solunatus/issues
 ```
 
 ### Step 4: Upload Files
 
 Drag and drop or click "Attach binaries" to upload these files:
 
-1. `dist/astrotimes-v0.1.0-macos-arm64.tar.gz`
-2. `dist/astrotimes-v0.1.0-macos-arm64.tar.gz.sha256`
+1. `dist/solunatus-v0.1.0-macos-arm64.tar.gz`
+2. `dist/solunatus-v0.1.0-macos-arm64.tar.gz.sha256`
 3. `dist/install.sh`
 
 ### Step 5: Publish
@@ -166,8 +166,8 @@ If you want to use the command line in the future:
 brew install gh
 gh auth login
 gh release create v0.1.0-beta \
-  dist/astrotimes-v0.1.0-macos-arm64.tar.gz \
-  dist/astrotimes-v0.1.0-macos-arm64.tar.gz.sha256 \
+  dist/solunatus-v0.1.0-macos-arm64.tar.gz \
+  dist/solunatus-v0.1.0-macos-arm64.tar.gz.sha256 \
   dist/install.sh \
   --title "Beta 0.1 - Initial macOS Release" \
   --notes-file dist/RELEASE_NOTES.md \
@@ -180,8 +180,8 @@ gh release create v0.1.0-beta \
 
 Location: `dist/` directory in project root
 
-- ✅ `astrotimes-v0.1.0-macos-arm64.tar.gz` (1.4 MB)
-- ✅ `astrotimes-v0.1.0-macos-arm64.tar.gz.sha256` (103 bytes)
+- ✅ `solunatus-v0.1.0-macos-arm64.tar.gz` (1.4 MB)
+- ✅ `solunatus-v0.1.0-macos-arm64.tar.gz.sha256` (103 bytes)
 - ✅ `install.sh` (2.2 KB, executable)
 
 ## Verification
@@ -189,7 +189,7 @@ Location: `dist/` directory in project root
 After publishing, test the download:
 
 ```bash
-curl -L https://github.com/FunKite/astrotimes/releases/download/v0.1.0-beta/astrotimes-v0.1.0-macos-arm64.tar.gz -o test.tar.gz
+curl -L https://github.com/FunKite/solunatus/releases/download/v0.1.0-beta/solunatus-v0.1.0-macos-arm64.tar.gz -o test.tar.gz
 tar -xzf test.tar.gz
-./astrotimes-macos/astrotimes --version
+./solunatus-macos/solunatus --version
 ```

@@ -277,7 +277,7 @@ fn classify_direction(delta: ChronoDuration) -> Option<TimeSyncDirection> {
 
 /// Get the cache file path
 fn cache_file_path() -> Option<PathBuf> {
-    dirs::home_dir().map(|home| home.join(".astrotimes_ntp_cache.json"))
+    dirs::home_dir().map(|home| home.join(".solunatus_ntp_cache.json"))
 }
 
 /// Load cached time sync result

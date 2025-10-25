@@ -1,12 +1,12 @@
 name: Feature Request
-description: Suggest a new feature or enhancement for AstroTimes
+description: Suggest a new feature or enhancement for Solunatus
 title: "[Feature]: "
 labels: ["enhancement"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for your feature idea! Your suggestions help shape the future of AstroTimes.
+        Thanks for your feature idea! Your suggestions help shape the future of Solunatus.
 
         **Note**: This project is maintained by the repository owner. While external pull requests are not currently being accepted, feature requests are welcomed and will be considered for future development.
 
@@ -51,7 +51,7 @@ body:
       description: Can you provide examples of how this feature would be used?
       placeholder: |
         Example usage:
-        $ astrotimes --new-feature ...
+        $ solunatus --new-feature ...
 
   - type: textarea
     id: additional

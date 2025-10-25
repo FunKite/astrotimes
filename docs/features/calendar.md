@@ -5,7 +5,7 @@ Generate astronomical calendars in HTML or JSON format.
 ## Basic Calendar Generation
 
 ```bash
-astrotimes --city "New York" --calendar \
+solunatus --city "New York" --calendar \
   --calendar-start 2025-12-01 \
   --calendar-end 2025-12-31 \
   --calendar-format html \
@@ -19,7 +19,7 @@ astrotimes --city "New York" --calendar \
 Interactive calendar for viewing in a web browser:
 
 ```bash
-astrotimes --city "Paris" --calendar \
+solunatus --city "Paris" --calendar \
   --calendar-start 2025-01-01 \
   --calendar-end 2025-01-31 \
   --calendar-format html \
@@ -39,7 +39,7 @@ open january.html
 Machine-readable format for data processing:
 
 ```bash
-astrotimes --city "Tokyo" --calendar \
+solunatus --city "Tokyo" --calendar \
   --calendar-start 2025-06-01 \
   --calendar-end 2025-06-30 \
   --calendar-format json \
@@ -52,26 +52,26 @@ Generate calendars for any date range:
 
 ```bash
 # Single month
-astrotimes --city "London" --calendar \
+solunatus --city "London" --calendar \
   --calendar-start 2025-12-01 --calendar-end 2025-12-31
 
 # Multiple months
-astrotimes --city "Sydney" --calendar \
+solunatus --city "Sydney" --calendar \
   --calendar-start 2025-01-01 --calendar-end 2025-03-31
 
 # Single day
-astrotimes --city "Boston" --calendar \
+solunatus --city "Boston" --calendar \
   --calendar-start 2025-07-04 --calendar-end 2025-07-04
 
 # Full year
-astrotimes --city "Berlin" --calendar \
+solunatus --city "Berlin" --calendar \
   --calendar-start 2025-01-01 --calendar-end 2025-12-31
 ```
 
 ## Interactive Calendar (Watch Mode)
 
 ```bash
-astrotimes --city "New York"
+solunatus --city "New York"
 # Press 'g' to open calendar generator
 ```
 

@@ -115,7 +115,7 @@ fn sanitized_event_label<'a>(app: &App, label: &'a str) -> Cow<'a, str> {
 }
 
 fn render_title(f: &mut Frame, area: Rect, app: &App) {
-    let title = Paragraph::new("AstroTimes 0.1.1 — github.com/FunKite/astrotimes")
+    let title = Paragraph::new("Solunatus 0.2.0 — github.com/FunKite/solunatus")
         .style(
             Style::default()
                 .fg(get_color(app, Color::Cyan))
@@ -1197,7 +1197,7 @@ fn render_settings(f: &mut Frame, app: &App) {
 
     // Header
     lines.push(Line::from(Span::styled(
-        "Configure your AstroTimes experience",
+        "Configure your Solunatus experience",
         Style::default().fg(get_color(app, Color::Gray)),
     )));
     lines.push(Line::from(""));

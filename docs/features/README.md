@@ -1,6 +1,6 @@
-# AstroTimes Features
+# Solunatus Features
 
-Comprehensive guide to all features and capabilities of AstroTimes.
+Comprehensive guide to all features and capabilities of Solunatus.
 
 ## Core Astronomical Data
 
@@ -59,14 +59,14 @@ See [Interactive Mode Guide](interactive-mode.md) for details.
 Single snapshot of astronomical data with all events and positions.
 
 ```bash
-astrotimes --city "New York" --no-prompt
+solunatus --city "New York" --no-prompt
 ```
 
 ### JSON Output
 Machine-readable format for integration with other tools and scripts.
 
 ```bash
-astrotimes --city "New York" --json
+solunatus --city "New York" --json
 ```
 
 See [JSON Output Guide](json-output.md) for schema details.
@@ -75,7 +75,7 @@ See [JSON Output Guide](json-output.md) for schema details.
 Generate astronomical data tables for date ranges.
 
 ```bash
-astrotimes --city "Paris" \
+solunatus --city "Paris" \
   --calendar \
   --calendar-start 2025-12-01 \
   --calendar-end 2025-12-31 \
@@ -97,16 +97,16 @@ See [Calendar Guide](calendar.md) for examples.
 - Updated city picker with search in watch mode
 
 ```bash
-astrotimes --city "New York"
-astrotimes --city "Los Angeles"
-astrotimes --city "Tokyo"
+solunatus --city "New York"
+solunatus --city "Los Angeles"
+solunatus --city "Tokyo"
 ```
 
 ### Manual Coordinates
 Specify latitude, longitude, and timezone explicitly:
 
 ```bash
-astrotimes --lat 40.7128 --lon -74.0060 --tz America/New_York
+solunatus --lat 40.7128 --lon -74.0060 --tz America/New_York
 ```
 
 ### Configuration Persistence
@@ -115,10 +115,10 @@ Save your preferred location:
 ```bash
 # In watch mode, press 's' to open settings, then save from there
 # Or use
-astrotimes --city "New York" --save
+solunatus --city "New York" --save
 ```
 
-Settings saved to `~/.astro_times.json`:
+Settings saved to `~/.solunatus.json`:
 
 ```json
 {
@@ -135,7 +135,7 @@ Settings saved to `~/.astro_times.json`:
 Get AI-generated narrative summaries of astronomical events using a local Ollama instance.
 
 ```bash
-astrotimes --ai-insights --ai-model "llama2"
+solunatus --ai-insights --ai-model "llama2"
 ```
 
 **Features:**
@@ -151,7 +151,7 @@ Verify your system clock accuracy against NTP servers:
 
 ```bash
 # Automatic on startup
-astrotimes --city "New York"
+solunatus --city "New York"
 ```
 
 - Checks against Google's NTP server
@@ -164,10 +164,10 @@ Calculate events for any date:
 
 ```bash
 # Future date
-astrotimes --city "Boston" --date 2025-12-25
+solunatus --city "Boston" --date 2025-12-25
 
 # Past date
-astrotimes --city "Sydney" --date 2024-07-20
+solunatus --city "Sydney" --date 2024-07-20
 ```
 
 ## Command-Line Interface (CLI)
@@ -175,7 +175,7 @@ astrotimes --city "Sydney" --date 2024-07-20
 ### Basic Syntax
 
 ```bash
-astrotimes [OPTIONS]
+solunatus [OPTIONS]
 ```
 
 ### Complete Options Reference

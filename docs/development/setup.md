@@ -1,6 +1,6 @@
 # Development Setup
 
-Get your development environment ready for building AstroTimes from source.
+Get your development environment ready for building Solunatus from source.
 
 ## Prerequisites
 
@@ -66,8 +66,8 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 ```bash
 # Clone the repository
-git clone https://github.com/FunKite/astrotimes.git
-cd astrotimes
+git clone https://github.com/FunKite/solunatus.git
+cd solunatus
 ```
 
 ## Build the Project
@@ -249,10 +249,10 @@ tests/                  # Integration tests
 cargo build --release
 
 # Strip debug symbols for smaller binary
-strip target/release/astrotimes
+strip target/release/solunatus
 
 # Install to system
-sudo cp target/release/astrotimes /usr/local/bin/
+sudo cp target/release/solunatus /usr/local/bin/
 ```
 
 ## Running Tests
@@ -295,11 +295,11 @@ cargo build -j 1
 
 - **[Architecture Guide](architecture.md)** - Code structure overview
 - **[Accuracy Testing](accuracy.md)** - Verify calculation accuracy
-- **[API Documentation](https://docs.rs/astrotimes)** - Auto-generated docs
+- **[API Documentation](https://docs.rs/solunatus)** - Auto-generated docs
 
 ## Getting Help
 
-- **[GitHub Issues](https://github.com/FunKite/astrotimes/issues)** - Report bugs or request features
+- **[GitHub Issues](https://github.com/FunKite/solunatus/issues)** - Report bugs or request features
 - **[Rust Book](https://doc.rust-lang.org/book/)** - Learn Rust
 - **[Cargo Guide](https://doc.rust-lang.org/cargo/)** - Learn Cargo
 

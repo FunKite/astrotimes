@@ -1,11 +1,11 @@
-# AstroTimes Documentation
+# Solunatus Documentation
 
-Welcome to the AstroTimes documentation. This folder contains comprehensive guides for both users and developers.
+Welcome to the Solunatus documentation. This folder contains comprehensive guides for both users and developers.
 
 ## For Users
 
 ### Getting Started
-- **[Installation](installation/README.md)** - How to install and set up AstroTimes
+- **[Installation](installation/README.md)** - How to install and set up Solunatus
 - **[Quick Start](installation/quick-start.md)** - Get running in 5 minutes
 
 ### Features
@@ -34,7 +34,7 @@ Welcome to the AstroTimes documentation. This folder contains comprehensive guid
 - **[Performance Optimization](optimization/performance.md)** - Optimization techniques and benchmarks
 
 ### Reference
-- **[API Documentation](https://docs.rs/astrotimes)** - Auto-generated API docs on docs.rs
+- **[API Documentation](https://docs.rs/solunatus)** - Auto-generated API docs on docs.rs
 - **[Changelog](../CHANGELOG.md)** - Version history and changes
 
 ## Documentation Index
@@ -68,22 +68,22 @@ docs/
 
 **I want to...**
 
-- [Install AstroTimes](installation/README.md) → Installation guide
+- [Install Solunatus](installation/README.md) → Installation guide
 - [Use the CLI](features/cli-reference.md) → Command-line reference
 - [Get programmatic output](features/json-output.md) → JSON output guide
 - [Build from source](development/setup.md) → Development setup
 - [Understand how it works](development/architecture.md) → Architecture overview
 - [Verify accuracy](development/accuracy.md) → Accuracy testing
-- [Report a bug or request a feature](https://github.com/FunKite/astrotimes/issues) → GitHub issues
+- [Report a bug or request a feature](https://github.com/FunKite/solunatus/issues) → GitHub issues
 
 ## Key Resources
 
 - **[Main README](../README.md)** - Project overview and features
 - **[License](../LICENSE)** - MIT License
 - **[Code of Conduct](../CODE_OF_CONDUCT.md)** - Community guidelines
-- **[GitHub Repository](https://github.com/FunKite/astrotimes)** - Source code
-- **[Crates.io](https://crates.io/crates/astrotimes)** - Rust package registry
+- **[GitHub Repository](https://github.com/FunKite/solunatus)** - Source code
+- **[Crates.io](https://crates.io/crates/solunatus)** - Rust package registry
 
 ## Documentation Feedback
 
-Found a typo or confusing section? Want to suggest documentation improvements? Please open a [GitHub Issue](https://github.com/FunKite/astrotimes/issues) to let us know!
+Found a typo or confusing section? Want to suggest documentation improvements? Please open a [GitHub Issue](https://github.com/FunKite/solunatus/issues) to let us know!

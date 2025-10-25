@@ -50,21 +50,21 @@ ollama list
 ### Command Line
 
 ```bash
-astrotimes --city "New York" --ai-insights
+solunatus --city "New York" --ai-insights
 
 # With specific model
-astrotimes --city "Boston" --ai-insights --ai-model "llama2"
+solunatus --city "Boston" --ai-insights --ai-model "llama2"
 
 # Custom server
-astrotimes --city "Paris" --ai-insights --ai-server "http://192.168.1.100:11434"
+solunatus --city "Paris" --ai-insights --ai-server "http://192.168.1.100:11434"
 
 # Adjust refresh interval (1-60 minutes)
-astrotimes --city "London" --ai-insights --ai-refresh-minutes 5
+solunatus --city "London" --ai-insights --ai-refresh-minutes 5
 ```
 
 ### Interactive Mode
 
-1. Run: `astrotimes --city "Your City"`
+1. Run: `solunatus --city "Your City"`
 2. Press `a` to configure AI
 3. Enable insights
 4. Select model
@@ -128,7 +128,7 @@ Model sizes and typical response times:
 
 ```bash
 # Don't use --ai-insights flag
-astrotimes --city "New York"
+solunatus --city "New York"
 
 # Or in watch mode, press 'a' and disable
 ```
@@ -141,15 +141,15 @@ astrotimes --city "New York"
 # On Ollama server machine
 ollama serve  # Listens on all interfaces by default
 
-# On astrotimes machine
-astrotimes --city "Paris" --ai-insights --ai-server "http://192.168.1.100:11434"
+# On solunatus machine
+solunatus --city "Paris" --ai-insights --ai-server "http://192.168.1.100:11434"
 ```
 
 ### Use Custom Model
 
 ```bash
 ollama pull mistral
-astrotimes --city "London" --ai-insights --ai-model "mistral"
+solunatus --city "London" --ai-insights --ai-model "mistral"
 ```
 
 ### Batch Processing with Insights
@@ -157,7 +157,7 @@ astrotimes --city "London" --ai-insights --ai-model "mistral"
 ```bash
 #!/bin/bash
 for city in "New York" "London" "Tokyo"; do
-  astrotimes --city "$city" --ai-insights --json >> data.jsonl
+  solunatus --city "$city" --ai-insights --json >> data.jsonl
 done
 ```
 

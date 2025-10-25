@@ -6,7 +6,7 @@ Learn how to use the built-in city database with 570+ worldwide locations.
 
 ```bash
 # Find and use a city
-astrotimes --city "New York"
+solunatus --city "New York"
 ```
 
 ## Database Overview
@@ -22,14 +22,14 @@ astrotimes --city "New York"
 
 ```bash
 # Direct city selection
-astrotimes --city "London"
-astrotimes --city "Sydney"
-astrotimes --city "Tokyo"
+solunatus --city "London"
+solunatus --city "Sydney"
+solunatus --city "Tokyo"
 ```
 
 ### Using Interactive Picker (Watch Mode)
 
-1. Run `astrotimes`
+1. Run `solunatus`
 2. Press `c` to open city picker
 3. Type city name (partial matches work)
 4. Navigate with arrow keys
@@ -39,9 +39,9 @@ astrotimes --city "Tokyo"
 
 All of these work:
 ```bash
-astrotimes --city "San"         # San Francisco, San Diego, etc.
-astrotimes --city "New"         # New York, New Delhi, etc.
-astrotimes --city "Los"         # Los Angeles, Los Cabos, etc.
+solunatus --city "San"         # San Francisco, San Diego, etc.
+solunatus --city "New"         # New York, New Delhi, etc.
+solunatus --city "Los"         # Los Angeles, Los Cabos, etc.
 ```
 
 ## Available Locations
@@ -61,7 +61,7 @@ The database includes major cities and capitals across all continents:
 If your city isn't in the database, use coordinates:
 
 ```bash
-astrotimes --lat 51.5074 --lon -0.1278 --tz Europe/London
+solunatus --lat 51.5074 --lon -0.1278 --tz Europe/London
 ```
 
 Find coordinates on Google Maps by right-clicking a location.

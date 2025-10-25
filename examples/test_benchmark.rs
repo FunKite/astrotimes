@@ -1,5 +1,5 @@
 // Simple example to test the benchmark functionality
-use astrotimes::benchmark;
+use solunatus::benchmark;
 
 fn main() {
     println!("Running benchmark across all cities...");

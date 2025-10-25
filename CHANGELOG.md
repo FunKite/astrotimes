@@ -5,16 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.2.0] - 2025-10-25
 
 ### Changed
+- **BREAKING**: Renamed project from "astrotimes" to "solunatus" to avoid naming conflict with existing crate
+- Updated crate name, binary name, and all documentation to reflect new name "Solunatus"
+- Configuration file path changed from `~/.astro_times.json` to `~/.solunatus.json`
+- NTP cache file path changed from `~/.astrotimes_ntp_cache.json` to `~/.solunatus_ntp_cache.json`
+- Environment variable changed from `ASTROTIMES_SKIP_TIME_SYNC` to `SOLUNATUS_SKIP_TIME_SYNC`
+- Benchmark binaries now excluded from `cargo install` (only main `solunatus` binary installed)
 - Updated `clap` from 4.5.48 to 4.5.50
 - Updated `reqwest` from 0.12.23 to 0.12.24
 - Updated `ratatui` from 0.28.1 to 0.29.0
 - Updated `crossterm` from 0.28.1 to 0.29.0
 - Updated `chrono-tz` from 0.9.0 to 0.10.4
 
-## [0.1.1] - 2025-10-24
+### Migration Notes
+- Users migrating from astrotimes 0.1.x will need to reconfigure their location settings
+- Previous astrotimes versions have been yanked from crates.io
+- Install with: `cargo install solunatus`
+
+## [0.1.1] - 2025-10-24 (yanked)
 
 ### Fixed
 - Fixed doctest example in `batch_calculate` function missing `TimeZone` import
@@ -23,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - First public release to crates.io
 - Repository made public on GitHub
 
-## [0.1.0] - 2025-10-22
+## [0.1.0] - 2025-10-22 (yanked)
 
 ### Added
 - Initial release of AstroTimes as a Rust library and CLI application
