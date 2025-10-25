@@ -1,5 +1,11 @@
 # Solunatus
 
+[![Crates.io](https://img.shields.io/crates/v/solunatus.svg)](https://crates.io/crates/solunatus)
+[![Downloads](https://img.shields.io/crates/d/solunatus.svg)](https://crates.io/crates/solunatus)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Rust](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
+[![CodeQL](https://github.com/FunKite/solunatus/workflows/CodeQL/badge.svg)](https://github.com/FunKite/solunatus/actions/workflows/codeql.yml)
+
 An astronomical calculation library and CLI that provides sun and moon information for any location and date.
 
 **Dual Purpose:**
