@@ -299,7 +299,7 @@ fn print_text_output(
     location_source: LocationSource,
     ai_config: &ai::AiConfig,
 ) -> Result<()> {
-    println!("Solunatus 0.2.1 — github.com/FunKite/solunatus");
+    println!("Solunatus 0.2.2 — github.com/FunKite/solunatus");
 
     // Location
     println!("— Location & Date —");

@@ -1,6 +1,6 @@
 [package]
 name = "solunatus"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 authors = ["Mike McLarney"]
 description = "High-precision astronomical calculation library and CLI for sun/moon positions, rise/set times, and lunar phases"
@@ -11,6 +11,7 @@ documentation = "https://docs.rs/solunatus"
 readme = "README.md"
 keywords = ["astronomy", "sun", "moon", "sunrise", "astronomical"]
 categories = ["science", "command-line-utilities"]
+autobins = false
 exclude = [
     "dist/*",
     "*.html",
@@ -126,32 +127,28 @@ opt-level = 2
 inherits = "release"
 debug = true
 
-[[bin]]
-name = "accuracy_report"
-path = "src/bin/accuracy_report.rs"
-required-features = ["benchmarks"]
-
-[[bin]]
-name = "perf_benchmark"
-path = "src/bin/perf_benchmark.rs"
-required-features = ["benchmarks"]
-
-[[bin]]
-name = "simd_benchmark"
-path = "src/bin/simd_benchmark.rs"
-required-features = ["benchmarks"]
-
-[[bin]]
-name = "m1_max_benchmark"
-path = "src/bin/m1_max_benchmark.rs"
-required-features = ["benchmarks"]
-
-[[bin]]
-name = "moonrise_moonset_benchmark"
-path = "src/bin/moonrise_moonset_benchmark.rs"
-required-features = ["benchmarks"]
-
-[[bin]]
-name = "calendar_benchmark"
-path = "src/bin/calendar_benchmark.rs"
-required-features = ["benchmarks"]
+# Benchmark binaries excluded from cargo install
+# These can still be built locally with: cargo build --bin <name>
+# [[bin]]
+# name = "accuracy_report"
+# path = "src/bin/accuracy_report.rs"
+#
+# [[bin]]
+# name = "perf_benchmark"
+# path = "src/bin/perf_benchmark.rs"
+#
+# [[bin]]
+# name = "simd_benchmark"
+# path = "src/bin/simd_benchmark.rs"
+#
+# [[bin]]
+# name = "m1_max_benchmark"
+# path = "src/bin/m1_max_benchmark.rs"
+#
+# [[bin]]
+# name = "moonrise_moonset_benchmark"
+# path = "src/bin/moonrise_moonset_benchmark.rs"
+#
+# [[bin]]
+# name = "calendar_benchmark"
+# path = "src/bin/calendar_benchmark.rs"
