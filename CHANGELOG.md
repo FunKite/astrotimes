@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- Updated GitHub Actions workflow dependencies:
+  - `actions/checkout` from v4 to v5 (now uses Node.js 24)
+  - `github/codeql-action` from v3 to v4 (now uses Node.js 24)
+
 ## [0.2.2] - 2025-10-25
 
 ### Fixed
