@@ -377,10 +377,15 @@ pub fn version() -> &'static str {
 
 /// Returns library information including version and supported features.
 pub fn library_info() -> LibraryInfo {
+    let city_count = CityDatabase::load()
+        .ok()
+        .map(|db| db.cities().len())
+        .unwrap_or(0);
+
     LibraryInfo {
         version: version(),
         cpu_profile: cpu_features::OptimizationProfile::current(),
-        city_count: 570, // Hardcoded, matches data/urban_areas.json
+        city_count,
     }
 }
 
@@ -440,6 +445,7 @@ mod tests {
     fn test_library_info() {
         let info = library_info();
         assert_eq!(info.version, env!("CARGO_PKG_VERSION"));
-        assert_eq!(info.city_count, 570);
+        // City database should have 570+ cities
+        assert!(info.city_count >= 570, "Expected at least 570 cities, got {}", info.city_count);
     }
 }

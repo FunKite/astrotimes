@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- **Security**: Improved HTTP client security with explicit TLS verification enforcement
+- **Security**: Replaced `unsafe` code in M1 optimizations with safe explicit initialization
+- **Robustness**: Replaced `.unwrap()` call in date parsing with proper error handling
+- **Robustness**: Improved configuration path detection using `dirs` crate instead of manual environment variable checks
+- **Code Quality**: Removed hardcoded version strings - now uses `CARGO_PKG_VERSION` throughout
+- **Code Quality**: Removed hardcoded city count - now dynamically loaded from database
+- **Validation**: Added CLI-level input validation for AI refresh interval (enforces 1-60 minute range)
+
+### Fixed
+- Better error messages when date/time parsing fails
+- More reliable home directory detection across platforms
+
 ## [0.2.2] - 2025-10-25
 
 ### Fixed

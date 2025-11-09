@@ -48,8 +48,10 @@ fn main() -> Result<()> {
     let dt = if let Some(date_str) = &args.date {
         let naive_date = NaiveDate::parse_from_str(date_str, "%Y-%m-%d")
             .context("Invalid date format. Use YYYY-MM-DD")?;
+        let naive_datetime = naive_date.and_hms_opt(12, 0, 0)
+            .ok_or_else(|| anyhow!("Invalid time: 12:00:00"))?;
         timezone
-            .from_local_datetime(&naive_date.and_hms_opt(12, 0, 0).unwrap())
+            .from_local_datetime(&naive_datetime)
             .single()
             .ok_or_else(|| anyhow!("Invalid datetime for timezone"))?
     } else {
@@ -299,7 +301,7 @@ fn print_text_output(
     location_source: LocationSource,
     ai_config: &ai::AiConfig,
 ) -> Result<()> {
-    println!("Solunatus 0.2.2 — github.com/FunKite/solunatus");
+    println!("Solunatus {} — github.com/FunKite/solunatus", env!("CARGO_PKG_VERSION"));
 
     // Location
     println!("— Location & Date —");
