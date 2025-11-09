@@ -11,7 +11,7 @@ pub enum CalendarFormatArg {
 
 #[derive(Parser, Debug, Clone)]
 #[command(name = "solunatus")]
-#[command(version = "0.2.2")]
+#[command(version)]
 #[command(about = "High-precision astronomical CLI for sun and moon calculations", long_about = None)]
 pub struct Args {
     /// Latitude in decimal degrees (positive North, negative South)
@@ -87,7 +87,7 @@ pub struct Args {
     pub ai_model: String,
 
     /// Minutes between AI insight refreshes in watch mode (1-60, default 2)
-    #[arg(long, default_value_t = 2)]
+    #[arg(long, default_value_t = 2, value_parser = clap::value_parser!(u64).range(1..=60))]
     pub ai_refresh_minutes: u64,
 
     /// Generate USNO validation report comparing calculations with Naval Observatory data

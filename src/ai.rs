@@ -14,6 +14,16 @@ const DEFAULT_TIMEOUT_SECS: u64 = 15;
 const USER_AGENT: &str = "Solunatus AI Insights";
 const ERROR_SUMMARY_LIMIT: usize = 120;
 
+/// Build a secure HTTP client with proper timeout and TLS verification
+fn build_secure_http_client(timeout: StdDuration) -> Result<Client> {
+    Client::builder()
+        .timeout(timeout)
+        .user_agent(USER_AGENT)
+        .danger_accept_invalid_certs(false) // Explicitly enforce TLS verification
+        .build()
+        .context("Failed to build HTTP client")
+}
+
 #[derive(Debug, Clone)]
 pub struct AiConfig {
     pub enabled: bool,
@@ -342,9 +352,7 @@ pub fn fetch_insights(config: &AiConfig, data: &AiData) -> Result<AiOutcome> {
         StdDuration::from_secs(DEFAULT_TIMEOUT_SECS)
     };
 
-    let client = Client::builder()
-        .timeout(timeout)
-        .build()
+    let client = build_secure_http_client(timeout)
         .context("failed to construct HTTP client for Ollama")?;
 
     let body = OllamaRequest {
@@ -355,7 +363,6 @@ pub fn fetch_insights(config: &AiConfig, data: &AiData) -> Result<AiOutcome> {
 
     let response = client
         .post(config.endpoint())
-        .header(reqwest::header::USER_AGENT, USER_AGENT)
         .json(&body)
         .send()
         .with_context(|| format!("failed to reach Ollama server at {}", config.server))?;
@@ -410,15 +417,12 @@ fn summarize_error(message: &str) -> String {
 }
 
 pub fn probe_server(server: &str) -> Result<Vec<String>> {
-    let client = Client::builder()
-        .timeout(StdDuration::from_secs(DEFAULT_TIMEOUT_SECS))
-        .build()
+    let client = build_secure_http_client(StdDuration::from_secs(DEFAULT_TIMEOUT_SECS))
         .context("failed to construct HTTP client for Ollama")?;
 
     let endpoint = format!("{}/api/tags", server.trim_end_matches('/'));
     let response = client
         .get(&endpoint)
-        .header(reqwest::header::USER_AGENT, USER_AGENT)
         .send()
         .with_context(|| format!("failed to reach Ollama server at {}", server))?;
 

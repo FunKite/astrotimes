@@ -21,6 +21,7 @@
 /// Performance Benefits:
 /// - Expected: 15-25% improvement over generic ARM64
 /// - Specific: 40-50% improvement in batch operations
+use super::{sun, moon};
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 /// Thread pool for M1 Max multi-core utilization
@@ -84,18 +85,18 @@ impl CacheAlignedBatch {
 /// # Safety
 /// The caller must ensure that `ptr` is valid and points to at least `count` elements
 #[inline]
-pub unsafe fn prefetch_astronomical_data(ptr: *const f64, count: usize) {
+pub unsafe fn prefetch_astronomical_data(_ptr: *const f64, count: usize) {
     // M1 prefetching is automatic, but we document the pattern
     // for consistency with other platforms (Intel/AMD explicit prefetch)
 
     // Typical prefetch pattern for upcoming calculations
     // This helps L1/L2 cache fill with data we'll need soon
-    for i in (0..count).step_by(8) {
+    for _i in (0..count).step_by(8) {
         // Mark addresses for prefetching (implementation is architecture-specific)
         // On M1, this is implicit with sequential memory access
         #[cfg(target_arch = "aarch64")]
         {
-            let _ptr = ptr.add(i);
+            let _prefetch_ptr = _ptr.add(_i);
             // M1 will prefetch automatically
         }
     }
@@ -182,8 +183,18 @@ impl Default for M1L2OptimizedState {
 impl M1L2OptimizedState {
     pub fn new() -> Self {
         Self {
-            solar_pos: unsafe { std::mem::zeroed() },
-            lunar_pos: unsafe { std::mem::zeroed() },
+            solar_pos: sun::SolarPosition {
+                altitude: 0.0,
+                azimuth: 0.0,
+            },
+            lunar_pos: moon::LunarPosition {
+                altitude: 0.0,
+                azimuth: 0.0,
+                distance: 0.0,
+                illumination: 0.0,
+                phase_angle: 0.0,
+                angular_diameter: 0.0,
+            },
             trig_cache: [0.0; 16],
         }
     }
