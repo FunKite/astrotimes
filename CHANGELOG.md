@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.3] - 2025-11-14
+
 ### Changed
 - **Security**: Improved HTTP client security with explicit TLS verification enforcement
 - **Security**: Replaced `unsafe` code in M1 optimizations with safe explicit initialization
@@ -15,6 +17,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Code Quality**: Removed hardcoded version strings - now uses `CARGO_PKG_VERSION` throughout
 - **Code Quality**: Removed hardcoded city count - now dynamically loaded from database
 - **Validation**: Added CLI-level input validation for AI refresh interval (enforces 1-60 minute range)
+- Updated `clap` from 4.5.50 to 4.5.51
+
+### Documentation
+- Comprehensive README improvements with expanded feature descriptions and usage examples
+- Added detailed solar and lunar calculation documentation in `docs/development/`
+- Enhanced troubleshooting guide with additional common issues and solutions
+- Improved AI insights documentation
+- Better crates.io documentation coverage
+- Updated Code of Conduct
 
 ### Fixed
 - Better error messages when date/time parsing fails
