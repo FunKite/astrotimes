@@ -282,7 +282,7 @@ Rust not installed or PATH not updated. Run: `source "$HOME/.cargo/env"`
 ### Tests fail on first run
 Some tests may require network access for NTP time sync or USNO validation. Use:
 ```bash
-ASTROTIMES_SKIP_TIME_SYNC=1 cargo test
+SOLUNATUS_SKIP_TIME_SYNC=1 cargo test
 ```
 
 ### Out of memory during build

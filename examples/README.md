@@ -1,6 +1,6 @@
-# AstroTimes Library Examples
+# Solunatus Library Examples
 
-This directory contains examples demonstrating how to use the AstroTimes library in your own Rust projects.
+This directory contains examples demonstrating how to use the Solunatus library in your own Rust projects.
 
 ## Running Examples
 
@@ -81,21 +81,21 @@ Deep dive into twilight periods and detailed solar position tracking.
 cargo run --example custom_events
 ```
 
-## Using AstroTimes in Your Project
+## Using Solunatus in Your Project
 
 Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-astrotimes = { git = "https://github.com/FunKite/astrotimes" }
+solunatus = "0.2"
 chrono = "0.4"
-chrono-tz = "0.9"
+chrono-tz = "0.10"
 ```
 
 Then in your code:
 
 ```rust
-use astrotimes::prelude::*;
+use solunatus::prelude::*;
 use chrono::Local;
 use chrono_tz::America::New_York;
 
@@ -138,7 +138,7 @@ cargo doc --open
 
 ## Tier 1 Platform Support
 
-AstroTimes is tested and optimized for all Rust Tier 1 targets:
+Solunatus is tested and optimized for all Rust Tier 1 targets:
 
 - **x86_64-unknown-linux-gnu** (Linux x86_64)
 - **x86_64-apple-darwin** (macOS Intel)
@@ -149,5 +149,5 @@ AstroTimes is tested and optimized for all Rust Tier 1 targets:
 ## More Information
 
 - [Main README](../README.md)
-- [API Documentation](https://docs.rs/astrotimes)
-- [GitHub Repository](https://github.com/FunKite/astrotimes)
+- [API Documentation](https://docs.rs/solunatus)
+- [GitHub Repository](https://github.com/FunKite/solunatus)

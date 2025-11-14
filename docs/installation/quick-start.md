@@ -131,9 +131,9 @@ Add to `Cargo.toml`:
 
 ```toml
 [dependencies]
-solunatus = "0.1"
+solunatus = "0.2"
 chrono = "0.4"
-chrono-tz = "0.9"
+chrono-tz = "0.10"
 ```
 
 Create `src/main.rs`:

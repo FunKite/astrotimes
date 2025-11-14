@@ -59,9 +59,9 @@ If you want to use Solunatus as a library in your Rust project:
 
 ```toml
 [dependencies]
-solunatus = "0.1"
+solunatus = "0.2"
 chrono = "0.4"
-chrono-tz = "0.9"
+chrono-tz = "0.10"
 ```
 
 See the [examples directory](../../examples/) for usage patterns.
