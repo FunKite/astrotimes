@@ -1,4 +1,7 @@
-// JSON output module
+//! JSON output formatting.
+//!
+//! Provides structured JSON output for astronomical data including
+//! positions, events, phases, and optional AI insights.
 
 use crate::ai;
 use crate::astro::*;

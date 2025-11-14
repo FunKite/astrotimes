@@ -1,13 +1,28 @@
-// Type-safe astronomical units
-// Prevents mixing degrees/radians and enforces valid ranges
+//! Type-safe astronomical units.
+//!
+//! This module provides type-safe wrappers for angles and coordinates to prevent
+//! common errors like mixing degrees with radians or using invalid coordinate ranges.
+//!
+//! # Type Safety
+//!
+//! - [`Degrees`] and [`Radians`] prevent angle unit confusion
+//! - [`Latitude`] enforces -90° to 90° range
+//! - [`Longitude`] enforces -180° to 180° range
+//! - [`Altitude`] represents elevation above horizon
+//! - [`Azimuth`] represents compass bearing (0-360°, automatically normalized)
 
 use std::f64::consts::PI;
 use std::fmt;
 
+/// Conversion factor from degrees to radians.
 pub const DEG_TO_RAD: f64 = PI / 180.0;
+
+/// Conversion factor from radians to degrees.
 pub const RAD_TO_DEG: f64 = 180.0 / PI;
 
-/// Angle in degrees
+/// An angle measured in degrees.
+///
+/// Provides type safety to prevent mixing degrees with radians in calculations.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Degrees(f64);
 
@@ -75,7 +90,9 @@ impl From<Degrees> for f64 {
     }
 }
 
-/// Angle in radians
+/// An angle measured in radians.
+///
+/// Provides type safety to prevent mixing radians with degrees in calculations.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Radians(f64);
 
@@ -129,7 +146,10 @@ impl From<Radians> for Degrees {
     }
 }
 
-/// Latitude coordinate (-90 to 90 degrees, positive North)
+/// Geographic latitude coordinate.
+///
+/// Valid range: -90° to 90° (negative = South, positive = North).
+/// Enforces range validation on creation.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Latitude(f64);
 
@@ -166,7 +186,10 @@ impl fmt::Display for Latitude {
     }
 }
 
-/// Longitude coordinate (-180 to 180 degrees, positive East)
+/// Geographic longitude coordinate.
+///
+/// Valid range: -180° to 180° (negative = West, positive = East).
+/// Enforces range validation on creation.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Longitude(f64);
 
@@ -203,7 +226,12 @@ impl fmt::Display for Longitude {
     }
 }
 
-/// Altitude angle (elevation above horizon, -90 to 90 degrees)
+/// Altitude angle (elevation above horizon).
+///
+/// Range: -90° to 90° (negative = below horizon, positive = above horizon).
+/// - 0° = on the horizon
+/// - 90° = at zenith (directly overhead)
+/// - -90° = at nadir (directly below)
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Altitude(f64);
 
@@ -235,7 +263,13 @@ impl fmt::Display for Altitude {
     }
 }
 
-/// Azimuth angle (compass bearing from North, 0 to 360 degrees)
+/// Azimuth angle (compass bearing from North).
+///
+/// Range: 0° to 360° (automatically normalized).
+/// - 0° = North
+/// - 90° = East
+/// - 180° = South
+/// - 270° = West
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Azimuth(f64);
 

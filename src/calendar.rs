@@ -1,3 +1,16 @@
+//! Calendar generation module.
+//!
+//! Generates astronomical calendars in HTML or JSON format for arbitrary date ranges.
+//! Supports historical dates (negative years for BCE) and future dates.
+//!
+//! # Features
+//!
+//! - HTML and JSON output formats
+//! - Per-day solar events (sunrise, sunset, solar noon, twilight)
+//! - Per-day lunar events (moonrise, moonset, phase)
+//! - Supports BCE dates (year -999 = 1000 BCE)
+//! - Future dates up to year 3000
+
 use crate::astro::{moon, sun, Location};
 use anyhow::{anyhow, Context, Result};
 use chrono::{Datelike, Duration, NaiveDate, TimeZone, Utc, Weekday};
@@ -8,9 +21,12 @@ use std::collections::BTreeMap;
 const MIN_YEAR: i32 = -999; // Astronomical year numbering => 1000 BCE
 const MAX_YEAR: i32 = 3000;
 
+/// Calendar output format.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CalendarFormat {
+    /// HTML format with embedded CSS
     Html,
+    /// JSON format for programmatic access
     Json,
 }
 

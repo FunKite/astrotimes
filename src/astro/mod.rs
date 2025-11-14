@@ -1,5 +1,23 @@
-// Astronomical calculations module
-// Implements NOAA solar algorithms and Meeus lunar algorithms for high precision
+//! Astronomical calculations module.
+//!
+//! This module implements high-precision astronomical algorithms for calculating
+//! solar and lunar positions, rise/set times, and related phenomena.
+//!
+//! ## Algorithms
+//!
+//! - **Solar calculations**: Based on NOAA solar position algorithms
+//! - **Lunar calculations**: Based on Jean Meeus "Astronomical Algorithms"
+//!
+//! ## Modules
+//!
+//! - [`sun`] - Solar position and event calculations
+//! - [`moon`] - Lunar position, phases, and event calculations
+//! - [`units`] - Type-safe angle and coordinate units
+//! - [`coordinates`] - Coordinate system transformations
+//! - [`time_utils`] - Time and Julian Day utilities
+//! - [`simd_math`] - SIMD-optimized mathematical operations
+//! - [`m1_optimizations`] - Apple Silicon specific optimizations
+//! - [`moon_batch_optimized`] - Batch lunar calculations with parallelization
 
 pub mod coordinates;
 pub mod m1_optimizations;
@@ -52,9 +70,35 @@ impl Location {
     }
 }
 
-/// Calculate Julian Day from DateTime
-/// CRITICAL: Julian Day is defined in UTC, so we must convert to UTC first
-/// Note: Meeus algorithms are formulated for UT, not TT
+/// Calculate Julian Day from a given date and time.
+///
+/// Julian Day is a continuous count of days since the beginning of the Julian Period.
+/// This function converts any timezone-aware DateTime to UTC before calculating the Julian Day.
+///
+/// # Arguments
+///
+/// * `dt` - A timezone-aware DateTime
+///
+/// # Returns
+///
+/// The Julian Day number as a floating-point value.
+///
+/// # Notes
+///
+/// - Julian Day is always defined in UTC
+/// - The algorithms are formulated for Universal Time (UT), not Terrestrial Time (TT)
+/// - The epoch (JD 0) corresponds to January 1, 4713 BC at noon
+///
+/// # Examples
+///
+/// ```
+/// use solunatus::astro::julian_day;
+/// use chrono::Utc;
+///
+/// let dt = Utc.with_ymd_and_hms(2000, 1, 1, 12, 0, 0).unwrap();
+/// let jd = julian_day(&dt);
+/// assert!((jd - 2451545.0).abs() < 0.001); // J2000.0 epoch
+/// ```
 pub fn julian_day<T: TimeZone>(dt: &DateTime<T>) -> f64 {
     // Convert to UTC for Julian Day calculation
     let utc_dt = dt.with_timezone(&chrono::Utc);
@@ -80,17 +124,76 @@ pub fn julian_day<T: TimeZone>(dt: &DateTime<T>) -> f64 {
     (365.25 * (y + 4716.0)).floor() + (30.6001 * (m + 1.0)).floor() + day + b - 1524.5
 }
 
-/// Calculate Julian Century from Julian Day
+/// Calculate Julian Century from a Julian Day number.
+///
+/// Julian Century is the number of centuries since the J2000.0 epoch (JD 2451545.0),
+/// which corresponds to January 1, 2000, 12:00 TT.
+///
+/// # Arguments
+///
+/// * `jd` - Julian Day number
+///
+/// # Returns
+///
+/// The Julian Century value (number of centuries since J2000.0).
+///
+/// # Examples
+///
+/// ```
+/// use solunatus::astro::julian_century;
+///
+/// // J2000.0 epoch
+/// let t = julian_century(2451545.0);
+/// assert_eq!(t, 0.0);
+/// ```
 pub fn julian_century(jd: f64) -> f64 {
     (jd - 2451545.0) / 36525.0
 }
 
-/// Normalize angle to 0-360 degrees (kept for backward compatibility)
+/// Normalize an angle to the range [0, 360) degrees.
+///
+/// # Arguments
+///
+/// * `angle` - Angle in degrees (can be any value)
+///
+/// # Returns
+///
+/// The normalized angle in the range [0, 360).
+///
+/// # Examples
+///
+/// ```
+/// use solunatus::astro::normalize_degrees;
+///
+/// assert_eq!(normalize_degrees(370.0), 10.0);
+/// assert_eq!(normalize_degrees(-10.0), 350.0);
+/// assert_eq!(normalize_degrees(0.0), 0.0);
+/// ```
 pub fn normalize_degrees(angle: f64) -> f64 {
     Degrees::new(angle).normalized().value()
 }
 
-/// Normalize angle to -180 to 180 degrees (kept for backward compatibility)
+/// Normalize an angle to the range [-180, 180) degrees.
+///
+/// This is useful for representing angles relative to a reference direction,
+/// where negative values indicate one direction and positive values indicate the other.
+///
+/// # Arguments
+///
+/// * `angle` - Angle in degrees (can be any value)
+///
+/// # Returns
+///
+/// The normalized angle in the range [-180, 180).
+///
+/// # Examples
+///
+/// ```
+/// use solunatus::astro::normalize_degrees_signed;
+///
+/// assert_eq!(normalize_degrees_signed(190.0), -170.0);
+/// assert_eq!(normalize_degrees_signed(-190.0), 170.0);
+/// ```
 pub fn normalize_degrees_signed(angle: f64) -> f64 {
     Degrees::new(angle).normalized_signed().value()
 }

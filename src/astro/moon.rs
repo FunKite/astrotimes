@@ -1,40 +1,74 @@
-// Lunar calculations using Meeus algorithms
-// Based on "Astronomical Algorithms" by Jean Meeus
+//! Lunar calculations using Meeus algorithms.
+//!
+//! This module implements high-precision lunar position and phase calculations
+//! based on Jean Meeus' "Astronomical Algorithms" (Chapter 47).
+//!
+//! # References
+//!
+//! - Jean Meeus, "Astronomical Algorithms", 2nd Edition
+//! - Chapter 47: Position of the Moon
+//! - Chapter 49: Phases of the Moon
+//!
+//! # Accuracy
+//!
+//! The algorithms provide geocentric moon positions accurate to within a few arcminutes
+//! and lunar phase times accurate to within a few minutes.
 
 use super::*;
 use chrono::{DateTime, Datelike, Duration, LocalResult, TimeZone};
 
-/// Lunar phase types
+/// Types of major lunar phases.
+///
+/// The moon goes through four major phases each lunar month (approximately 29.5 days).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum LunarPhaseType {
+    /// New moon (moon between Earth and Sun, not visible)
     NewMoon,
+    /// First quarter (right half illuminated in Northern Hemisphere)
     FirstQuarter,
+    /// Full moon (Earth between Sun and moon, fully illuminated)
     FullMoon,
+    /// Last quarter (left half illuminated in Northern Hemisphere)
     LastQuarter,
 }
 
-/// Lunar phase information
+/// Information about a specific lunar phase occurrence.
+///
+/// Contains the type of phase and the exact time it occurs.
 #[derive(Debug, Clone)]
 pub struct LunarPhase {
+    /// The type of lunar phase
     pub phase_type: LunarPhaseType,
+    /// The UTC date and time when this phase occurs
     pub datetime: DateTime<chrono::Utc>,
 }
 
-/// Lunar position (altitude and azimuth)
+/// Lunar position and appearance data.
+///
+/// Contains comprehensive information about the moon's position in the sky
+/// and its visual appearance at a specific time and location.
 #[derive(Debug, Clone, Copy)]
 pub struct LunarPosition {
-    pub altitude: f64,         // degrees above horizon
-    pub azimuth: f64,          // degrees from North
-    pub distance: f64,         // kilometers from Earth
-    pub illumination: f64,     // fraction illuminated (0.0 to 1.0)
-    pub phase_angle: f64,      // degrees (0=new, 180=full)
-    pub angular_diameter: f64, // arcminutes
+    /// Altitude in degrees above the horizon (negative if below horizon)
+    pub altitude: f64,
+    /// Azimuth in degrees from North (0=N, 90=E, 180=S, 270=W)
+    pub azimuth: f64,
+    /// Distance from Earth's center in kilometers
+    pub distance: f64,
+    /// Fraction of moon's disk that is illuminated (0.0 = new, 1.0 = full)
+    pub illumination: f64,
+    /// Phase angle in degrees (0° = new moon, 180° = full moon)
+    pub phase_angle: f64,
+    /// Angular diameter in arcminutes as seen from Earth
+    pub angular_diameter: f64,
 }
 
-/// Lunar event types
+/// Types of lunar events that can be calculated.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum LunarEvent {
+    /// Moonrise (moon's upper edge appears on horizon)
     Moonrise,
+    /// Moonset (moon's upper edge disappears below horizon)
     Moonset,
 }
 
@@ -157,7 +191,40 @@ fn moon_distance(t: f64) -> f64 {
     385000.56 + sigma_r / 1000.0 // in kilometers
 }
 
-/// Calculate lunar position at a given time
+/// Calculate the lunar position at a specific time and location.
+///
+/// Computes the moon's position in the sky along with phase and appearance data.
+/// The calculation includes topocentric parallax correction for accurate altitude.
+///
+/// # Arguments
+///
+/// * `location` - Geographic location
+/// * `dt` - Date and time for calculation
+///
+/// # Returns
+///
+/// A `LunarPosition` containing:
+/// - `altitude`: Degrees above horizon (negative if below horizon)
+/// - `azimuth`: Degrees from North (0=N, 90=E, 180=S, 270=W)
+/// - `distance`: Distance from Earth in kilometers
+/// - `illumination`: Fraction illuminated (0.0 to 1.0)
+/// - `phase_angle`: Phase angle in degrees (0° = new, 180° = full)
+/// - `angular_diameter`: Angular size in arcminutes
+///
+/// # Examples
+///
+/// ```
+/// use solunatus::prelude::*;
+/// use chrono::Local;
+/// use chrono_tz::UTC;
+///
+/// let location = Location::new(51.5074, -0.1278).unwrap(); // London
+/// let now = Local::now().with_timezone(&UTC);
+/// let moon_pos = lunar_position(&location, &now);
+///
+/// println!("Moon altitude: {:.2}°", moon_pos.altitude);
+/// println!("Moon illumination: {:.1}%", moon_pos.illumination * 100.0);
+/// ```
 pub fn lunar_position<T: TimeZone>(location: &Location, dt: &DateTime<T>) -> LunarPosition {
     let jd = julian_day(dt);
     let t = julian_century(jd);
@@ -280,7 +347,31 @@ fn calculate_phase_illumination<T: TimeZone>(dt: &DateTime<T>) -> (f64, f64) {
     (phase_angle, illumination)
 }
 
-/// Calculate lunar phase times using Meeus algorithm
+/// Calculate all major lunar phases for a given month.
+///
+/// Returns the times of all four major lunar phases (New, First Quarter, Full, Last Quarter)
+/// that occur during the specified month.
+///
+/// # Arguments
+///
+/// * `year` - Year (can be negative for BCE years)
+/// * `month` - Month (1-12)
+///
+/// # Returns
+///
+/// A vector of `LunarPhase` structs with UTC times, sorted chronologically.
+/// Typically returns 4 phases per month, but may return 3-5 depending on timing.
+///
+/// # Examples
+///
+/// ```
+/// use solunatus::prelude::*;
+///
+/// let phases = get_lunar_phases_for_month(2025, 10).unwrap();
+/// for phase in phases {
+///     println!("{:?}: {}", phase.phase_type, phase.datetime.format("%Y-%m-%d %H:%M UTC"));
+/// }
+/// ```
 pub fn lunar_phases(year: i32, month: u32) -> Vec<LunarPhase> {
     let approx_k = (year as f64 + (month as f64 - 0.5) / 12.0 - 2000.0) * 12.3685;
     let phase_offsets = [
@@ -512,7 +603,37 @@ fn search_rise_or_set<T: TimeZone>(
     None
 }
 
-/// Find moonrise or moonset time for a given date
+/// Calculate the time of a lunar event (moonrise or moonset) for a given date.
+///
+/// Finds when the moon rises above or sets below the horizon, accounting for
+/// atmospheric refraction and the moon's angular diameter.
+///
+/// # Arguments
+///
+/// * `location` - Geographic location
+/// * `date` - Date for calculation (time component is ignored)
+/// * `event` - Type of lunar event (`Moonrise` or `Moonset`)
+///
+/// # Returns
+///
+/// - `Some(DateTime)` - The time when the event occurs in the input timezone
+/// - `None` - The event doesn't occur on this date
+///
+/// # Examples
+///
+/// ```
+/// use solunatus::prelude::*;
+/// use solunatus::astro::moon::{lunar_event_time, LunarEvent};
+/// use chrono::Local;
+/// use chrono_tz::America::Chicago;
+///
+/// let location = Location::new(41.8781, -87.6298).unwrap(); // Chicago
+/// let now = Local::now().with_timezone(&Chicago);
+///
+/// if let Some(moonrise) = lunar_event_time(&location, &now, LunarEvent::Moonrise) {
+///     println!("Moonrise: {}", moonrise.format("%H:%M:%S"));
+/// }
+/// ```
 pub fn lunar_event_time<T: TimeZone>(
     location: &Location,
     date: &DateTime<T>,
@@ -527,8 +648,36 @@ pub fn lunar_event_time<T: TimeZone>(
     }
 }
 
-/// Get phase name from phase angle
-/// Uses narrower boundaries for primary phases to match astronomical conventions
+/// Get the descriptive name of a lunar phase from its phase angle.
+///
+/// Converts a numeric phase angle to a human-readable phase name.
+/// Uses astronomical conventions with narrower boundaries for primary phases.
+///
+/// # Arguments
+///
+/// * `phase_angle` - Phase angle in degrees (0° = new moon, 180° = full moon)
+///
+/// # Returns
+///
+/// A string describing the lunar phase:
+/// - "New Moon" (0° ± 11.25°)
+/// - "Waxing Crescent" (11.25° - 78.75°)
+/// - "First Quarter" (78.75° - 101.25°)
+/// - "Waxing Gibbous" (101.25° - 168.75°)
+/// - "Full Moon" (168.75° - 191.25°)
+/// - "Waning Gibbous" (191.25° - 258.75°)
+/// - "Last Quarter" (258.75° - 281.25°)
+/// - "Waning Crescent" (281.25° - 348.75°)
+///
+/// # Examples
+///
+/// ```
+/// use solunatus::astro::moon::phase_name;
+///
+/// assert_eq!(phase_name(0.0), "New Moon");
+/// assert_eq!(phase_name(90.0), "First Quarter");
+/// assert_eq!(phase_name(180.0), "Full Moon");
+/// ```
 pub fn phase_name(phase_angle: f64) -> &'static str {
     match phase_angle {
         a if a < 11.25 => "New Moon",
@@ -543,8 +692,35 @@ pub fn phase_name(phase_angle: f64) -> &'static str {
     }
 }
 
-/// Get phase emoji
-/// Uses narrower boundaries for primary phases to match astronomical conventions
+/// Get an emoji representing a lunar phase from its phase angle.
+///
+/// Converts a numeric phase angle to a moon emoji character.
+/// Uses astronomical conventions with narrower boundaries for primary phases.
+///
+/// # Arguments
+///
+/// * `phase_angle` - Phase angle in degrees (0° = new moon, 180° = full moon)
+///
+/// # Returns
+///
+/// A moon emoji:
+/// - 🌑 New Moon (0° ± 11.25°)
+/// - 🌒 Waxing Crescent (11.25° - 78.75°)
+/// - 🌓 First Quarter (78.75° - 101.25°)
+/// - 🌔 Waxing Gibbous (101.25° - 168.75°)
+/// - 🌕 Full Moon (168.75° - 191.25°)
+/// - 🌖 Waning Gibbous (191.25° - 258.75°)
+/// - 🌗 Last Quarter (258.75° - 281.25°)
+/// - 🌘 Waning Crescent (281.25° - 348.75°)
+///
+/// # Examples
+///
+/// ```
+/// use solunatus::astro::moon::phase_emoji;
+///
+/// assert_eq!(phase_emoji(0.0), "🌑");
+/// assert_eq!(phase_emoji(180.0), "🌕");
+/// ```
 pub fn phase_emoji(phase_angle: f64) -> &'static str {
     match phase_angle {
         a if a < 11.25 => "🌑",

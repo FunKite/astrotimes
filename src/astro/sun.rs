@@ -1,26 +1,54 @@
-// NOAA Solar Calculations
-// Based on NOAA's solar position algorithms
-// https://gml.noaa.gov/grad/solcalc/calcdetails.html
+//! NOAA Solar Calculations.
+//!
+//! This module implements solar position algorithms based on NOAA's
+//! solar position calculator.
+//!
+//! # References
+//!
+//! Based on NOAA's solar position algorithms:
+//! <https://gml.noaa.gov/grad/solcalc/calcdetails.html>
+//!
+//! # Accuracy
+//!
+//! These algorithms provide high precision results that match U.S. Naval Observatory
+//! data within ±1-2 minutes for sunrise/sunset times.
 
 use super::*;
 use chrono::{DateTime, Duration, TimeZone};
 
-/// Solar event types
+/// Types of solar events that can be calculated.
+///
+/// Each event corresponds to a specific solar altitude angle:
+/// - Sunrise/Sunset: -0.833° (accounting for refraction and solar disk)
+/// - Civil twilight: -6°
+/// - Nautical twilight: -12°
+/// - Astronomical twilight: -18°
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum SolarEvent {
+    /// Sunrise (top edge of sun appears on horizon)
     Sunrise,
+    /// Sunset (top edge of sun disappears below horizon)
     Sunset,
+    /// Solar noon (sun reaches highest point in sky)
     SolarNoon,
+    /// Civil dawn (sun 6° below horizon, morning)
     CivilDawn,
+    /// Civil dusk (sun 6° below horizon, evening)
     CivilDusk,
+    /// Nautical dawn (sun 12° below horizon, morning)
     NauticalDawn,
+    /// Nautical dusk (sun 12° below horizon, evening)
     NauticalDusk,
+    /// Astronomical dawn (sun 18° below horizon, morning)
     AstronomicalDawn,
+    /// Astronomical dusk (sun 18° below horizon, evening)
     AstronomicalDusk,
 }
 
 impl SolarEvent {
-    /// Get the solar altitude for this event
+    /// Get the solar altitude angle for this event in degrees.
+    ///
+    /// Returns the angle of the sun below (negative) or above (positive) the horizon.
     pub fn altitude(&self) -> f64 {
         match self {
             SolarEvent::Sunrise | SolarEvent::Sunset => -0.833, // Standard refraction + solar radius
@@ -32,11 +60,15 @@ impl SolarEvent {
     }
 }
 
-/// Solar position (altitude and azimuth)
+/// Solar position in the sky (altitude and azimuth).
+///
+/// This represents where the sun appears in the sky at a given time and location.
 #[derive(Debug, Clone, Copy)]
 pub struct SolarPosition {
-    pub altitude: f64, // degrees above horizon
-    pub azimuth: f64,  // degrees from North (0=N, 90=E, 180=S, 270=W)
+    /// Altitude in degrees above the horizon (negative if below horizon)
+    pub altitude: f64,
+    /// Azimuth in degrees from North (0=N, 90=E, 180=S, 270=W)
+    pub azimuth: f64,
 }
 
 /// Calculate geometric mean longitude of the Sun (degrees)
@@ -96,7 +128,20 @@ fn sun_declination(t: f64) -> f64 {
     sint.asin() * RAD_TO_DEG
 }
 
-/// Calculate the equation of time (minutes)
+/// Calculate the equation of time in minutes.
+///
+/// The equation of time represents the difference between apparent solar time
+/// (sundial time) and mean solar time (clock time). This varies throughout the
+/// year due to Earth's elliptical orbit and axial tilt.
+///
+/// # Arguments
+///
+/// * `t` - Julian Century from J2000.0
+///
+/// # Returns
+///
+/// The equation of time in minutes. Positive values mean the sundial is ahead
+/// of clock time, negative values mean it's behind.
 pub fn equation_of_time(t: f64) -> f64 {
     let epsilon = obliquity_correction(t);
     let l0 = sun_geom_mean_long(t);
@@ -133,7 +178,34 @@ fn hour_angle_for_altitude(lat: f64, dec: f64, altitude: f64) -> Option<f64> {
     }
 }
 
-/// Calculate solar noon time for a given location and date
+/// Calculate solar noon time for a given location and date.
+///
+/// Solar noon is when the sun reaches its highest point in the sky for the day.
+/// This is not necessarily 12:00 PM clock time due to:
+/// - Longitude within the timezone
+/// - Equation of time variations
+///
+/// # Arguments
+///
+/// * `location` - Geographic location
+/// * `date` - Date for calculation (time component is ignored)
+///
+/// # Returns
+///
+/// DateTime of solar noon in the input timezone.
+///
+/// # Examples
+///
+/// ```
+/// use solunatus::prelude::*;
+/// use chrono::Local;
+/// use chrono_tz::America::New_York;
+///
+/// let location = Location::new(40.7128, -74.0060).unwrap();
+/// let now = Local::now().with_timezone(&New_York);
+/// let noon = solunatus::astro::sun::solar_noon(&location, &now);
+/// println!("Solar noon: {}", noon.format("%H:%M:%S"));
+/// ```
 pub fn solar_noon<T: TimeZone>(location: &Location, date: &DateTime<T>) -> DateTime<T> {
     // Use noon UTC as reference for calculations
     let base_date = date.date_naive().and_hms_opt(12, 0, 0).unwrap();
@@ -153,7 +225,37 @@ pub fn solar_noon<T: TimeZone>(location: &Location, date: &DateTime<T>) -> DateT
     solar_noon_utc.with_timezone(&date.timezone())
 }
 
-/// Calculate solar event time
+/// Calculate the time of a solar event for a given location and date.
+///
+/// Calculates when specific solar events occur (sunrise, sunset, twilight times, etc.).
+/// Returns `None` if the event doesn't occur on this date (e.g., polar day/night).
+///
+/// # Arguments
+///
+/// * `location` - Geographic location
+/// * `date` - Date for calculation (time component is ignored)
+/// * `event` - Type of solar event to calculate
+///
+/// # Returns
+///
+/// - `Some(DateTime)` - The time when the event occurs in the input timezone
+/// - `None` - The event doesn't occur on this date (polar conditions)
+///
+/// # Examples
+///
+/// ```
+/// use solunatus::prelude::*;
+/// use solunatus::astro::sun::{solar_event_time, SolarEvent};
+/// use chrono::Local;
+/// use chrono_tz::America::New_York;
+///
+/// let location = Location::new(40.7128, -74.0060).unwrap();
+/// let now = Local::now().with_timezone(&New_York);
+///
+/// if let Some(sunrise) = solar_event_time(&location, &now, SolarEvent::Sunrise) {
+///     println!("Sunrise: {}", sunrise.format("%H:%M:%S"));
+/// }
+/// ```
 pub fn solar_event_time<T: TimeZone>(
     location: &Location,
     date: &DateTime<T>,
@@ -195,7 +297,35 @@ pub fn solar_event_time<T: TimeZone>(
     Some(event_utc.with_timezone(&date.timezone()))
 }
 
-/// Calculate solar position (altitude and azimuth) at a given time
+/// Calculate the solar position (altitude and azimuth) at a specific time.
+///
+/// Computes where the sun appears in the sky at a given moment.
+///
+/// # Arguments
+///
+/// * `location` - Geographic location
+/// * `dt` - Date and time for calculation
+///
+/// # Returns
+///
+/// A `SolarPosition` containing:
+/// - `altitude`: Degrees above horizon (negative if below horizon)
+/// - `azimuth`: Degrees from North (0=N, 90=E, 180=S, 270=W)
+///
+/// # Examples
+///
+/// ```
+/// use solunatus::prelude::*;
+/// use chrono::Local;
+/// use chrono_tz::America::Los_Angeles;
+///
+/// let location = Location::new(34.0522, -118.2437).unwrap();
+/// let now = Local::now().with_timezone(&Los_Angeles);
+/// let pos = solar_position(&location, &now);
+///
+/// println!("Sun altitude: {:.2}°", pos.altitude);
+/// println!("Sun azimuth: {:.2}°", pos.azimuth);
+/// ```
 pub fn solar_position<T: TimeZone>(location: &Location, dt: &DateTime<T>) -> SolarPosition {
     let jd = julian_day(dt);
     let t = julian_century(jd);

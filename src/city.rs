@@ -1,26 +1,64 @@
-// City database and picker
+//! City database and search functionality.
+//!
+//! Provides an embedded database of 570+ major cities worldwide with
+//! exact name matching and fuzzy search capabilities.
+//!
+//! # Features
+//!
+//! - Embedded city database (no external files needed)
+//! - Exact name matching (case-insensitive)
+//! - Fuzzy search with ranking
+//! - Nearest city lookup by coordinates
+//! - Distance and bearing calculations
 
 use anyhow::{Context, Result};
 use fuzzy_matcher::skim::SkimMatcherV2;
 use fuzzy_matcher::FuzzyMatcher;
 use serde::{Deserialize, Serialize};
 
+/// Information about a city in the database.
+///
+/// Contains geographic coordinates and timezone information for a city.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct City {
+    /// City name
     pub name: String,
+    /// Latitude in degrees (negative = South, positive = North)
     pub lat: f64,
+    /// Longitude in degrees (negative = West, positive = East)
     pub lon: f64,
+    /// IANA timezone identifier (e.g., "America/New_York")
     pub tz: String,
+    /// Country name
     pub country: String,
+    /// State/province name (if applicable)
     pub state: Option<String>,
 }
 
+/// Database of major cities worldwide.
+///
+/// Contains 570+ cities with population centers and geographic data.
 pub struct CityDatabase {
     cities: Vec<City>,
 }
 
 impl CityDatabase {
-    /// Load city database from embedded JSON
+    /// Load the embedded city database.
+    ///
+    /// Loads the database from embedded JSON data (no external files required).
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the embedded data cannot be parsed.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use solunatus::city::CityDatabase;
+    ///
+    /// let db = CityDatabase::load().unwrap();
+    /// println!("Loaded {} cities", db.cities().len());
+    /// ```
     pub fn load() -> Result<Self> {
         let data = include_str!("../data/urban_areas.json");
         let cities: Vec<City> =
@@ -29,8 +67,29 @@ impl CityDatabase {
         Ok(Self { cities })
     }
 
-    /// Find the nearest city to a given location
-    /// Returns (city, distance_km, bearing_degrees)
+    /// Find the nearest city to given coordinates.
+    ///
+    /// Uses the Haversine formula to calculate great-circle distances.
+    ///
+    /// # Arguments
+    ///
+    /// * `lat` - Latitude in degrees
+    /// * `lon` - Longitude in degrees
+    ///
+    /// # Returns
+    ///
+    /// `Some((city, distance_km, bearing_degrees))` or `None` if database is empty.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use solunatus::city::CityDatabase;
+    ///
+    /// let db = CityDatabase::load().unwrap();
+    /// if let Some((city, distance, bearing)) = db.find_nearest(40.7128, -74.0060) {
+    ///     println!("Nearest city: {} ({:.1} km away)", city.name, distance);
+    /// }
+    /// ```
     pub fn find_nearest(&self, lat: f64, lon: f64) -> Option<(&City, f64, f64)> {
         let mut nearest: Option<(&City, f64, f64)> = None;
         let mut min_distance = f64::INFINITY;
@@ -47,13 +106,26 @@ impl CityDatabase {
         nearest
     }
 
-    /// Get reference to all cities in the database
+    /// Get a reference to all cities in the database.
+    ///
+    /// Returns a slice of all cities (570+) in the database.
     #[allow(dead_code)]
     pub fn cities(&self) -> &[City] {
         &self.cities
     }
 
-    /// Find a city by exact name match (case-insensitive)
+    /// Find a city by exact name match (case-insensitive).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use solunatus::city::CityDatabase;
+    ///
+    /// let db = CityDatabase::load().unwrap();
+    /// if let Some(city) = db.find_exact("Tokyo") {
+    ///     println!("Found: {}, {} ({})", city.name, city.country, city.tz);
+    /// }
+    /// ```
     pub fn find_exact(&self, name: &str) -> Option<&City> {
         let name_lower = name.to_lowercase();
         self.cities
@@ -61,7 +133,30 @@ impl CityDatabase {
             .find(|c| c.name.to_lowercase() == name_lower)
     }
 
-    /// Search cities with fuzzy matching
+    /// Search for cities using fuzzy matching.
+    ///
+    /// Searches city names, states, and countries using fuzzy string matching.
+    /// Results are sorted by match score (highest first).
+    ///
+    /// # Arguments
+    ///
+    /// * `query` - Search query string
+    ///
+    /// # Returns
+    ///
+    /// A vector of `(city, score)` tuples sorted by score (descending).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use solunatus::city::CityDatabase;
+    ///
+    /// let db = CityDatabase::load().unwrap();
+    /// let results = db.search("new york");
+    /// for (city, score) in results.iter().take(5) {
+    ///     println!("{}, {} (score: {})", city.name, city.country, score);
+    /// }
+    /// ```
     pub fn search(&self, query: &str) -> Vec<(&City, i64)> {
         let matcher = SkimMatcherV2::default();
         // Pre-allocate with approximate capacity
