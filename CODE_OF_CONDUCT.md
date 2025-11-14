@@ -2,7 +2,7 @@
 
 ## Our Pledge
 
-Solunatus welcomes contributors from all backgrounds, skill levels, and points of view.  
+Solunatus welcomes contributors from all backgrounds, skill levels, and points of view.
 We aim to maintain a friendly, collaborative environment where people feel comfortable sharing ideas and learning from each other.
 
 Everyone participating in the project is expected to treat others with respect and kindness.
@@ -22,7 +22,7 @@ Everyone participating in the project is expected to treat others with respect a
 - Personal attacks or insults
 - Harassment or discrimination of any kind
 - Excessively confrontational or hostile communication
-- Publishing others’ private information without consent
+- Publishing others' private information without consent
 - Disrupting discussions or repeatedly derailing conversations
 
 If disagreements arise, we encourage contributors to focus on facts, technical reasoning, and shared goals for the project.
@@ -34,5 +34,5 @@ If you experience or witness behavior that violates this Code of Conduct:
 - For issues specific to this project, you may contact the repository owner or maintainers privately.
 - For platform-wide violations or safety concerns, you may also report behavior directly to GitHub Support under their Community Guidelines.
 
-We trust participants to act in good faith and help maintain a thoughtful, constructive atmosphere.  
+We trust participants to act in good faith and help maintain a thoughtful, constructive atmosphere.
 Repeated or severe violations may result in being asked to disengage from project spaces.
