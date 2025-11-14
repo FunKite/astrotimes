@@ -36,8 +36,10 @@ ollama serve
 ```bash
 # In another terminal
 ollama pull llama3.3   # Recommended (4.9GB)
-ollama pull qwen2.5    # Alibaba's latest (4.7GB)
+ollama pull gemma3     # Google's latest (2.5GB)
 ollama pull phi4       # Microsoft's model (3.8GB)
+ollama pull granite4   # IBM's model (3.2GB)
+ollama pull gpt-oss    # OpenAI-style model (3.5GB)
 ```
 
 List available models:
@@ -108,7 +110,7 @@ the evening, perfect for lunar observation with binoculars or a telescope.
 
 ### Slow responses
 - Reduce refresh interval: `--ai-refresh-minutes 10`
-- Use faster model: `ollama pull phi4`
+- Use faster model: `ollama pull gemma3`
 - Close other applications
 
 ### High CPU usage
@@ -119,10 +121,11 @@ the evening, perfect for lunar observation with binoculars or a telescope.
 ## Performance Notes
 
 Model sizes and typical response times:
-- **phi4** (3.8GB) - ~3 seconds
-- **qwen2.5** (4.7GB) - ~4 seconds
+- **gemma3** (2.5GB) - ~3 seconds
+- **granite4** (3.2GB) - ~3 seconds
+- **gpt-oss** (3.5GB) - ~4 seconds
+- **phi4** (3.8GB) - ~4 seconds
 - **llama3.3** (4.9GB) - ~5 seconds
-- **deepseek-r1** (4.7GB) - ~5 seconds
 
 ## Disabling AI Insights
 
@@ -148,8 +151,8 @@ solunatus --city "Paris" --ai-insights --ai-server "http://192.168.1.100:11434"
 ### Use Custom Model
 
 ```bash
-ollama pull qwen2.5
-solunatus --city "London" --ai-insights --ai-model "qwen2.5"
+ollama pull gemma3
+solunatus --city "London" --ai-insights --ai-model "gemma3"
 ```
 
 ### Batch Processing with Insights
