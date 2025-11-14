@@ -9,7 +9,7 @@ AI insights provide narrative summaries of astronomical data using a local langu
 ## Prerequisites
 
 - **Ollama** - Download from https://ollama.com/
-- **Installed LLM** - Any Ollama model (llama2 recommended)
+- **Installed LLM** - Any Ollama model (llama3.3 recommended)
 - **~4GB RAM** - Minimum for model execution
 
 ## Setup
@@ -35,9 +35,9 @@ ollama serve
 
 ```bash
 # In another terminal
-ollama pull llama2   # Recommended (4GB)
-ollama pull neural-chat  # Lighter (3.8GB)
-ollama pull mistral  # Fast (5GB)
+ollama pull llama3.3   # Recommended (4.9GB)
+ollama pull qwen2.5    # Alibaba's latest (4.7GB)
+ollama pull phi4       # Microsoft's model (3.8GB)
 ```
 
 List available models:
@@ -53,7 +53,7 @@ ollama list
 solunatus --city "New York" --ai-insights
 
 # With specific model
-solunatus --city "Boston" --ai-insights --ai-model "llama2"
+solunatus --city "Boston" --ai-insights --ai-model "llama3.3"
 
 # Custom server
 solunatus --city "Paris" --ai-insights --ai-server "http://192.168.1.100:11434"
@@ -89,10 +89,10 @@ AI insights appear in:
 
 Example insight:
 ```
-AI Insights (llama2, updated 2 min ago):
-Tonight marks the approach of the full moon, a time when the lunar 
-disc reaches its maximum brightness across Earth's night sky. The moon 
-will rise in the east after sunset and climb steadily higher throughout 
+AI Insights (llama3.3, updated 2 min ago):
+Tonight marks the approach of the full moon, a time when the lunar
+disc reaches its maximum brightness across Earth's night sky. The moon
+will rise in the east after sunset and climb steadily higher throughout
 the evening, perfect for lunar observation with binoculars or a telescope.
 ```
 
@@ -103,12 +103,12 @@ the evening, perfect for lunar observation with binoculars or a telescope.
 - Check server address matches: `http://localhost:11434`
 
 ### "Model not found"
-- Install model: `ollama pull llama2`
-- Use model name exactly: `--ai-model "llama2"`
+- Install model: `ollama pull llama3.3`
+- Use model name exactly: `--ai-model "llama3.3"`
 
 ### Slow responses
 - Reduce refresh interval: `--ai-refresh-minutes 10`
-- Use faster model: `ollama pull neural-chat`
+- Use faster model: `ollama pull phi4`
 - Close other applications
 
 ### High CPU usage
@@ -119,10 +119,10 @@ the evening, perfect for lunar observation with binoculars or a telescope.
 ## Performance Notes
 
 Model sizes and typical response times:
-- **neural-chat** (3.8GB) - ~3 seconds
-- **mistral** (5GB) - ~4 seconds
-- **llama2** (4GB) - ~5 seconds
-- **llama3** (8GB) - ~8 seconds
+- **phi4** (3.8GB) - ~3 seconds
+- **qwen2.5** (4.7GB) - ~4 seconds
+- **llama3.3** (4.9GB) - ~5 seconds
+- **deepseek-r1** (4.7GB) - ~5 seconds
 
 ## Disabling AI Insights
 
@@ -148,8 +148,8 @@ solunatus --city "Paris" --ai-insights --ai-server "http://192.168.1.100:11434"
 ### Use Custom Model
 
 ```bash
-ollama pull mistral
-solunatus --city "London" --ai-insights --ai-model "mistral"
+ollama pull qwen2.5
+solunatus --city "London" --ai-insights --ai-model "qwen2.5"
 ```
 
 ### Batch Processing with Insights
