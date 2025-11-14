@@ -1,4 +1,7 @@
-// Configuration management
+//! Configuration management.
+//!
+//! Handles loading, saving, and managing user configuration including
+//! location preferences, AI settings, and time synchronization.
 
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
@@ -24,27 +27,36 @@ fn default_ai_model() -> String {
     "llama3.2:latest".to_string()
 }
 
+/// Location input mode.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum LocationMode {
+    /// Use city database lookup
     #[default]
     City,
+    /// Manual latitude/longitude entry
     Manual,
 }
 
+/// AI insights refresh mode.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum AiRefreshMode {
+    /// Refresh automatically at intervals and on manual refresh
     #[default]
     #[serde(rename = "auto_and_manual")]
     AutoAndManual,
+    /// Only refresh when manually requested
     #[serde(rename = "manual_only")]
     ManualOnly,
 }
 
+/// Time synchronization settings.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
 pub struct TimeSyncSettings {
+    /// Enable NTP time synchronization
     #[serde(default = "default_true")]
     pub enabled: bool,
+    /// NTP server URL (empty = use default servers)
     #[serde(default = "default_time_sync_server")]
     pub server: String,
 }
@@ -58,17 +70,23 @@ impl Default for TimeSyncSettings {
     }
 }
 
+/// AI insights settings (for integration with local Ollama server).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
 pub struct AiSettings {
+    /// Enable AI insights
     #[serde(default = "default_false")]
     pub enabled: bool,
+    /// Ollama server URL
     #[serde(default = "default_ai_server")]
     pub server: String,
+    /// Ollama model name
     #[serde(default = "default_ai_model")]
     pub model: String,
+    /// Auto-refresh interval in minutes
     #[serde(default)]
     pub refresh_minutes: u64,
+    /// Refresh mode (auto or manual only)
     #[serde(default)]
     pub refresh_mode: AiRefreshMode,
 }

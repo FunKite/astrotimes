@@ -1,3 +1,8 @@
+//! Event collection and organization.
+//!
+//! Collects astronomical events (solar and lunar) within a time window
+//! and organizes them chronologically for display.
+
 use chrono::{DateTime, Duration, TimeZone};
 use chrono_tz::Tz;
 
